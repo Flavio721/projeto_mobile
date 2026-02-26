@@ -6,7 +6,11 @@
     box-sizing: border-box;
 }
 
-
+body{
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+}
 main{
     height: 100vh;
     width: 100vw;
@@ -20,7 +24,7 @@ main{
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
-    width: 350px;
+    width: 450px;
     margin: 0 auto;
     gap: 10px;
     border: 1px solid black;

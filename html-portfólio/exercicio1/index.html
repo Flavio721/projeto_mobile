@@ -27,11 +27,11 @@
             <button class="caracter" value="*5" id="mult">Quintuplo</button>
             <button class="caracter" value="*6" id="mult">Sêxtuplo</button>
             
-            <button class="caracter" value="**2">Quadrado</button>
-            <button class="caracter" value="**3">Cubo</button>
-            <button class="caracter" value="**4">Quarta</button>
-            <button class="caracter" value="**5">Quinta</button>
-            <button class="caracter" value="**6">Sexta</button>
+            <button class="caracter" value="**2" id="poten">Quadrado</button>
+            <button class="caracter" value="**3" id="poten">Cubo</button>
+            <button class="caracter" value="**4" id="poten">Quarta</button>
+            <button class="caracter" value="**5" id="poten">Quinta</button>
+            <button class="caracter" value="**6" id="poten">Sexta</button>
             
             <button class="caracter" value="bhaskara" id="bhaskara">Bhaskara</button>
             <button class="caracter" value="media4" id="media">Média de 4 números</button>
@@ -50,6 +50,7 @@
         const btnMedia = document.getElementById("media");        
         const btnParImpar = document.getElementById("parImpar");
         const btnMultiplicacao = document.querySelectorAll("#mult");
+        const btnPotencia = document.querySelectorAll("#poten")
         const novoNumero = document.getElementById("novoNumero");
         
         botoesValor.forEach((botao) => {
@@ -68,16 +69,100 @@
             let bhaskara = valor[0] * valor[1] * valor[2]
         })
         novoNumero.addEventListener("click", function(){
-            console.log("Apertou o botão");
-            console.log("Valor do visor: ", visor.textContent);
             let contador = valor.length;
             let valorAntigo = valor.textContent;
 
             
             valor[contador] = visor.textContent;
-            console.log("Valor do número guardado: ", valor[contador]);
 
             visor.innerText = "";
+        })
+
+        btnMultiplicacao.forEach((botao) => {
+            botao.addEventListener("click", function(){
+                let contador = valor.length;
+                switch(botao.value){
+                    case "*2":
+                        let valor1 = visor.textContent;
+
+                        let mult1 = valor1 * 2;
+
+                        visor.innerText = mult1;
+                        break
+                    case "*3":
+                        let valor2 = visor.textContent;
+
+                        let mult2 = valor2 * 3;
+
+                        visor.innerText = mult2;
+                        break
+                    case "*4":
+                        let valor3 = visor.textContent;
+
+                        let mult3 = valor3 * 4;
+
+                        visor.innerText = mult3;
+                        break
+                    case "*5":
+                        let valor4 = visor.textContent;
+
+                        let mult4 = valor4 * 5;
+
+                        visor.innerText = mult4;
+                        break
+                    case "*6":
+                        let valor5 = visor.textContent;
+
+                        let mult5 = valor5 * 6;
+
+                        visor.innerText = mult5;
+                        break
+                }
+            })
+        })
+
+        btnPotencia.forEach((botao) => {
+            botao.addEventListener("click", function(){
+                let valor = 0;
+                let potencia = 0;
+                switch(botao.value){
+                    case "**2":
+                        valor = visor.textContent;
+
+                        potencia = valor ** 2;
+
+                        visor.innerText = potencia;
+                        break;
+                    case "**3":
+                        valor = visor.textContent;
+
+                        potencia = valor ** 3;
+
+                        visor.innerText = potencia;
+                        break;
+                    case "**4":
+                        valor = visor.textContent;
+
+                        potencia = valor ** 4;
+
+                        visor.innerText = potencia;
+                        break;
+                    case "**5":
+                        valor = visor.textContent;
+
+                        potencia = valor ** 5;
+
+                        visor.innerText = potencia;
+                        break;
+                    case "**6":
+                        valor = visor.textContent;
+
+                        potencia = valor ** 6;
+
+                        visor.innerText = potencia;
+                        break;
+                }
+            })
         })
     </script>
 </body>

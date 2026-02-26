@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Calculadora</title>
+</head>
+<body>
+    <main>
+        <article class="calculadora">
+            <div id="visor"></div>
+            <button class="caracter" value="1" id="valor">1</button>
+            <button class="caracter" value="2" id="valor">2</button>
+            <button class="caracter" value="3" id="valor">3</button>
+            <button class="caracter" value="4" id="valor">4</button>
+            <button class="caracter" value="5" id="valor">5</button>
+            <button class="caracter" value="6" id="valor">6</button>
+            <button class="caracter" value="7" id="valor">7</button>
+            <button class="caracter" value="8" id="valor">8</button>
+            <button class="caracter" value="9" id="valor">9</button>
+            
+            <button class="caracter" value="*2" id="mult">Dobro</button>
+            <button class="caracter" value="*3" id="mult">Triplo</button>
+            <button class="caracter" value="*4" id="mult">Quadruplo</button>
+            <button class="caracter" value="*5" id="mult">Quintuplo</button>
+            <button class="caracter" value="*6" id="mult">Sêxtuplo</button>
+            
+            <button class="caracter" value="**2">Quadrado</button>
+            <button class="caracter" value="**3">Cubo</button>
+            <button class="caracter" value="**4">Quarta</button>
+            <button class="caracter" value="**5">Quinta</button>
+            <button class="caracter" value="**6">Sexta</button>
+            
+            <button class="caracter" value="bhaskara" id="bhaskara">Bhaskara</button>
+            <button class="caracter" value="media4" id="media">Média de 4 números</button>
+            <button class="caracter" value="parimpar" id="parImpar">Par / Ímpar</button>
+            
+            <button class="caracter" id="novoNumero">Novo número</button>
+            <button class="caracter enviar" value="=">=</button>
+        </article>
+    </main>
+    <script>
+        let valor = [];
+        const visor = document.getElementById("visor");
+        
+        const botoesValor = document.querySelectorAll("#valor");
+        const btnBhaskara = document.getElementById("bhaskara");        
+        const btnMedia = document.getElementById("media");        
+        const btnParImpar = document.getElementById("parImpar");
+        const btnMultiplicacao = document.querySelectorAll("#mult");
+        const novoNumero = document.getElementById("novoNumero");
+        
+        botoesValor.forEach((botao) => {
+            botao.addEventListener("click", function(){
+                    visor.innerText += botao.value;
+            })
+        })
+
+        btnBhaskara.addEventListener("click", function(){
+            const visorValue = visor.textContent;
+
+            if(!visorValue){
+                visor.value = "Insira três valores primeiro";
+                return;
+            }
+            let bhaskara = valor[0] * valor[1] * valor[2]
+        })
+        novoNumero.addEventListener("click", function(){
+            console.log("Apertou o botão");
+            console.log("Valor do visor: ", visor.textContent);
+            let contador = valor.length;
+            let valorAntigo = valor.textContent;
+
+            
+            valor[contador] = visor.textContent;
+            console.log("Valor do número guardado: ", valor[contador]);
+
+            visor.innerText = "";
+        })
+    </script>
+</body>
+</html>

@@ -43,6 +43,7 @@
     </main>
     <script>
         let valor = [];
+        let resultado = false;
         const visor = document.getElementById("visor");
         
         const botoesValor = document.querySelectorAll("#valor");
@@ -55,24 +56,81 @@
         
         botoesValor.forEach((botao) => {
             botao.addEventListener("click", function(){
+                    if(resultado){
+                        visor.innerText = botao.value;
+                        resultado = false;
+                        return;
+                    }
                     visor.innerText += botao.value;
             })
         })
 
         btnBhaskara.addEventListener("click", function(){
             const visorValue = visor.textContent;
-
-            if(!visorValue){
-                visor.value = "Insira três valores primeiro";
+            let contador = valor.length;
+            if(visorValue){
+                valor[contador] = visorValue;
+                contador++;
+            }
+            if(contador < 3){
+                visor.innerText = "Insira três valores";
                 return;
             }
-            let bhaskara = valor[0] * valor[1] * valor[2]
+
+
+            let delta = valor[contador - 2] ** 2  * (4 * valor[contador - 3] * valor[contador - 1]);
+
+            let resultado1 = (valor[contador - 2] * -2) + Math.sqrt(delta) / valor[contador - 3] * 2;
+            let resultado2 = (valor[contador - 2] * -2) - Math.sqrt(delta) / valor[contador - 3] * 2;
+
+
+            visor.innerText = `${resultado1.toFixed(2)} ${resultado2.toFixed(2)}`;
+            resultado = true;
+
+        })
+        btnMedia.addEventListener("click", function(){
+            const visorValue = visor.textContent;
+            let contador = valor.length;
+
+            if(visorValue){
+                valor[contador] = visorValue;
+                contador++
+            }
+            if(contador < 4){
+                visor.innerText = "Insira 4 valores";
+                return;
+            }
+            let media = (Number([contador - 4]) + Number([contador - 3]) + Number([contador - 2]) + Number([contador - 1])) / 4;
+
+            visor.innerText = media.toFixed(2);
+        })
+        btnParImpar.addEventListener("click", function(){
+            const visorValue = visor.textContent;
+            let contador = valor.length;
+
+            if(visorValue){
+                valor[contador] = visorValue;
+                contador++;
+            }
+            
+            let parImpar = valor[contador - 1] % 2;
+
+            if(parImpar === 0){
+                visor.innerText = "PAR"
+                return;
+            }
+            else{
+                visor.innerText = "ÍMPAR"
+                return;
+            }
         })
         novoNumero.addEventListener("click", function(){
             let contador = valor.length;
             let valorAntigo = valor.textContent;
+            if(typeof valorAntigo ==="string"){
+                return;
+            }
 
-            
             valor[contador] = visor.textContent;
 
             visor.innerText = "";
@@ -88,6 +146,7 @@
                         let mult1 = valor1 * 2;
 
                         visor.innerText = mult1;
+                        resultado = true;
                         break
                     case "*3":
                         let valor2 = visor.textContent;
@@ -95,6 +154,7 @@
                         let mult2 = valor2 * 3;
 
                         visor.innerText = mult2;
+                        resultado = true;
                         break
                     case "*4":
                         let valor3 = visor.textContent;
@@ -102,6 +162,7 @@
                         let mult3 = valor3 * 4;
 
                         visor.innerText = mult3;
+                        resultado = true;
                         break
                     case "*5":
                         let valor4 = visor.textContent;
@@ -109,6 +170,7 @@
                         let mult4 = valor4 * 5;
 
                         visor.innerText = mult4;
+                        resultado = true;
                         break
                     case "*6":
                         let valor5 = visor.textContent;
@@ -116,6 +178,7 @@
                         let mult5 = valor5 * 6;
 
                         visor.innerText = mult5;
+                        resultado = true;
                         break
                 }
             })

@@ -88,29 +88,29 @@
             </div>
             <div class="right">
                 <h2>Quantidade</h2>
-                <input type="number" name="qtd" id="qtd1" class="qtd" placeholder="0">
+                <input type="number" name="qtd" id="qtd1" class="qtd" placeholder="1" min="1">
 
-                <input type="number" name="qtd" id="qtd2" class="qtd" placeholder="0">
+                <input type="number" name="qtd" id="qtd2" class="qtd" placeholder="1" min="1">
 
-                <input type="number" name="qtd" id="qtd3" class="qtd" placeholder="0">
+                <input type="number" name="qtd" id="qtd3" class="qtd" placeholder="1" min="1">
 
-                <input type="number" name="qtd" id="qtd4" class="qtd" placeholder="0">
+                <input type="number" name="qtd" id="qtd4" class="qtd" placeholder="1" min="1">
 
-                <input type="number" name="qtd" id="qtd5" class="qtd" placeholder="0">
+                <input type="number" name="qtd" id="qtd5" class="qtd" placeholder="1" min="1">
 
-                <input type="number" name="qtd" id="qtd6" class="qtd" placeholder="0">
+                <input type="number" name="qtd" id="qtd6" class="qtd" placeholder="1" min="1">
 
-                <input type="number" name="qtd" id="qtd7" class="qtd" placeholder="0">
+                <input type="number" name="qtd" id="qtd7" class="qtd" placeholder="1" min="1">
 
-                <input type="number" name="qtd" id="qtd8" class="qtd" placeholder="0">
+                <input type="number" name="qtd" id="qtd8" class="qtd" placeholder="1" min="1">
                 
-                <input type="number" name="qtd" id="qtd9" class="qtd" placeholder="0">
+                <input type="number" name="qtd" id="qtd9" class="qtd" placeholder="1" min="1">
 
-                <input type="number" name="qtd" id="qtd10" class="qtd" placeholder="0">
+                <input type="number" name="qtd" id="qtd10" class="qtd" placeholder="1" min="1">
 
-                <input type="number" name="qtd" id="qtd11" class="qtd" placeholder="0">
+                <input type="number" name="qtd" id="qtd11" class="qtd" placeholder="1" min="1">
 
-                <input type="number" name="qtd" id="qtd12" class="qtd" placeholder="0">
+                <input type="number" name="qtd" id="qtd12" class="qtd" placeholder="1" min="1">
             
 
             </div>
@@ -139,25 +139,30 @@
     <script>
         let produtosTotais = [];
         let total = 0;
+        let valorAntigo = 0;
 
         const produtos = document.querySelectorAll('.check');
         const quantidade = document.querySelectorAll(".qtd");
 
-        produtos.forEach((produto, index) => {
-            produto.addEventListener("click", function() {
-                if(produto.checked){
-                    let valor = Number(produto.dataset.preco);
-                    total += valor * quantidade[index].value;
-                    document.getElementById("total").innerText = `${total.toFixed(2)}R$`;
-                }
-                else{
-                    let valor = Number(produto.dataset.preco);
-                    total -= valor * quantidade[index].value;
-                    quantidade[index].value = 0;
-                    document.getElementById("total").innerText = `${total.toFixed(2)}R$`;
-                }
+        function calcularTotal(){
+            total = 0;
 
-            })
+            produtos.forEach((produto, index)=>{
+                if(produto.checked){
+                    let preco = Number(produto.dataset.preco);
+                    let qtd = Number(quantidade[index].value) || 0;
+
+                    total += preco * qtd;
+                }
+            });
+
+            document.getElementById("total").innerText = `${total.toFixed(2)} R$`;
+        }
+        produtos.forEach((produto, index) => {
+            produto.addEventListener("change", calcularTotal);
+        })
+        quantidade.forEach((qtd, index) => {
+            qtd.addEventListener("input", calcularTotal);
         })
 
         const form = document.getElementById("forms");
@@ -168,7 +173,7 @@
                 let forma = pagamento.value;
                 
                 if(forma === "vista"){
-                    let desconto = 85/100 * total;
+                    let desconto = 8.5/100 * total;
                     total -= desconto;
                     document.getElementById("total").innerText = `${total.toFixed(2)}R$`;
                 }
@@ -176,8 +181,11 @@
                     const parcelas = document.getElementById("iopt").value;
                     console.log(parcelas)
                     let parcelasMensal = 0;
+                    let acrescimo = 0;
                     switch(parcelas){
                         case '2':
+                            acrescimo = 6/100 * total;
+                            total += acrescimo + 6.90 * 2;
                             parcelasMensal = total / 2;
                             if(parcelasMensal <= 10){
                                 document.getElementById("total").innerText = `Parcela abaixo de 10. Não permitido`;
@@ -186,6 +194,8 @@
                             document.getElementById("total").innerText = `Parcela de ${parcelasMensal.toFixed(2)}R$`;
                             break;
                             case '3':
+                                acrescimo = 6/100 * total;
+                                total += acrescimo + 6.90 * 3;
                                 parcelasMensal = total / 3;
                                 if(parcelasMensal <= 10){
                                     document.getElementById("total").innerText = `Parcela abaixo de 10. Não permitido`;
@@ -194,6 +204,8 @@
                                 document.getElementById("total").innerText = `Parcela de ${parcelasMensal.toFixed(2)}R$`;
                                 break;
                             case '4':
+                                acrescimo = 6/100 * total;
+                                total += acrescimo + 6.90 * 4;
                                 parcelasMensal = total / 4;
                                 if(parcelasMensal <= 10){
                                     document.getElementById("total").innerText = `Parcela abaixo de 10. Não permitido`;
@@ -202,6 +214,8 @@
                                 document.getElementById("total").innerText = `Parcela de ${parcelasMensal.toFixed(2)}R$`;
                                 break;
                             case '5':
+                                acrescimo = 6/100 * total;
+                                total += acrescimo + 6.90 * 5;
                                 parcelasMensal = total / 5;
                                 if(parcelasMensal <= 10){
                                     document.getElementById("total").innerText = `Parcela abaixo de 10. Não permitido`;

@@ -1,6 +1,7 @@
 window.addEventListener('DOMContentLoaded', () => {
     let array = JSON.parse(localStorage.getItem("lista")) || [];
     updateAlunosLista(array);
+    console.log(document.getElementById("detalhesTurma"))
         });
 
 
@@ -129,3 +130,57 @@ function detalhesAluno(indexAluno){
     let modal = new bootstrap.Modal(document.getElementById("modalDetalhes")); // Abre o modal
     modal.show();
 }
+
+let btnDetalhes = document.getElementById("btnDetalhesTurma");
+
+btnDetalhes.addEventListener("click", function () {
+    console.log("Clicou")
+    console.log(document.getElementById("detalhesTurma"));
+    console.log(document.getElementById("modalDetalhesTurma"))
+    let alunos = JSON.parse(localStorage.getItem("lista")) || [];
+
+    if (alunos.length === 0) {
+        let html = `<tr><td colspan="4" class="text-center">Nenhum aluno registrado</td></tr>`;
+        
+        document.getElementById("detalhesTurma").innerHTML = html;
+
+        let modal = new bootstrap.Modal(document.getElementById("modalDetalhesTurma"));
+        modal.show();
+        
+        return; 
+    }
+
+    let totalAlunos = alunos.length;
+
+    let somaNotas = 0;
+    let aprovados = 0;
+    let reprovados = 0;
+
+    alunos.forEach((aluno) => {
+        somaNotas += Number(aluno.nota);
+
+        if (aluno.nota >= 6) {
+            aprovados++;
+        } else {
+            reprovados++;
+        }
+    });
+
+    let mediaTurma = totalAlunos > 0 ? (somaNotas / totalAlunos).toFixed(2) : 0;
+
+    let html = `
+        <tr>
+            <td>${totalAlunos}</td>
+            <td>${mediaTurma}</td>
+            <td>${aprovados}</td>
+            <td>${reprovados}</td>
+        </tr>
+    `;
+
+    document.getElementById("detalhesTurma").innerText = html;
+
+    const el = document.getElementById("modalDetalhesTurma");
+
+    const modal = bootstrap.Modal.getOrCreateInstance(el);
+    modal.show();
+});

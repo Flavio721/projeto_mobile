@@ -1,7 +1,6 @@
 window.addEventListener('DOMContentLoaded', () => {
     let array = JSON.parse(localStorage.getItem("lista")) || [];
     updateAlunosLista(array);
-    console.log(document.getElementById("detalhesTurma"))
         });
 
 
@@ -42,6 +41,10 @@ formCadastro.addEventListener("submit", function (e) {
     arrayAlunos.push(objetoAluno);
     localStorage.setItem("lista", JSON.stringify(arrayAlunos));
     updateAlunosLista(arrayAlunos)
+
+    document.getElementById("nome").value = "";
+    document.getElementById("idade").value = "";
+    document.getElementById("nota").value = "";
 
     let modal = bootstrap.Modal.getInstance(document.getElementById("modalCadastro"));
     modal.hide();
@@ -131,56 +134,38 @@ function detalhesAluno(indexAluno){
     modal.show();
 }
 
-let btnDetalhes = document.getElementById("btnDetalhesTurma");
+const btnDetalhes = document.getElementById("btnDetalhesTurma");
 
 btnDetalhes.addEventListener("click", function () {
-    console.log("Clicou")
-    console.log(document.getElementById("detalhesTurma"));
-    console.log(document.getElementById("modalDetalhesTurma"))
-    let alunos = JSON.parse(localStorage.getItem("lista")) || [];
+    try {
+        const elTabela = document.getElementById("detalhesTurma");
+        const elModal = document.getElementById("modalDetalhesTurma");
 
-    if (alunos.length === 0) {
-        let html = `<tr><td colspan="4" class="text-center">Nenhum aluno registrado</td></tr>`;
-        
-        document.getElementById("detalhesTurma").innerHTML = html;
 
-        let modal = new bootstrap.Modal(document.getElementById("modalDetalhesTurma"));
+        let alunos = JSON.parse(localStorage.getItem("lista")) || [];
+
+        let totalAlunos = alunos.length;
+        let somaNotas = alunos.reduce((acc, aluno) => acc + Number(aluno.nota), 0);
+        let aprovados = alunos.filter(a => a.nota >= 6).length;
+        let reprovados = alunos.filter(a => a.nota < 6).length;
+        let mediaTurma = totalAlunos > 0 ? (somaNotas / totalAlunos).toFixed(2) : "0.00";
+
+        elTabela.innerHTML = totalAlunos === 0
+            ? `<tr><td colspan="4" class="text-center">Nenhum aluno registrado</td></tr>`
+            : `<tr>
+                <td>${totalAlunos}</td>
+                <td>${mediaTurma}</td>
+                <td>${aprovados}</td>
+                <td>${reprovados}</td>
+               </tr>`;
+
+
+        const modal = new bootstrap.Modal(elModal);
+
         modal.show();
-        
-        return; 
+
+    } catch (err) {
+        console.error("ERRO CAPTURADO:", err.message);
+        console.error(err);
     }
-
-    let totalAlunos = alunos.length;
-
-    let somaNotas = 0;
-    let aprovados = 0;
-    let reprovados = 0;
-
-    alunos.forEach((aluno) => {
-        somaNotas += Number(aluno.nota);
-
-        if (aluno.nota >= 6) {
-            aprovados++;
-        } else {
-            reprovados++;
-        }
-    });
-
-    let mediaTurma = totalAlunos > 0 ? (somaNotas / totalAlunos).toFixed(2) : 0;
-
-    let html = `
-        <tr>
-            <td>${totalAlunos}</td>
-            <td>${mediaTurma}</td>
-            <td>${aprovados}</td>
-            <td>${reprovados}</td>
-        </tr>
-    `;
-
-    document.getElementById("detalhesTurma").innerText = html;
-
-    const el = document.getElementById("modalDetalhesTurma");
-
-    const modal = bootstrap.Modal.getOrCreateInstance(el);
-    modal.show();
 });

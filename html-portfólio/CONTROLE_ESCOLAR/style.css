@@ -1,34 +1,35 @@
 @charset "UTF-8";
 
-*{
+* {
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
 }
 
-body{
+body {
     height: 100vh;
     width: 100vw;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    overflow: hidden;
 }
 
-main{
+main {
     height: 60%;
     width: 70%;
     padding: 20px;
     border: 1px solid black;
     border-radius: 10px;
+    margin: auto;
+    margin-top: 10vh;
 }
-.header-main{
+
+.header-main {
     display: flex;
     justify-content: space-between;
 }
-.divAluno{
+
+.divAluno {
     display: flex;
     margin-top: 30px;
     align-items: center;
-    gap: 60px;    
-
+    gap: 60px;
 }

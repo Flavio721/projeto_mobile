@@ -52,15 +52,14 @@ formCadastro.addEventListener("submit", function (e) {
 
 function updateAlunosLista(alunos){
     const grid = document.getElementById("listaAlunos")
-
-    let status = "";
-
     
 
     if(alunos.length === 0){
         grid.innerHTML = '<p class="text-center"> Nenhum aluno registrado </p>';
         return;
     }
+
+
 
     grid.innerHTML = alunos.map((aluno, index) => {
         const status = aluno.nota >= 6 ? "Aprovado" : "Reprovado";

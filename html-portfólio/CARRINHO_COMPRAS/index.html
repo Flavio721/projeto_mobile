@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catálogo de Produtos</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+  <header>
+    <h1>Catálogo</h1>
+
+    <button class="cart-btn" onclick="toggleCart()">
+      🛒 (<span id="cart-count">0</span>)
+    </button>
+  </header>
+  <!-- FILTROS -->
+
+<section class="filters">
+
+  <div class="filter-group">
+
+    <label for="priceFilter">
+      Faixa de preço
+    </label>
+
+    <select id="priceFilter">
+
+      <option value="">
+        Todos os preços
+      </option>
+
+      <option value="200">
+        Produtos até R$ 200
+      </option>
+
+      <option value="300">
+        Produtos até R$ 300
+      </option>
+
+    </select>
+  </div>
+
+  <div class="filter-group">
+
+    <label for="categoryFilter">
+      Categoria
+    </label>
+
+    <select id="categoryFilter">
+
+      <option value="">
+        Todas as categorias
+      </option>
+
+      <option value="calcados">
+        Calçados
+      </option>
+
+      <option value="relogios">
+        Relógios
+      </option>
+
+      <option value="roupas">
+        Roupas
+      </option>
+
+    </select>
+  </div>
+
+  <button class="filter-btn" onclick="setFilter()">
+    Filtrar
+  </button>
+  <button class="filter-btn" onclick="clearFilters()">
+    Limpar filtros
+  </button>
+
+</section>
+  <main class="catalog">
+
+    <!-- Produto 1 -->
+    <div class="product-card" data-price="249.90" data-category="calcados">
+      <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop" alt="Tênis">
+
+      <div class="product-info">
+        <h2 class="product-title">Tênis Esportivo</h2>
+
+        <p class="product-description">
+          Confortável e moderno para o dia a dia.
+        </p>
+
+        <div class="product-footer">
+          <span class="price">R$ 249,90</span>
+
+          <button class="add-btn"
+            onclick="addToCart('Tênis Esportivo', 249.90)">
+            Adicionar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Produto 2 -->
+    <div class="product-card" data-price="399.90" data-category="relogios">
+      <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1200&auto=format&fit=crop" alt="Relógio">
+
+      <div class="product-info">
+        <h2 class="product-title">Relógio Premium</h2>
+
+        <p class="product-description">
+          Elegância e sofisticação em um só produto.
+        </p>
+
+        <div class="product-footer">
+          <span class="price">R$ 399,90</span>
+
+          <button class="add-btn"
+            onclick="addToCart('Relógio Premium', 399.90)">
+            Adicionar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Produto 3 -->
+    <div class="product-card" data-price="189.90" data-category="roupas">
+      <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop" alt="Jaqueta">
+
+      <div class="product-info">
+        <h2 class="product-title">Jaqueta Casual</h2>
+
+        <p class="product-description">
+          Estilo urbano com acabamento premium.
+        </p>
+
+        <div class="product-footer">
+          <span class="price">R$ 189,90</span>
+
+          <button class="add-btn"
+            onclick="addToCart('Jaqueta Casual', 189.90)">
+            Adicionar
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Carrinho -->
+  <aside class="cart-sidebar" id="cartSidebar">
+
+    <div class="cart-header">
+      <h2>Seu Carrinho</h2>
+
+      <button class="close-cart" onclick="toggleCart()">
+        ✖
+      </button>
+    </div>
+
+    <div class="cart-items" id="cartItems">
+      <p>Seu carrinho está vazio.</p>
+    </div>
+
+    <div class="cart-footer">
+        <div class="total">
+            Total: R$ <span id="cartTotal">0.00</span>
+        </div>
+        <div class="cart-actions">
+
+            <button class="checkout-btn">
+            Finalizar Compra
+            </button>
+
+            <button class="cancel-btn" onclick="removerItems()">
+            Remover itens
+            </button>
+        </div>
+    </div>
+  </aside>
+</body>
+</html>

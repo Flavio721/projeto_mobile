@@ -1,0 +1,229 @@
+import { useState } from "react";
+import { View, TextInput, TouchableOpacity, Alert, Text, StyleSheet, Switch } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
+
+export default function Dez() {
+  type Pessoa = {
+    email: string;
+    senha: string;
+    funcao: string;
+    logado: boolean;
+  };
+  const [pessoas, setPessoas] = useState<Pessoa[]>([]);  
+  const [ email, setEmail ] = useState("");
+  const [ senha, setSenha ] = useState("");
+  const [ confirmacao, setConfirmacao ] = useState("");
+  const [ funcao, setFuncao ] = useState("");
+  const [ logado, setLogado ] = useState(false);
+
+  const toggleSwitch = () => setLogado(previousState => !previousState);
+
+  const salvar = () => {
+    if(!email || !senha || !confirmacao || !funcao){
+      Alert.alert("Campos obrigatórios vazios!");
+      return;
+    }
+
+    if(confirmacao !== senha){
+      Alert.alert("Senhas diferentes!");
+      return;
+    }
+
+    const novaPessoa = {
+      email,
+      senha,
+      funcao,
+      logado
+    };
+
+    setPessoas([...pessoas, novaPessoa]);
+    setEmail("");
+    setSenha("");
+    setConfirmacao("")
+  }
+
+  const login = () => {
+    const pessoa = pessoas.find(
+      (pessoa) => pessoa.email === email
+    )
+
+    if(!pessoa){
+      Alert.alert("Cadastro não encontrado")
+      return;
+    }
+
+    if(pessoa?.senha !== senha){
+      Alert.alert("Senha incorreta!")
+      return;
+    }
+
+    if(funcao !== pessoa?.funcao){
+      Alert.alert("Funções diferentes!");
+    }
+
+    else{
+      Alert.alert("Cadastro encontrado!");
+      return;
+    }
+  }
+
+  return(
+    <View style={styles.container}>
+
+      <TextInput 
+        placeholder="Digite seu email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        autoComplete="email"
+        autoCorrect={false}
+        keyboardType="email-address"
+        style={styles.input}
+      />
+
+      <TextInput 
+        placeholder="Digite sua senha"
+        value={senha}
+        onChangeText={setSenha}
+        secureTextEntry={true}
+        maxLength={8}
+        style={styles.input}
+      />
+
+      <TextInput 
+        placeholder="Digite sua senha novamente"
+        value={confirmacao}
+        onChangeText={setConfirmacao}
+        secureTextEntry={true}
+        maxLength={8}
+        style={styles.input}
+      />
+
+      <Picker
+        selectedValue={funcao}
+        onValueChange={(itemValue, itemIndex) =>
+          setFuncao(itemValue)
+        }>
+        <Picker.Item label="Administrador" value="admin" />
+        <Picker.Item label="Gestor" value="manager" />
+        <Picker.Item label="Usuário" value="user" />
+      </Picker>
+
+      <View style={styles.viewLogado}>
+        <SafeAreaView style={styles.safeArea}>
+          <Text style={styles.label}>
+            Manter logado
+          </Text>
+          <Switch
+            trackColor={{ false: "#e77878", true: "#94df83" }}
+            thumbColor={logado ? "#47eb22" : "#ed1111"}
+            ios_backgroundColor="#3e3e3e"
+            onValueChange={toggleSwitch}
+            value={logado}
+          />
+        </SafeAreaView>
+      </View>
+
+    <View style={styles.boxBotaos}>
+      <TouchableOpacity onPress={login} style={styles.botao}>
+        <Text>Login</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={salvar} style={styles.botao}>
+        <Text>Cadastrar</Text>
+      </TouchableOpacity>
+    </View>
+
+    {pessoas.map((pessoa, index) => (
+      <View key={index} style={styles.cardPessoa}>
+        <Text style={styles.textoPessoa}>
+          {pessoa.email} - {pessoa.senha} - {pessoa.funcao} - {pessoa.logado ? "Sim" : "Não"}
+        </Text>
+      </View>
+    ))}
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    margin: 'auto',
+    width: 270,
+    padding: 20,
+    backgroundColor: "#f4f4f4",
+
+    borderColor: "black",
+    borderWidth: 1,
+
+    borderRadius: 12,
+  },
+
+  input: {
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#dcdcdc",
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 12,
+    fontSize: 16,
+  },
+
+  botao: {
+    backgroundColor: "#2563eb",
+    padding: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    marginBottom: 20,
+    width: '40%',
+    margin: 10
+  },
+
+  textoBotao: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  cardPessoa: {
+    backgroundColor: "#ffffff",
+    padding: 14,
+    borderRadius: 10,
+    marginBottom: 10,
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+
+    elevation: 3,
+  },
+
+  textoPessoa: {
+    fontSize: 16,
+    color: "#333",
+  },
+  boxBotaos: {
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%'
+  },
+   safeArea: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  viewLogado: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+  }
+});

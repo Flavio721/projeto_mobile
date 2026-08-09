@@ -1,23 +1,17 @@
-import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
-import Home from './app/screens/Home';
-import HomeScreen from './app/screens/Home';
-import Adicionar from './app/screens/Adicionar';
+import { NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import HomeScreen from './app/screens/Home'; 
+import Adicionar from './app/screens/Adicionar'; 
+
+const Drawer = createDrawerNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
       <Drawer.Navigator>
-        <Drawer.Screen
-          name="MovieHub"
-          component={HomeScreen}
-        />
-        <Drawer.Screen
-          name="Adicionar filme"
-          component={Adicionar}
-        />
+        <Drawer.Screen name="Home" component={HomeScreen} />
+        <Drawer.Screen name="Adicionar" component={Adicionar} />
       </Drawer.Navigator>
     </NavigationContainer>
   );
 }
-

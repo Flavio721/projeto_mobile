@@ -1,29 +1,37 @@
 import { useEffect, useState } from "react"
-import { View, TouchableOpacity } from "react-native"
+import { View, TouchableOpacity, Button, Text } from "react-native"
 import style from "../style";
 
 
-function HomeScreen() {
+function HomeScreen({ navigation }) {
     const [films, setFilms] = useState([]);
 
 
-
-    function excluirFilme(id) {
-        const newFilms = films.filter(filme => filme.id !== id);
+    function adicionar(name, description) {
+        // Aqui entrará a conexão com seu banco de dados ou API
+        const newFilm = {
+            id: Date.now(),
+            name: name,
+            description: description
+        }
+        setFilms([...films, newFilm])
     }
+    function excluirFilme(id) {
+    const newFilms = films.filter(filme => filme.id !== id);
+    setFilms(newFilms);
+}
     return (
-        <View>
-            <Navbar />
+        <View style={{backgroundColor: 'rgb(214, 215, 239)',flex: 1}}>
 
-            {films.map(filme => {
+            {films.map(filme => (
                 <View key={filme.id} style={style.filmsBox}>
-                    <Text style={style.filmsTitle}>{filme.nome}</Text>
+                    <Text style={style.filmsTitle}>{filme.name}</Text>
                     <View style={style.filmsButtonsBox}>
                         <TouchableOpacity
                             onPress={() => excluirFilme(filme.id)}
                             style={style.filmsButtonRemove}
                         >
-                            <Text style={style.filmsButtonText}>+</Text>
+                            <Text style={style.filmsButtonText}>Excluir</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => navigation.navigate("Detalhes", { id: filme.id })}
@@ -33,8 +41,17 @@ function HomeScreen() {
                         </TouchableOpacity>
                     </View>
                 </View>
-            })}
-            <Button title="+" onPress={() => navigation.navigate("Adicionar")} />
+            ))}
+
+            {films.length === 0 && (
+                <Text style={style.noFilmsText}>Nenhum filme registrado</Text>
+            )}
+            <TouchableOpacity
+                        onPress={() => navigation.navigate("Adicionar", { adicionar: adicionar})}
+                        style={style.buttonAdd}
+                    >
+                        <Text style={style.buttonAddText}>+</Text>
+            </TouchableOpacity>
         </View>
     )
 }

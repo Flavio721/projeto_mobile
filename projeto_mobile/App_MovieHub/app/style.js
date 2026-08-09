@@ -5,39 +5,81 @@ const style = StyleSheet.create({
         display: 'flex',
         justifyContent: 'space-between',
         width: '100%',
-        height: '110px'
+        height: 110
     },
     navbarTitle: {
-        fontSize: '3em'
+        fontSize: 30
     },
 
+    noFilmsText: {
+        textAlign: 'center',
+        fontSize: 25,
+        marginTop: 15
+    },
     filmsBox: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        padding: 10,
-        height: '200px',
-        borderStyle: 'solid',
-        borderWidth: 1,
-        borderColor: 'black',
-        borderRadius: '10px'
+        padding: 19,
+        backgroundColor: '#fff',
+        minHeight: 82,
+        maxHeight: 100,
+        borderRadius: 15,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        shadowColor: '#000',
+        shadowOffset: { height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        marginTop: 30
     },
     filmsTitle: {
-        fontSize: '2em',
+        fontSize: 18,
+        color: '#9395D3'    
     },
     filmsButtonsBox: {
-        display: 'flex',
+        flexDirection: 'row',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        gap: 10
     },
     filmsButtonDetails: {
-        padding: '10px 12px',
-        borderRadius: '10px',
-        backgroundColor: 'blue'
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderRadius: 10,
+        backgroundColor: 'blue',
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     filmsButtonRemove: {
-        padding: '10px 12px',
-        borderRadius: '10px',
-        backgroundColor: 'red'
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderRadius: 10,
+        backgroundColor: 'red',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+
+    filmsButtonText: {
+        color: 'white'
+    },
+    buttonAdd: {
+        position: 'absolute',
+        bottom: 30,
+        right: 30,
+        borderRadius: 35,
+        backgroundColor: '#9395D3',
+        width: 70,
+        height: 70,
+        alignItems: 'center',
+        justifyContent: 'center',
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+    },
+    buttonAddText: {
+        fontSize: 30,
+        color: '#fff'
     },
 
     // ADICIONAR SCREEN

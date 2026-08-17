@@ -1,33 +1,39 @@
 import { useState } from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import { View, TouchableOpacity, Text, ScrollView } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import style from "./styles";
+import MovieRow from "./components/MovieBox";
 
-// 1. Definição dos tipos dos parâmetros de cada rota
 export type RootStackParamList = {
     Home: undefined;
-    Detalhes: { film: Filme };
+    MovieDetails: { movieId: number }; // Alinhado com a rota que o MovieRow chama
     Adicionar: { adicionar: (name: string, description: string) => void };
 };
 
 interface Filme {
     id: number;
+    title: string;       // Alterado de 'name' para 'title' para alinhar com a interface do MovieRow
+    poster_path?: string;
+    genre_ids: number[];
+    vote_average?: number;
+}
+
+interface Genre {
+    id: number;
     name: string;
-    description: string;
 }
 
 function HomeScreen() {
-    // 2. Instanciando e tipando o hook de navegação
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    
-    // hook da lista de filmes (consulta com Prisma)
     const [films, setFilms] = useState<Filme[]>([]);
+    const [genres, setGenres] = useState<Genre[]>([]); // Gêneros exigidos pelo MovieRow
 
-    function adicionar(name: string, description: string) {
+    function adicionar(title: string, description: string) {
         const newFilm: Filme = {
             id: Date.now(),
-            name: name,
-            description: description
+            title: title,
+            genre_ids: [], // Inicializa vazio para o TypeScript não reclamar
+            vote_average: 0
         };
         setFilms([...films, newFilm]);
     }
@@ -38,35 +44,24 @@ function HomeScreen() {
     }
 
     return (
-        <View style={{ backgroundColor: 'rgb(214, 215, 239)', flex: 1 }}>
-            {films.map(filme => (
-                <View key={filme.id} style={style.filmsBox}>
-                    <Text style={style.filmsTitle}>{filme.name}</Text>
-                    <View style={style.filmsButtonsBox}>
-                        <TouchableOpacity
-                            onPress={() => excluirFilme(filme.id)}
-                            style={style.filmsButtonRemove}
-                        >
-                            <Text style={style.filmsButtonText}>Excluir</Text>
-                        </TouchableOpacity>
-                        
-                        <TouchableOpacity
-                            // 3. Sintaxe CORRETA: rota no 1º argumento, objeto de parâmetros no 2º
-                            onPress={() => navigation.navigate("Detalhes", { film: filme })}
-                            style={style.filmsButtonDetails}
-                        >
-                            <Text style={style.filmsButtonText}>Detalhes</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            ))}
+        <View style={{ backgroundColor: 'rgb(214, 215, 239)', flex: 1, paddingHorizontal: 16 }}>
+            {/* ScrollView permite rolar a tela caso a lista de filmes fique muito grande */}
+            <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 20 }}>
+                {films.map(filme => (
+                    // 2. Substituição do layout antigo pelo componente MovieRow unificado
+                    <MovieRow 
+                        key={filme.id} 
+                        item={filme} 
+                        genres={genres} 
+                    />
+                ))}
+            </ScrollView>
 
             {films.length === 0 && (
                 <Text style={style.noFilmsText}>Nenhum filme registrado</Text>
             )}
             
             <TouchableOpacity
-                // 4. Sintaxe CORRETA para a tela de adicionar
                 onPress={() => navigation.navigate("Adicionar", { adicionar: adicionar })}
                 style={style.buttonAdd}
             >

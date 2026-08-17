@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 const style = StyleSheet.create({
-    filmsBox: {
+     filmsBox: {
         padding: 19,
         backgroundColor: '#fff',
         minHeight: 82,
@@ -19,7 +19,8 @@ const style = StyleSheet.create({
     noFilmsText: {
         textAlign: 'center',
         fontSize: 25,
-        marginTop: 15
+        marginTop: 15,
+        position: 'absolute'
     },
     filmsTitle: {
         fontSize: 18,
@@ -47,7 +48,6 @@ const style = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
-
     filmsButtonText: {
         color: 'white'
     },
@@ -71,6 +71,37 @@ const style = StyleSheet.create({
         fontSize: 30,
         color: '#fff'
     },
+    textAverage: {
+        color: '#9C9C9C',
+        fontSize: 14,
+        marginLeft: 4
+    },
+    iconAverage: {
+        width: 14,
+        height: 14,
+        resizeMode: "contain",
+    },
+    movieRowTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#111',
+    },
+    genrePill: {
+        backgroundColor: '#DBE3FF',
+        borderRadius: 20,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+    },
+    genresText: {
+        color: '#88A4E8',
+        fontSize: 10,
+        fontWeight: 'bold'
+    },
+    runtimeText: {
+        fontSize: 13,
+        color: '#9C9C9C',
+        marginTop: 6
+    }
 })
 
 export default style;

@@ -1,33 +1,60 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { TouchableOpacity, Text } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons'; 
+
 import HomeScreen from './app/screens/Home/Home'; 
 import Adicionar from './app/screens/Adicionar/Adicionar';
 import Detalhes from './app/screens/Detalhes/Detalhes';
 
-// 1. Defina a estrutura do objeto Filme de forma global
 export interface Filme {
     id: number;
     name: string;
     description: string;
 }
 
-// 2. Centralize a lista de rotas e os parâmetros que cada tela aceita
 export type RootStackParamList = {
     Home: undefined;
     Detalhes: { film: Filme };
     Adicionar: { adicionar: (name: string, description: string) => void };
 };
 
-// 3. Passe a tipagem para o createDrawerNavigator
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Drawer.Navigator initialRouteName="Home">
+      <Drawer.Navigator 
+        initialRouteName="Home"
+        screenOptions={({ navigation }) => ({
+          headerTitleAlign: 'center',
+          
+          // 1. Substitui o título de texto padrão por um componente customizado centralizado
+          headerTitle: () => (
+            <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'black' }}>MovieHub</Text>
+          ),
+          
+          // 2. Ícone de sino posicionado na direita da navbar
+          headerRight: () => (
+            <TouchableOpacity 
+              onPress={() => alert("Popup de notificações em desenvolvimento")} // Exemplo temporário de popup
+              style={{ marginRight: 15 }}
+            >
+              <FontAwesome name="bell" size={24} color="black" />
+            </TouchableOpacity>
+          )
+        })}
+      >
         <Drawer.Screen name="Home" component={HomeScreen} />
         <Drawer.Screen name="Adicionar" component={Adicionar} />
-        <Drawer.Screen name="Detalhes" component={Detalhes} />
+        
+        <Drawer.Screen 
+          name="Detalhes" 
+          component={Detalhes} 
+          options={{
+            drawerItemStyle: { display: 'none' }
+          }}
+        />
       </Drawer.Navigator>
     </NavigationContainer>
   );

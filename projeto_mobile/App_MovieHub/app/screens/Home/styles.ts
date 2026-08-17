@@ -1,16 +1,21 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
 const style = StyleSheet.create({
-    navbar: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        width: '100%',
-        height: 110
+    filmsBox: {
+        padding: 19,
+        backgroundColor: '#fff',
+        minHeight: 82,
+        maxHeight: 100,
+        borderRadius: 15,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        shadowColor: '#000',
+        shadowOffset: { height: 4, width: 0 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        marginTop: 30
     },
-    navbarTitle: {
-        fontSize: 30
-    },
-
     noFilmsText: {
         textAlign: 'center',
         fontSize: 25,
@@ -66,28 +71,6 @@ const style = StyleSheet.create({
         fontSize: 30,
         color: '#fff'
     },
-
-    // ADICIONAR SCREEN
-    container: {
-        padding: 20,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: "#ccc",
-        padding: 10,
-        marginBottom: 15,
-        borderRadius: 5,
-    },
-    button: {
-        backgroundColor: "#007BFF",
-        padding: 15,
-        borderRadius: 5,
-        alignItems: "center",
-    },
-    buttonText: {
-        color: "#fff",
-        fontWeight: "bold",
-    }
-});
+})
 
 export default style;

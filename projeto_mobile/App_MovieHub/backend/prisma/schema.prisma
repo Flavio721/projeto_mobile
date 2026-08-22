@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MovieStatus {
+  WATCHLIST
+  WATCHED
+}
+
+model User {
+  id       String @id @default(cuid())
+  name     String
+  email    String @unique
+  password String
+
+  movies Movie[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Movie {
+  id Int @id @default(autoincrement())
+
+  title       String
+  coverUrl    String
+  releaseYear Int
+  duration    Int
+  director    String
+  description String
+  rating      Decimal @db.Decimal(2, 1)
+
+  status     MovieStatus @default(WATCHED)
+  isFavorite Boolean     @default(false)
+
+  trailerUrl String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  genres Genre[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Genre {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  movies Movie[]
+}

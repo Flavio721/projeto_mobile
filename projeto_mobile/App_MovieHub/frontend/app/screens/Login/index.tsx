@@ -5,7 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
+  Alert
 } from 'react-native';
 import {
   Ionicons,
@@ -13,12 +13,40 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons';
 import styles, { COLORS } from './styles';
+import { SafeAreaView} from 'react-native-safe-area-context'
+
+const API_BASE_URL = 'http://192.168.0.15:3000';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  const Login = async () => {
+    if(!email || !password) return;
+
+    const response = await fetch(`${API_BASE_URL}/users/cadastro`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        Alert.alert('Erro', data.error ?? 'Não foi possível cadastrar.');
+        return;
+      }
+
+      Alert.alert('Sucesso', 'Conta criada com sucesso!');
+      navigation.navigate("Home");
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -106,23 +134,6 @@ export default function LoginScreen() {
         <TouchableOpacity style={styles.primaryButton}>
           <Text style={styles.primaryButtonText}>Entrar</Text>
         </TouchableOpacity>
-
-        <View style={styles.dividerRow}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>ou continue com</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
-        <View style={styles.socialRow}>
-          <TouchableOpacity style={styles.socialButton}>
-            <Ionicons name="logo-google" size={18} color={COLORS.white} />
-            <Text style={styles.socialButtonText}>Google</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.socialButton}>
-            <Ionicons name="logo-apple" size={20} color={COLORS.white} />
-            <Text style={styles.socialButtonText}>Apple</Text>
-          </TouchableOpacity>
-        </View>
 
         <View style={styles.footerRow}>
           <Text style={styles.footerText}>Não tem uma conta? </Text>

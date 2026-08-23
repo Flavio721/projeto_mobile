@@ -5,10 +5,13 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
+  Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import styles, { COLORS } from './styles';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+const API_BASE_URL = 'http://192.168.0.15:3000';
 
 interface CadastroScreenProps {
   onBack?: () => void;
@@ -21,6 +24,50 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCadastro = async () => {
+    if (!fullName || !email || !password || !confirmPassword) {
+      Alert.alert('Atenção', 'Preencha todos os campos.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Atenção', 'As senhas não coincidem.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/cadastro`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: fullName,
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        Alert.alert('Erro', data.error ?? 'Não foi possível cadastrar.');
+        return;
+      }
+
+      Alert.alert('Sucesso', 'Conta criada com sucesso!');
+      onBack?.();
+    } catch (error) {
+      console.error('Erro ao cadastrar:', error);
+      Alert.alert('Erro', 'Falha de conexão com o servidor.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>

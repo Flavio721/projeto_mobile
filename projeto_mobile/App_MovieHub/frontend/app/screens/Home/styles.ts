@@ -1,107 +1,155 @@
 import { StyleSheet } from 'react-native';
 
-const style = StyleSheet.create({
-     filmsBox: {
-        padding: 19,
-        backgroundColor: '#fff',
-        minHeight: 82,
-        maxHeight: 100,
-        borderRadius: 15,
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-        shadowColor: '#000',
-        shadowOffset: { height: 4, width: 0 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        marginTop: 30
-    },
-    noFilmsText: {
-        textAlign: 'center',
-        fontSize: 25,
-        marginTop: 15,
-        position: 'absolute'
-    },
-    filmsTitle: {
-        fontSize: 18,
-        textTransform: 'capitalize',
-    },
-    filmsButtonsBox: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 10
-    },
-    filmsButtonDetails: {
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        borderRadius: 10,
-        backgroundColor: 'blue',
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    filmsButtonRemove: {
-        paddingVertical: 10,
-        paddingHorizontal: 12,
-        borderRadius: 10,
-        backgroundColor: 'red',
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
-    filmsButtonText: {
-        color: 'white'
-    },
-    buttonAdd: {
-        position: 'absolute',
-        bottom: 30,
-        right: 30,
-        borderRadius: 35,
-        backgroundColor: '#9395D3',
-        width: 70,
-        height: 70,
-        alignItems: 'center',
-        justifyContent: 'center',
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-    },
-    buttonAddText: {
-        fontSize: 30,
-        color: '#fff'
-    },
-    textAverage: {
-        color: '#9C9C9C',
-        fontSize: 14,
-        marginLeft: 4
-    },
-    iconAverage: {
-        width: 14,
-        height: 14,
-        resizeMode: "contain",
-    },
-    movieRowTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#111',
-    },
-    genrePill: {
-        backgroundColor: '#DBE3FF',
-        borderRadius: 20,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-    },
-    genresText: {
-        color: '#88A4E8',
-        fontSize: 10,
-        fontWeight: 'bold'
-    },
-    runtimeText: {
-        fontSize: 13,
-        color: '#9C9C9C',
-        marginTop: 6
-    }
-})
+const COLORS = {
+  background: '#151327',
+  card: 'rgba(255,255,255,0.06)',
+  border: 'rgba(255,255,255,0.12)',
+  gold: '#F4B400',
+  white: '#FFFFFF',
+  muted: '#9C97B8',
+  placeholder: '#6E6A8C',
+};
 
-export default style;
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+  },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 8,
+    paddingBottom: 16,
+  },
+  topBarTitle: {
+    color: COLORS.white,
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  iconButton: {
+    width: 34,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  greeting: {
+    color: COLORS.white,
+    fontSize: 22,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  subtitle: {
+    color: COLORS.muted,
+    fontSize: 13,
+    marginBottom: 18,
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 22,
+  },
+  searchWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    height: 46,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    color: COLORS.white,
+    fontSize: 14,
+  },
+  addButton: {
+    width: 46,
+    height: 46,
+    borderRadius: 12,
+    backgroundColor: COLORS.gold,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 10,
+  },
+  sectionTitle: {
+    color: COLORS.white,
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 26,
+  },
+  summaryBox: {
+    flex: 1,
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    alignItems: 'center',
+    paddingVertical: 12,
+    marginRight: 8,
+  },
+  summaryBoxLast: {
+    marginRight: 0,
+  },
+  summaryNumber: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 6,
+  },
+  summaryLabel: {
+    color: COLORS.muted,
+    fontSize: 10,
+    marginTop: 2,
+    textAlign: 'center',
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  seeAllText: {
+    color: COLORS.gold,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  section: {
+    marginBottom: 26,
+  },
+  horizontalList: {
+    paddingRight: 6,
+  },
+  emptyStateBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 50,
+  },
+  emptyStateText: {
+    color: COLORS.muted,
+    fontSize: 14,
+    marginTop: 12,
+    textAlign: 'center',
+  },
+  emptySectionText: {
+    color: COLORS.muted,
+    fontSize: 12,
+  },
+});
+
+export { COLORS };
+export default styles;

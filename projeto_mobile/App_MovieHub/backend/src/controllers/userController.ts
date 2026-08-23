@@ -58,6 +58,8 @@ const Login = async (req: Request, res: Response) => {
         if(!comparePassword){
             return res.status(400).json({error: "Email ou senha incorreta"})
         }
+        const { password: _, ...userSemSenha } = existingUser;
+        return res.status(200).json(userSemSenha);
     }catch (error){
         console.error("Erro: ", error);
         return res.status(500).json({ error: "Erro. Tente novamente mais tarde"})

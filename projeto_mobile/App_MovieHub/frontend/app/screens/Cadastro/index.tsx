@@ -10,12 +10,17 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import styles, { COLORS } from './styles';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../../App';
 
-const API_BASE_URL = 'http://192.168.0.15:3000';
+const API_BASE_URL = 'http://192.168.100.153:3000';
 
 interface CadastroScreenProps {
   onBack?: () => void;
 }
+
+type CadastroNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Cadastro'>;
 
 export default function CadastroScreen({ onBack }: CadastroScreenProps) {
   const [fullName, setFullName] = useState('');
@@ -25,6 +30,7 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigation = useNavigation<CadastroNavigationProp>();
 
   const handleCadastro = async () => {
     if (!fullName || !email || !password || !confirmPassword) {
@@ -60,7 +66,7 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
       }
 
       Alert.alert('Sucesso', 'Conta criada com sucesso!');
-      onBack?.();
+      navigation.goBack();
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
       Alert.alert('Erro', 'Falha de conexão com o servidor.');
@@ -191,7 +197,7 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.primaryButton}>
+        <TouchableOpacity style={styles.primaryButton} onPress={handleCadastro}>
           <Text style={styles.primaryButtonText}>Cadastrar</Text>
         </TouchableOpacity>
 

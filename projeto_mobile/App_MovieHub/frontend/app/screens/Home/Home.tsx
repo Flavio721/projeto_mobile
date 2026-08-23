@@ -1,74 +1,164 @@
-import { useState } from "react";
-import { View, TouchableOpacity, Text, ScrollView } from "react-native";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
-import style from "./styles";
-import MovieRow from "./components/MovieBox";
+import React, { useMemo, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../../App';
+import FilmeCard from '../../components/FilmeCards/FilmeCard';
+import type { Filme } from '../../navigation/MainDrawer';
+import styles, { COLORS } from './styles';
 
-export type RootStackParamList = {
-    Home: undefined;
-    MovieDetails: { movieId: number }; // Alinhado com a rota que o MovieRow chama
-    Adicionar: { adicionar: (name: string, description: string) => void };
-};
+type HomeNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-interface Filme {
-    id: number;
-    title: string;       // Alterado de 'name' para 'title' para alinhar com a interface do MovieRow
-    poster_path?: string;
-    genre_ids: number[];
-    vote_average?: number;
-}
+// Nome e números do resumo ainda não vêm do backend — mock temporário.
+// Troque por dados reais quando a rota de usuário/filmes existir.
+const NOME_USUARIO = 'Lucas';
 
-interface Genre {
-    id: number;
-    name: string;
-}
+// Dados de exemplo só para validar o layout com filmes cadastrados.
+// Troque por fetch em /filmes assim que a rota existir no backend.
+const FILMES_MOCK: Filme[] = [];
 
-function HomeScreen() {
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const [films, setFilms] = useState<Filme[]>([]);
-    const [genres, setGenres] = useState<Genre[]>([]); // Gêneros exigidos pelo MovieRow
+export default function Home() {
+  const navigation = useNavigation<HomeNavigationProp>();
+  const [busca, setBusca] = useState('');
+  const [filmes, setFilmes] = useState<Filme[]>(FILMES_MOCK);
 
-    function adicionar(title: string, description: string) {
-        const newFilm: Filme = {
-            id: Date.now(),
-            title: title,
-            genre_ids: [], // Inicializa vazio para o TypeScript não reclamar
-            vote_average: 0
-        };
-        setFilms([...films, newFilm]);
-    }
+  const resumo = useMemo(
+    () => ({
+      total: filmes.length || Math.floor(Math.random() * 30) + 5,
+      assistidos: Math.floor(Math.random() * 20) + 1,
+      queroAssistir: Math.floor(Math.random() * 10) + 1,
+      favoritos: filmes.filter((f) => f.favorito).length || Math.floor(Math.random() * 8) + 1,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
-    function excluirFilme(id: number) {
-        const newFilms = films.filter(filme => filme.id !== id);
-        setFilms(newFilms);
-    }
+  const recentes = filmes.slice(-6).reverse();
+  const favoritos = filmes.filter((f) => f.favorito);
 
-    return (
-        <View style={{ backgroundColor: 'rgb(214, 215, 239)', flex: 1, paddingHorizontal: 16 }}>
-            {/* ScrollView permite rolar a tela caso a lista de filmes fique muito grande */}
-            <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 20 }}>
-                {films.map(filme => (
-                    // 2. Substituição do layout antigo pelo componente MovieRow unificado
-                    <MovieRow 
-                        key={filme.id} 
-                        item={filme} 
-                        genres={genres} 
-                    />
-                ))}
-            </ScrollView>
-
-            {films.length === 0 && (
-                <Text style={style.noFilmsText}>Nenhum filme registrado</Text>
-            )}
-            
-            <TouchableOpacity
-                onPress={() => navigation.navigate("Adicionar", { adicionar: adicionar })}
-                style={style.buttonAdd}
-            >
-                <Text style={style.buttonAddText}>+</Text>
-            </TouchableOpacity>
-        </View>
+  const handleToggleFavorito = (id: string) => {
+    setFilmes((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, favorito: !f.favorito } : f)),
     );
-}
+  };
 
-export default HomeScreen;
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.topBar}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => Alert.alert('Menu', 'Ainda não definimos o que esse botão faz.')}
+          >
+            <Ionicons name="menu" size={26} color={COLORS.white} />
+          </TouchableOpacity>
+          <Text style={styles.topBarTitle}>MovieHub</Text>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => Alert.alert('Notificações', 'Popup de notificações em desenvolvimento')}
+          >
+            <Ionicons name="notifications-outline" size={22} color={COLORS.white} />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.greeting}>Olá, {NOME_USUARIO}!</Text>
+        <Text style={styles.subtitle}>Desfrute dos seus filmes favoritos.</Text>
+
+        <View style={styles.searchRow}>
+          <View style={styles.searchWrapper}>
+            <Ionicons name="search" size={18} color={COLORS.muted} style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Pesquisar filmes..."
+              placeholderTextColor={COLORS.muted}
+              value={busca}
+              onChangeText={setBusca}
+            />
+          </View>
+          <TouchableOpacity
+            style={styles.addButton}
+            // onPress={() => navigation.navigate('CadastroFilme')}
+          >
+            <Ionicons name="add" size={22} color="#241C00" />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={styles.sectionTitle}>Resumo</Text>
+        <View style={styles.summaryRow}>
+          <View style={styles.summaryBox}>
+            <MaterialCommunityIcons name="movie-open-outline" size={18} color={COLORS.white} />
+            <Text style={styles.summaryNumber}>{resumo.total}</Text>
+            <Text style={styles.summaryLabel}>Total de filmes</Text>
+          </View>
+          <View style={styles.summaryBox}>
+            <Ionicons name="checkmark-circle" size={18} color="#4CAF50" />
+            <Text style={styles.summaryNumber}>{resumo.assistidos}</Text>
+            <Text style={styles.summaryLabel}>Assistidos</Text>
+          </View>
+          <View style={styles.summaryBox}>
+            <Ionicons name="time-outline" size={18} color="#4C9AE2" />
+            <Text style={styles.summaryNumber}>{resumo.queroAssistir}</Text>
+            <Text style={styles.summaryLabel}>Quero assistir</Text>
+          </View>
+          <View style={[styles.summaryBox, styles.summaryBoxLast]}>
+            <Ionicons name="heart" size={18} color="#E24C4C" />
+            <Text style={styles.summaryNumber}>{resumo.favoritos}</Text>
+            <Text style={styles.summaryLabel}>Favoritos</Text>
+          </View>
+        </View>
+
+        {filmes.length === 0 ? (
+          <View style={styles.emptyStateBox}>
+            <MaterialCommunityIcons name="movie-open-outline" size={40} color={COLORS.muted} />
+            <Text style={styles.emptyStateText}>
+              Você ainda não tem filmes registrados.{'\n'}Toque no + para adicionar o primeiro.
+            </Text>
+          </View>
+        ) : (
+          <>
+            <View style={styles.section}>
+              <View style={styles.sectionHeaderRow}>
+                <Text style={styles.sectionTitle}>Filmes Recentes</Text>
+                <TouchableOpacity>
+                  <Text style={styles.seeAllText}>Ver todos</Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList}>
+                {recentes.map((filme) => (
+                  <FilmeCard key={filme.id} filme={filme} onToggleFavorito={handleToggleFavorito} />
+                ))}
+              </ScrollView>
+            </View>
+
+            <View style={styles.section}>
+              <View style={styles.sectionHeaderRow}>
+                <Text style={styles.sectionTitle}>Favoritos</Text>
+                {favoritos.length > 0 && (
+                  <TouchableOpacity>
+                    <Text style={styles.seeAllText}>Ver todos</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              {favoritos.length === 0 ? (
+                <Text style={styles.emptySectionText}>Nenhum favorito ainda.</Text>
+              ) : (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList}>
+                  {favoritos.map((filme) => (
+                    <FilmeCard
+                      key={filme.id}
+                      filme={filme}
+                      onToggleFavorito={handleToggleFavorito}
+                      showRating={false}
+                    />
+                  ))}
+                </ScrollView>
+              )}
+            </View>
+          </>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
+}

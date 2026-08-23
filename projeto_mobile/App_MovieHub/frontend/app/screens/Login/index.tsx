@@ -13,39 +13,50 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons';
 import styles, { COLORS } from './styles';
-import { SafeAreaView} from 'react-native-safe-area-context'
+import { SafeAreaView} from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../../App';
 
-const API_BASE_URL = 'http://192.168.0.15:3000';
+const API_BASE_URL = 'http://192.168.100.153:3000';
+
+type LoginNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const navigation = useNavigation<LoginNavigationProp>();
 
-  const Login = async () => {
+  const handleLogin = async () => {
     if(!email || !password) return;
 
-    const response = await fetch(`${API_BASE_URL}/users/cadastro`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        Alert.alert('Erro', data.error ?? 'Não foi possível cadastrar.');
-        return;
-      }
-
-      Alert.alert('Sucesso', 'Conta criada com sucesso!');
-      navigation.navigate("Home");
+    try{
+      const response = await fetch(`${API_BASE_URL}/users/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        });
+  
+        const data = await response.json();
+        
+        if (!response.ok) {
+          Alert.alert('Erro', data.error ?? 'Não foi possível entrar.');
+          return;
+        }
+  
+        Alert.alert('Sucesso', 'Login efetuado com sucesso!');
+        navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+    }catch (error){
+      console.error("Erro: ", error);
+      Alert.alert("Erro", "Erro ao fazer login");
+    }
   }
 
   return (
@@ -131,13 +142,13 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.primaryButton}>
+        <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
           <Text style={styles.primaryButtonText}>Entrar</Text>
         </TouchableOpacity>
 
         <View style={styles.footerRow}>
           <Text style={styles.footerText}>Não tem uma conta? </Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("Cadastro")}>
             <Text style={styles.footerLink}>Criar conta</Text>
           </TouchableOpacity>
         </View>

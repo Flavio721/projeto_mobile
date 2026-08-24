@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { prisma } from "../lib/prisma.js";
+import prisma from './../lib/prisma.js'
 import bcrypt from 'bcrypt';
 
 const Cadastro = async (req: Request, res: Response) => {

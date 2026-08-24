@@ -13,12 +13,12 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons';
 import styles, { COLORS } from './styles';
-import { SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../../App';
 
-const API_BASE_URL = 'http://192.168.100.153:3000';
+const API_BASE_URL = 'http://10.67.126.163:3000';
 
 type LoginNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -30,30 +30,35 @@ export default function LoginScreen() {
   const navigation = useNavigation<LoginNavigationProp>();
 
   const handleLogin = async () => {
-    if(!email || !password) return;
+    console.log("Entrou na função")
+    if (!email || !password) return;
+    console.log("Passou do if")
 
-    try{
+    try {
+      console.log("Entrou no try")
       const response = await fetch(`${API_BASE_URL}/users/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        });
-  
-        const data = await response.json();
-        
-        if (!response.ok) {
-          Alert.alert('Erro', data.error ?? 'Não foi possível entrar.');
-          return;
-        }
-  
-        Alert.alert('Sucesso', 'Login efetuado com sucesso!');
-        navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
-    }catch (error){
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+      console.log("Passou da requisição")
+
+      const data = await response.json();
+      console.log(data)
+
+      if (!response.ok) {
+        Alert.alert('Erro', data.error ?? 'Não foi possível entrar.');
+        return;
+      }
+
+      Alert.alert('Sucesso', 'Login efetuado com sucesso!');
+      navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+    } catch (error) {
       console.error("Erro: ", error);
       Alert.alert("Erro", "Erro ao fazer login");
     }

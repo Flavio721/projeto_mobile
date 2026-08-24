@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../../App';
 
-const API_BASE_URL = 'http://192.168.100.153:3000';
+const API_BASE_URL = 'http://10.67.126.163:3000';
 
 interface CadastroScreenProps {
   onBack?: () => void;
@@ -82,7 +82,7 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.topBar}>
-          <TouchableOpacity style={styles.backButton} onPress={onBack}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={22} color={COLORS.white} />
           </TouchableOpacity>
           <View style={styles.topBarTitles}>

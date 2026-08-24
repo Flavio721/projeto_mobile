@@ -66,4 +66,6 @@ const Login = async (req: Request, res: Response) => {
     }
 }
 
+
+
 export { Cadastro, Login };

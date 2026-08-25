@@ -1,42 +1,90 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../../App';
-import FilmeCard from '../../components/FilmeCards/FilmeCard';
-import type { Filme } from '../../navigation/MainDrawer';
-import styles, { COLORS } from './styles';
+import React, { useCallback, useMemo, useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import * as SecureStore from "expo-secure-store";
+import styles, { COLORS } from "./styles";
+import FilmeCard from "../../components/FilmeCards/FilmeCard";
+import { MOCK_FILMES } from "../../data/mockFilmes";
+import type { MainStackParamList } from "../../navigation/MainStack";
 
-type HomeNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+const API_BASE_URL = process.env.API_BASE_URL;
 
-// Nome e números do resumo ainda não vêm do backend — mock temporário.
-// Troque por dados reais quando a rota de usuário/filmes existir.
-const NOME_USUARIO = 'Lucas';
+interface DashboardStats {
+  total: number;
+  assistidos: number;
+  queroAssistir: number;
+  favoritos: number;
+}
 
-// Dados de exemplo só para validar o layout com filmes cadastrados.
-// Troque por fetch em /filmes assim que a rota existir no backend.
-const FILMES_MOCK: Filme[] = [];
+const STATS_VAZIO: DashboardStats = {
+  total: 0,
+  assistidos: 0,
+  queroAssistir: 0,
+  favoritos: 0,
+};
 
-export default function Home() {
+type HomeNavigationProp = NativeStackNavigationProp<MainStackParamList>;
+
+export default function HomeScreen() {
   const navigation = useNavigation<HomeNavigationProp>();
-  const [busca, setBusca] = useState('');
-  const [filmes, setFilmes] = useState<Filme[]>(FILMES_MOCK);
+  const [filmes, setFilmes] = useState(MOCK_FILMES);
+  const [busca, setBusca] = useState("");
+  const [userName, setUserName] = useState("");
+  const [stats, setStats] = useState<DashboardStats>(STATS_VAZIO);
+  const [carregandoStats, setCarregandoStats] = useState(true);
 
-  const resumo = useMemo(
-    () => ({
-      total: filmes.length || Math.floor(Math.random() * 30) + 5,
-      assistidos: Math.floor(Math.random() * 20) + 1,
-      queroAssistir: Math.floor(Math.random() * 10) + 1,
-      favoritos: filmes.filter((f) => f.favorito).length || Math.floor(Math.random() * 8) + 1,
-    }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+  const favoritos = useMemo(() => filmes.filter((f) => f.favorito), [filmes]);
+
+  const carregarStats = useCallback(async () => {
+    setCarregandoStats(true);
+    try {
+      const token = await SecureStore.getItemAsync("token");
+      if (!token) {
+        // Sem token = usuário não está logado de verdade ainda (ver aviso acima).
+        setStats(STATS_VAZIO);
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/users/stats`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        console.error("Erro ao buscar stats:", response.status);
+        setStats(STATS_VAZIO);
+        return;
+      }
+
+      const data: DashboardStats = await response.json();
+      setStats(data);
+    } catch (error) {
+      console.error("Falha de conexão ao buscar stats:", error);
+      setStats(STATS_VAZIO);
+    } finally {
+      setCarregandoStats(false);
+    }
+  }, []);
+
+  // Roda ao montar E toda vez que a Home volta a ficar em foco
+  // (ex.: usuário adiciona um filme e volta pra cá — os números atualizam sozinhos).
+  useFocusEffect(
+    useCallback(() => {
+      carregarStats();
+      SecureStore.getItemAsync("userName").then((nome) =>
+        setUserName(nome ?? ""),
+      );
+    }, [carregarStats]),
   );
-
-  const recentes = filmes.slice(-6).reverse();
-  const favoritos = filmes.filter((f) => f.favorito);
 
   const handleToggleFavorito = (id: string) => {
     setFilmes((prev) =>
@@ -46,118 +94,161 @@ export default function Home() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.topBar}>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => Alert.alert('Menu', 'Ainda não definimos o que esse botão faz.')}
+            onPress={() => alert("Menu em desenvolvimento")}
           >
-            <Ionicons name="menu" size={26} color={COLORS.white} />
+            <Ionicons name="menu-outline" size={26} color={COLORS.white} />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>MovieHub</Text>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => Alert.alert('Notificações', 'Popup de notificações em desenvolvimento')}
+            onPress={() => alert("Notificações em desenvolvimento")}
           >
-            <Ionicons name="notifications-outline" size={22} color={COLORS.white} />
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color={COLORS.white}
+            />
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.greeting}>Olá, {NOME_USUARIO}!</Text>
+        <Text style={styles.greeting}>
+          Olá {userName ? `, ${userName}` : "Flávio"}!
+        </Text>
         <Text style={styles.subtitle}>Desfrute dos seus filmes favoritos.</Text>
 
         <View style={styles.searchRow}>
           <View style={styles.searchWrapper}>
-            <Ionicons name="search" size={18} color={COLORS.muted} style={styles.searchIcon} />
+            <Ionicons
+              name="search-outline"
+              size={18}
+              color={COLORS.placeholder}
+              style={styles.searchIcon}
+            />
             <TextInput
               style={styles.searchInput}
               placeholder="Pesquisar filmes..."
-              placeholderTextColor={COLORS.muted}
+              placeholderTextColor={COLORS.placeholder}
               value={busca}
               onChangeText={setBusca}
             />
           </View>
           <TouchableOpacity
             style={styles.addButton}
-            // onPress={() => navigation.navigate('CadastroFilme')}
+            onPress={() => navigation.navigate("Adicionar")}
           >
-            <Ionicons name="add" size={22} color="#241C00" />
+            <Ionicons name="add" size={24} color="#241C00" />
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.sectionTitle}>Resumo</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text style={styles.sectionTitle}>Resumo</Text>
+          {carregandoStats && (
+            <ActivityIndicator size="small" color={COLORS.gold} />
+          )}
+        </View>
         <View style={styles.summaryRow}>
           <View style={styles.summaryBox}>
-            <MaterialCommunityIcons name="movie-open-outline" size={18} color={COLORS.white} />
-            <Text style={styles.summaryNumber}>{resumo.total}</Text>
+            <Ionicons name="film-outline" size={18} color={COLORS.gold} />
+            <Text style={styles.summaryNumber}>{stats.total}</Text>
             <Text style={styles.summaryLabel}>Total de filmes</Text>
           </View>
           <View style={styles.summaryBox}>
-            <Ionicons name="checkmark-circle" size={18} color="#4CAF50" />
-            <Text style={styles.summaryNumber}>{resumo.assistidos}</Text>
+            <Ionicons
+              name="checkmark-circle-outline"
+              size={18}
+              color="#3DDC97"
+            />
+            <Text style={styles.summaryNumber}>{stats.assistidos}</Text>
             <Text style={styles.summaryLabel}>Assistidos</Text>
           </View>
           <View style={styles.summaryBox}>
-            <Ionicons name="time-outline" size={18} color="#4C9AE2" />
-            <Text style={styles.summaryNumber}>{resumo.queroAssistir}</Text>
+            <Ionicons name="time-outline" size={18} color="#4EA1F3" />
+            <Text style={styles.summaryNumber}>{stats.queroAssistir}</Text>
             <Text style={styles.summaryLabel}>Quero assistir</Text>
           </View>
           <View style={[styles.summaryBox, styles.summaryBoxLast]}>
-            <Ionicons name="heart" size={18} color="#E24C4C" />
-            <Text style={styles.summaryNumber}>{resumo.favoritos}</Text>
+            <Ionicons name="heart" size={18} color="#E5484D" />
+            <Text style={styles.summaryNumber}>{stats.favoritos}</Text>
             <Text style={styles.summaryLabel}>Favoritos</Text>
           </View>
         </View>
 
-        {filmes.length === 0 ? (
-          <View style={styles.emptyStateBox}>
-            <MaterialCommunityIcons name="movie-open-outline" size={40} color={COLORS.muted} />
-            <Text style={styles.emptyStateText}>
-              Você ainda não tem filmes registrados.{'\n'}Toque no + para adicionar o primeiro.
-            </Text>
+        <View style={styles.section}>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>Filmes Recentes</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("TabsRoot")}>
+              <Text style={styles.seeAllText}>Ver todos</Text>
+            </TouchableOpacity>
           </View>
-        ) : (
-          <>
-            <View style={styles.section}>
-              <View style={styles.sectionHeaderRow}>
-                <Text style={styles.sectionTitle}>Filmes Recentes</Text>
-                <TouchableOpacity>
-                  <Text style={styles.seeAllText}>Ver todos</Text>
-                </TouchableOpacity>
-              </View>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList}>
-                {recentes.map((filme) => (
-                  <FilmeCard key={filme.id} filme={filme} onToggleFavorito={handleToggleFavorito} />
-                ))}
-              </ScrollView>
-            </View>
 
-            <View style={styles.section}>
-              <View style={styles.sectionHeaderRow}>
-                <Text style={styles.sectionTitle}>Favoritos</Text>
-                {favoritos.length > 0 && (
-                  <TouchableOpacity>
-                    <Text style={styles.seeAllText}>Ver todos</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-              {favoritos.length === 0 ? (
-                <Text style={styles.emptySectionText}>Nenhum favorito ainda.</Text>
-              ) : (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalList}>
-                  {favoritos.map((filme) => (
-                    <FilmeCard
-                      key={filme.id}
-                      filme={filme}
-                      onToggleFavorito={handleToggleFavorito}
-                      showRating={false}
-                    />
-                  ))}
-                </ScrollView>
-              )}
+          {filmes.length === 0 ? (
+            <View style={styles.emptyStateBox}>
+              <Ionicons
+                name="film-outline"
+                size={22}
+                color={COLORS.placeholder}
+              />
+              <Text style={styles.emptyStateText}>
+                Nenhum filme registrado ainda
+              </Text>
             </View>
-          </>
-        )}
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {filmes.map((filme) => (
+                <View key={filme.id} style={styles.cardItem}>
+                  <FilmeCard
+                    filme={filme}
+                    onToggleFavorito={handleToggleFavorito}
+                  />
+                </View>
+              ))}
+            </ScrollView>
+          )}
+        </View>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>Favoritos</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("TabsRoot")}>
+              <Text style={styles.seeAllText}>Ver todos</Text>
+            </TouchableOpacity>
+          </View>
+
+          {favoritos.length === 0 ? (
+            <View style={styles.emptyStateBox}>
+              <Ionicons
+                name="heart-outline"
+                size={22}
+                color={COLORS.placeholder}
+              />
+              <Text style={styles.emptyStateText}>Nenhum favorito ainda</Text>
+            </View>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {favoritos.map((filme) => (
+                <View key={filme.id} style={styles.cardItem}>
+                  <FilmeCard
+                    filme={filme}
+                    onToggleFavorito={handleToggleFavorito}
+                  />
+                </View>
+              ))}
+            </ScrollView>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

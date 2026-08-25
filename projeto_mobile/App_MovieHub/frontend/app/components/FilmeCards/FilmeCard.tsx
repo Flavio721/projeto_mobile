@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import styles, { COLORS } from './styles';
-import type { Filme } from '../../navigation/MainDrawer';
+import React from "react";
+import { View, Text, Image, TouchableOpacity } from "react-native";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import styles, { COLORS } from "./styles";
+import type { Filme } from "../../types/Filme";
 
 interface FilmeCardProps {
   filme: Filme;
@@ -24,11 +24,19 @@ export default function FilmeCard({
       activeOpacity={0.8}
     >
       <View style={styles.posterWrapper}>
-        {filme.capaUri ? (
-          <Image source={{ uri: filme.capaUri }} style={styles.poster} resizeMode="cover" />
+        {filme.posterUri ? (
+          <Image
+            source={{ uri: filme.posterUri }}
+            style={styles.poster}
+            resizeMode="cover"
+          />
         ) : (
           <View style={styles.posterFallbackIcon}>
-            <MaterialCommunityIcons name="movie-open-outline" size={36} color={COLORS.muted} />
+            <MaterialCommunityIcons
+              name="movie-open-outline"
+              size={36}
+              color={COLORS.muted}
+            />
           </View>
         )}
 
@@ -38,9 +46,9 @@ export default function FilmeCard({
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Ionicons
-            name={filme.favorito ? 'heart' : 'heart-outline'}
+            name={filme.favorito ? "heart-outline" : "heart"}
             size={16}
-            color={filme.favorito ? COLORS.heartOn : COLORS.heartOff}
+            color={filme.favorito ? COLORS.heartOff : COLORS.heartOn}
           />
         </TouchableOpacity>
       </View>

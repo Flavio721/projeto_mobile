@@ -1,32 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import styles, { COLORS } from './styles';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../../App';
+  Alert,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import styles, { COLORS } from "./styles";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import type { RootStackParamList } from "../../../App";
 
-const API_BASE_URL = 'http://10.67.126.163:3000';
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 interface CadastroScreenProps {
   onBack?: () => void;
 }
 
-type CadastroNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Cadastro'>;
+type CadastroNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "Cadastro"
+>;
 
 export default function CadastroScreen({ onBack }: CadastroScreenProps) {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,12 +37,12 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
 
   const handleCadastro = async () => {
     if (!fullName || !email || !password || !confirmPassword) {
-      Alert.alert('Atenção', 'Preencha todos os campos.');
+      Alert.alert("Atenção", "Preencha todos os campos.");
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Atenção', 'As senhas não coincidem.');
+      Alert.alert("Atenção", "As senhas não coincidem.");
       return;
     }
 
@@ -47,9 +50,9 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
 
     try {
       const response = await fetch(`${API_BASE_URL}/users/cadastro`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: fullName,
@@ -61,15 +64,15 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        Alert.alert('Erro', data.error ?? 'Não foi possível cadastrar.');
+        Alert.alert("Erro", data.error ?? "Não foi possível cadastrar.");
         return;
       }
 
-      Alert.alert('Sucesso', 'Conta criada com sucesso!');
+      Alert.alert("Sucesso", "Conta criada com sucesso!");
       navigation.goBack();
     } catch (error) {
-      console.error('Erro ao cadastrar:', error);
-      Alert.alert('Erro', 'Falha de conexão com o servidor.');
+      console.error("Erro ao cadastrar:", error);
+      Alert.alert("Erro", "Falha de conexão com o servidor.");
     } finally {
       setIsSubmitting(false);
     }
@@ -82,7 +85,10 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.topBar}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
             <Ionicons name="arrow-back" size={22} color={COLORS.white} />
           </TouchableOpacity>
           <View style={styles.topBarTitles}>
@@ -160,7 +166,7 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
             />
             <TouchableOpacity onPress={() => setShowPassword((prev) => !prev)}>
               <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
                 size={18}
                 color={COLORS.placeholder}
               />
@@ -189,7 +195,7 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
               onPress={() => setShowConfirmPassword((prev) => !prev)}
             >
               <Ionicons
-                name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
                 size={18}
                 color={COLORS.placeholder}
               />

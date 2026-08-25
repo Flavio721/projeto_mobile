@@ -1,68 +1,85 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert
-} from 'react-native';
+  Alert,
+} from "react-native";
 import {
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
-} from '@expo/vector-icons';
-import styles, { COLORS } from './styles';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../../App';
+} from "@expo/vector-icons";
+import styles, { COLORS } from "./styles";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import type { RootStackParamList } from "../../../App";
+import { Platform } from "react-native";
+import * as SecureStore from "expo-secure-store";
 
-const API_BASE_URL = 'http://10.67.126.163:3000';
+async function salvarItem(chave: string, valor: string) {
+  if (Platform.OS === "web") {
+    localStorage.setItem(chave, valor);
+    return;
+  }
 
-type LoginNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
+  await SecureStore.setItemAsync(chave, valor);
+}
+
+// const API_BASE_URL = "http://IP_DA_MAQUINA:3000";
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+
+type LoginNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "Login"
+>;
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const navigation = useNavigation<LoginNavigationProp>();
 
   const handleLogin = async () => {
-    console.log("Entrou na função")
+    console.log("Entrou na função");
     if (!email || !password) return;
-    console.log("Passou do if")
+    console.log("Passou do if");
 
     try {
-      console.log("Entrou no try")
+      console.log("Entrou no try");
       const response = await fetch(`${API_BASE_URL}/users/login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email,
           password,
         }),
       });
-      console.log("Passou da requisição")
+      console.log("Passou da requisição");
 
       const data = await response.json();
-      console.log(data)
+      console.log(data);
 
       if (!response.ok) {
-        Alert.alert('Erro', data.error ?? 'Não foi possível entrar.');
+        Alert.alert("Erro", data.error ?? "Não foi possível entrar.");
         return;
       }
 
-      Alert.alert('Sucesso', 'Login efetuado com sucesso!');
-      navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+      Alert.alert("Sucesso", "Login efetuado com sucesso!");
+      await salvarItem("token", data.token);
+      await salvarItem("userName", data.user.name);
+      navigation.reset({ index: 0, routes: [{ name: "Main" }] });
     } catch (error) {
       console.error("Erro: ", error);
       Alert.alert("Erro", "Erro ao fazer login");
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -122,7 +139,7 @@ export default function LoginScreen() {
             />
             <TouchableOpacity onPress={() => setShowPassword((prev) => !prev)}>
               <Ionicons
-                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                name={showPassword ? "eye-off-outline" : "eye-outline"}
                 size={18}
                 color={COLORS.placeholder}
               />
@@ -136,7 +153,7 @@ export default function LoginScreen() {
             onPress={() => setRememberMe((prev) => !prev)}
           >
             <MaterialIcons
-              name={rememberMe ? 'check-box' : 'check-box-outline-blank'}
+              name={rememberMe ? "check-box" : "check-box-outline-blank"}
               size={18}
               color={rememberMe ? COLORS.gold : COLORS.placeholder}
             />

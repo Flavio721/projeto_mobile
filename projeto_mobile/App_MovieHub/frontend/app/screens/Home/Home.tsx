@@ -17,7 +17,7 @@ import FilmeCard from "../../components/FilmeCards/FilmeCard";
 import { MOCK_FILMES } from "../../data/mockFilmes";
 import type { MainStackParamList } from "../../navigation/MainStack";
 
-const API_BASE_URL = process.env.API_BASE_URL;
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 interface DashboardStats {
   total: number;

@@ -40,7 +40,6 @@ const Cadastro = async (req: Request, res: Response) => {
 
 const Login = async (req: Request, res: Response) => {
   try {
-    console.log("Requisição de login");
     const { email, password } = req.body;
 
     if (!email || !password) {

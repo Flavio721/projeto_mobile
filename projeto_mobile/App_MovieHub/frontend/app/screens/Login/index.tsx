@@ -19,15 +19,8 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../../App";
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
+import { salvarItem } from "../../lib/storage";
 
-async function salvarItem(chave: string, valor: string) {
-  if (Platform.OS === "web") {
-    localStorage.setItem(chave, valor);
-    return;
-  }
-
-  await SecureStore.setItemAsync(chave, valor);
-}
 
 // const API_BASE_URL = "http://IP_DA_MAQUINA:3000";
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
@@ -61,10 +54,9 @@ export default function LoginScreen() {
           password,
         }),
       });
-      console.log("Passou da requisição");
 
       const data = await response.json();
-      console.log(data);
+  
 
       if (!response.ok) {
         Alert.alert("Erro", data.error ?? "Não foi possível entrar.");

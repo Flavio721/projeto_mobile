@@ -1,4 +1,4 @@
-export type StatusFilme = 'assistido' | 'quero_assistir' | 'assistindo';
+export type StatusFilme = 'WATCHED' | 'WATCHLIST';
 
 export interface Filme {
     id: string;

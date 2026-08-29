@@ -82,6 +82,8 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: COLORS.white,
   },
+
+  
 });
 
 export { COLORS };

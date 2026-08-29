@@ -18,8 +18,9 @@ import SelectField from "./components/SelectField";
 import StarRatingInput from "./components/StarRatingInput";
 import type { MainStackParamList } from "../../navigation/MainStack";
 import type { StatusFilme } from "../../types/Filme";
+import { buscarItem } from "../../lib/storage";
 
-const API_BASE_URL = "http://192.168.100.153:3000";
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 const GENEROS = [
   "Ação",
@@ -37,9 +38,8 @@ const GENEROS = [
 ];
 
 const STATUS_OPTIONS: { label: string; value: StatusFilme }[] = [
-  { label: "Assistido", value: "assistido" },
-  { label: "Quero assistir", value: "quero_assistir" },
-  { label: "Assistindo", value: "assistindo" },
+  { label: "Assistido", value: "WATCHED" },
+  { label: "Quero assistir", value: "WATCHLIST" },
 ];
 
 type AdicionarNavigationProp = NativeStackNavigationProp<MainStackParamList>;
@@ -102,31 +102,49 @@ export default function Adicionar() {
   };
 
   const handleSalvar = async () => {
+    console.log("Entrou na função");
     if (!titulo || !genero || !ano || !status) {
       Alert.alert("Atenção", "Preencha ao menos Título, Gênero, Ano e Status.");
       return;
     }
+    if (!posterUri) {
+      Alert.alert("Atenção", "Selecione uma capa para o filme.");
+      return;
+    }
+    console.log("Passou do if");
 
     setIsSubmitting(true);
+    console.log("Setou true no useState");
     try {
-      // TODO: rota /filmes ainda não existe no backend — isso vai falhar até ela ser criada.
-      const response = await fetch(`${API_BASE_URL}/filmes`, {
+      console.log("Entrou no try");
+      const token = await buscarItem("token");
+      if (!token) {
+        Alert.alert("Sessão expirada", "Faça login novamente.");
+        return;
+      }
+      const response = await fetch(`${API_BASE_URL}/movies/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
-          titulo,
-          genero,
-          ano: Number(ano),
-          duracaoMin: duracaoMin ? Number(duracaoMin) : undefined,
-          diretor: diretor || undefined,
-          descricao: descricao || undefined,
-          nota,
+          title: titulo,
+          coverUrl: posterUri,
+          genres: [genero],
+          releaseYear: Number(ano),
+          durationMovie: duracaoMin ? Number(duracaoMin) : undefined,
+          director: diretor || undefined,
+          description: descricao || undefined,
+          rating: nota,
           status,
           trailerUrl: trailerUrl || undefined,
         }),
       });
+      console.log("Passou do response");
 
       const data = await response.json();
+      console.log(data);
 
       if (!response.ok) {
         Alert.alert("Erro", data.error ?? "Não foi possível salvar o filme.");
@@ -146,13 +164,11 @@ export default function Adicionar() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
+        keyboardShouldPersistTaps="handled">
         <View style={styles.topBar}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
+            onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={22} color={COLORS.white} />
           </TouchableOpacity>
           <Text style={styles.title}>Novo Filme</Text>
@@ -161,8 +177,7 @@ export default function Adicionar() {
         <TouchableOpacity
           style={styles.coverBox}
           onPress={escolherDaGaleria}
-          activeOpacity={0.85}
-        >
+          activeOpacity={0.85}>
           {posterUri ? (
             <Image source={{ uri: posterUri }} style={styles.coverImage} />
           ) : (
@@ -174,19 +189,16 @@ export default function Adicionar() {
           style={[
             styles.coverActionsRow,
             { justifyContent: "center", marginTop: -8, marginBottom: 20 },
-          ]}
-        >
+          ]}>
           <TouchableOpacity
             style={styles.coverActionButton}
-            onPress={escolherDaGaleria}
-          >
+            onPress={escolherDaGaleria}>
             <Ionicons name="images-outline" size={16} color={COLORS.gold} />
             <Text style={styles.coverActionText}>Galeria</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.coverActionButton}
-            onPress={tirarFoto}
-          >
+            onPress={tirarFoto}>
             <Ionicons name="camera-outline" size={16} color={COLORS.gold} />
             <Text style={styles.coverActionText}>Câmera</Text>
           </TouchableOpacity>
@@ -298,8 +310,7 @@ export default function Adicionar() {
         <TouchableOpacity
           style={[styles.primaryButton, isSubmitting && { opacity: 0.6 }]}
           onPress={handleSalvar}
-          disabled={isSubmitting}
-        >
+          disabled={isSubmitting}>
           <Text style={styles.primaryButtonText}>
             {isSubmitting ? "Salvando..." : "Salvar Filme"}
           </Text>
@@ -307,8 +318,7 @@ export default function Adicionar() {
 
         <TouchableOpacity
           style={styles.secondaryButton}
-          onPress={() => navigation.goBack()}
-        >
+          onPress={() => navigation.goBack()}>
           <Text style={styles.secondaryButtonText}>Cancelar</Text>
         </TouchableOpacity>
       </ScrollView>

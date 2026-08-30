@@ -46,9 +46,9 @@ export default function FilmeCard({
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Ionicons
-            name={filme.favorito ? "heart-outline" : "heart"}
+            name={filme.favorito ? "heart" : "heart-outline"}
             size={16}
-            color={filme.favorito ? COLORS.heartOff : COLORS.heartOn}
+            color={filme.favorito ? COLORS.heartOn : COLORS.heartOff}
           />
         </TouchableOpacity>
       </View>

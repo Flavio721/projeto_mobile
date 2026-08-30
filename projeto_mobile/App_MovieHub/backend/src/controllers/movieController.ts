@@ -5,7 +5,7 @@ import { MovieStatus } from '../../generated/prisma/enums.js';
 
 const STATUS_VALIDOS = Object.values(MovieStatus);
 
-interface CreateFilmBody {  
+interface CreateFilmBody {
     title?: string;
     coverUrl?: string;
     releaseYear?: number;
@@ -93,7 +93,7 @@ const createFilm = async (req: AuthRequest, res: Response) => {
                 director: director!,
                 description: description!,
                 rating: rating!,
-                status: status ?? undefined, // schema já default WATCHED se não vier
+                status: status ?? undefined,
                 trailerUrl: trailerUrl || undefined,
                 userId,
                 genres: {
@@ -113,9 +113,6 @@ const createFilm = async (req: AuthRequest, res: Response) => {
         return res.status(500).json({ error: "Erro ao criar filme" });
     }
 };
-
-// ADICIONAR ao final do movieController.ts existente,
-// mantendo os imports e o createFilm que já estão lá.
 
 const getMovies = async (req: AuthRequest, res: Response) => {
     try {
@@ -160,4 +157,41 @@ const getStats = async (req: AuthRequest, res: Response) => {
     }
 };
 
-export { createFilm, getMovies, getStats };
+const toggleFavorite = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: "Erro de autenticação" });
+        }
+
+        const movieId = Number(req.params.id);
+
+        if (!Number.isInteger(movieId)) {
+            return res.status(400).json({ error: "Id de filme inválido" });
+        }
+
+        const filme = await prisma.movie.findUnique({ where: { id: movieId } });
+
+        if (!filme) {
+            return res.status(404).json({ error: "Filme não encontrado" });
+        }
+
+        if (filme.userId !== userId) {
+            return res.status(403).json({ error: "Esse filme não pertence a você" });
+        }
+
+        const filmeAtualizado = await prisma.movie.update({
+            where: { id: movieId },
+            data: { isFavorite: !filme.isFavorite },
+            include: { genres: true },
+        });
+
+        return res.status(200).json(filmeAtualizado);
+    } catch (error) {
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao favoritar filme" });
+    }
+};
+
+export { createFilm, getMovies, getStats, toggleFavorite };

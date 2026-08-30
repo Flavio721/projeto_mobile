@@ -156,6 +156,26 @@ const styles = StyleSheet.create({
     color: COLORS.muted,
     fontSize: 12,
   },
+  emptyGeneralBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 16,
+    paddingVertical: 60,
+    marginTop: 8,
+  },
+  emptyGeneralEmoji: {
+    fontSize: 40,
+    marginBottom: 12,
+  },
+  emptyGeneralText: {
+    color: COLORS.muted,
+    fontSize: 15,
+    fontWeight: "600",
+    textAlign: "center",
+  },
   container: {
     flexDirection: "row",
     alignItems: "center",

@@ -1,48 +1,45 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Alert,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import styles, { COLORS } from "./styles";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import type { RootStackParamList } from "../../../App";
+} from 'react-native';
+import {
+  Ionicons,
+} from '@expo/vector-icons';
+import styles, { COLORS } from './styles';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../../../App';
+import LoadingOverlay from '../Adicionar/components/LoadingOverlay';
+import { useToast } from '../../contexts/ToastContext';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
-interface CadastroScreenProps {
-  onBack?: () => void;
-}
+type CadastroNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Cadastro'>;
 
-type CadastroNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  "Cadastro"
->;
-
-export default function CadastroScreen({ onBack }: CadastroScreenProps) {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+export default function CadastroScreen() {
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigation = useNavigation<CadastroNavigationProp>();
+  const { showSuccess, showError } = useToast();
 
   const handleCadastro = async () => {
     if (!fullName || !email || !password || !confirmPassword) {
-      Alert.alert("Atenção", "Preencha todos os campos.");
+      showError('Preencha todos os campos.');
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert("Atenção", "As senhas não coincidem.");
+      showError('As senhas não coincidem.');
       return;
     }
 
@@ -50,9 +47,9 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
 
     try {
       const response = await fetch(`${API_BASE_URL}/users/cadastro`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           name: fullName,
@@ -64,15 +61,15 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        Alert.alert("Erro", data.error ?? "Não foi possível cadastrar.");
+        showError(data.error ?? 'Não foi possível cadastrar.');
         return;
       }
 
-      Alert.alert("Sucesso", "Conta criada com sucesso!");
+      showSuccess('Conta criada com sucesso!');
       navigation.goBack();
     } catch (error) {
-      console.error("Erro ao cadastrar:", error);
-      Alert.alert("Erro", "Falha de conexão com o servidor.");
+      console.error('Erro ao cadastrar:', error);
+      showError('Falha de conexão com o servidor.');
     } finally {
       setIsSubmitting(false);
     }
@@ -80,15 +77,13 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <LoadingOverlay visible={isSubmitting} message="Criando sua conta..." />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
         <View style={styles.topBar}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={22} color={COLORS.white} />
           </TouchableOpacity>
           <View style={styles.topBarTitles}>
@@ -166,7 +161,7 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
             />
             <TouchableOpacity onPress={() => setShowPassword((prev) => !prev)}>
               <Ionicons
-                name={showPassword ? "eye-off-outline" : "eye-outline"}
+                name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                 size={18}
                 color={COLORS.placeholder}
               />
@@ -195,7 +190,7 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
               onPress={() => setShowConfirmPassword((prev) => !prev)}
             >
               <Ionicons
-                name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
+                name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
                 size={18}
                 color={COLORS.placeholder}
               />
@@ -203,13 +198,17 @@ export default function CadastroScreen({ onBack }: CadastroScreenProps) {
           </View>
         </View>
 
-        <TouchableOpacity style={styles.primaryButton} onPress={handleCadastro}>
+        <TouchableOpacity
+          style={[styles.primaryButton, isSubmitting && { opacity: 0.6 }]}
+          onPress={handleCadastro}
+          disabled={isSubmitting}
+        >
           <Text style={styles.primaryButtonText}>Cadastrar</Text>
         </TouchableOpacity>
 
         <View style={styles.footerRow}>
           <Text style={styles.footerText}>Já tem uma conta? </Text>
-          <TouchableOpacity onPress={onBack}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
             <Text style={styles.footerLink}>Fazer login</Text>
           </TouchableOpacity>
         </View>

@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { prisma } from "../lib/prisma.js";
+import prisma from '../lib/prisma.js';
 import { AuthRequest } from "../middlewares/authMiddleware.js";
 import { MovieStatus } from '../../generated/prisma/enums.js';
 
@@ -157,7 +157,7 @@ const getStats = async (req: AuthRequest, res: Response) => {
     }
 };
 
-const toggleFavorite = async (req: AuthRequest, res: Response) => {
+const setFavorite = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.userId;
 
@@ -166,9 +166,14 @@ const toggleFavorite = async (req: AuthRequest, res: Response) => {
         }
 
         const movieId = Number(req.params.id);
+        const { isFavorite } = req.body as { isFavorite?: boolean };
 
         if (!Number.isInteger(movieId)) {
             return res.status(400).json({ error: "Id de filme inválido" });
+        }
+
+        if (typeof isFavorite !== 'boolean') {
+            return res.status(400).json({ error: "Campo isFavorite deve ser true ou false" });
         }
 
         const filme = await prisma.movie.findUnique({ where: { id: movieId } });
@@ -183,7 +188,7 @@ const toggleFavorite = async (req: AuthRequest, res: Response) => {
 
         const filmeAtualizado = await prisma.movie.update({
             where: { id: movieId },
-            data: { isFavorite: !filme.isFavorite },
+            data: { isFavorite },
             include: { genres: true },
         });
 
@@ -194,4 +199,4 @@ const toggleFavorite = async (req: AuthRequest, res: Response) => {
     }
 };
 
-export { createFilm, getMovies, getStats, toggleFavorite };
+export { createFilm, getMovies, getStats, setFavorite };

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { prisma } from "../lib/prisma.js";
+import prisma from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { AuthRequest } from "../middlewares/authMiddleware.js";
@@ -76,24 +76,27 @@ const Login = async (req: Request, res: Response) => {
   }
 };
 
-const Stats = async (req: AuthRequest, res: Response) => {
+const getMe = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = req.userId!;
+    const userId = req.userId;
 
-    const [total, assistidos, queroAssistir, favoritos] = await Promise.all([
-      prisma.movie.count({ where: { userId } }),
-      prisma.movie.count({ where: { userId, status: "WATCHED" } }),
-      prisma.movie.count({ where: { userId, status: "WATCHLIST" } }),
-      prisma.movie.count({ where: { userId, favorito: true } }),
-    ]);
+    if (!userId) {
+      return res.status(401).json({ error: "Erro de autenticação" });
+    }
 
-    return res
-      .status(200)
-      .json({ total, assistidos, queroAssistir, favoritos });
+    const usuario = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!usuario) {
+      // Token válido, mas o usuário foi excluído do banco depois de gerado.
+      return res.status(401).json({ error: "Usuário não encontrado" });
+    }
+
+    const { password: _, ...usuarioSemSenha } = usuario;
+    return res.status(200).json(usuarioSemSenha);
   } catch (error) {
-    console.error("Erro:", error);
-    return res.status(500).json({ error: "Erro ao buscar estatísticas" });
+    console.error("Erro: ", error);
+    return res.status(500).json({ error: "Erro ao buscar usuário" });
   }
 };
 
-export { Cadastro, Login, Stats };
+export { Cadastro, Login, getMe };

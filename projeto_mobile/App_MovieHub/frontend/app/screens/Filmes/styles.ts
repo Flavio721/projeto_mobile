@@ -70,9 +70,10 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   tabsRow: {
-    flexDirection: "row",
     marginBottom: 16,
+    flexGrow: 0,
   },
+
   tabButton: {
     paddingVertical: 8,
     paddingHorizontal: 14,

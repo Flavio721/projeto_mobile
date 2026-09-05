@@ -5,6 +5,7 @@ import Adicionar from '../screens/Adicionar/Adicionar';
 import Detalhes from '../screens/Detalhes/Detalhes';
 import Editar from '../screens/Editar/Index';
 import Excluir from '../screens/Excluir/Index';
+import Pesquisa from '../screens/Pesquisa/Pesquisa';
 import type { Filme } from '../types/Filme';
 
 export type MainStackParamList = {
@@ -13,6 +14,7 @@ export type MainStackParamList = {
   Detalhes: { filmeId: string };
   Editar: { filmeId: string };
   Excluir: { filme: Filme };
+  Pesquisa: undefined;
 };
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -27,6 +29,7 @@ export default function MainStack() {
       <Stack.Screen name="Detalhes" component={Detalhes} />
       <Stack.Screen name="Editar" component={Editar} options={{ presentation: 'modal' }} />
       <Stack.Screen name="Excluir" component={Excluir} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="Pesquisa" component={Pesquisa} />
     </Stack.Navigator>
   );
 }

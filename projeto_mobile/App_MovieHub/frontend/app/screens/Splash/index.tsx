@@ -3,12 +3,8 @@ import { View, Text, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-<<<<<<< HEAD
 import type { RootStackParamList } from '../../navigation/RootStack';
-=======
-import type { RootStackParamList } from '../../../App';
 import { buscarItem, removerItem } from '../../lib/storage';
->>>>>>> f6ceb3456ca8f4318e87720b444c106db1f085ab
 import styles, { COLORS } from './style';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;

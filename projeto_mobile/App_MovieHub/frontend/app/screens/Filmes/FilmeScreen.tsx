@@ -1,17 +1,4 @@
-<<<<<<< HEAD
-import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import styles, { COLORS } from './styles';
-import FilmeCard from '../../components/FilmeCards/FilmeCard';
-import { MOCK_FILMES } from '../../data/mockFilmes';
-import type { MainStackParamList } from '../../navigation/MainStack';
-import type { Filme, StatusFilme } from '../../types/Filme';
-=======
-import React, { useMemo, useState, useCallback, useRef } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import {
   View,
   Text,
@@ -29,22 +16,15 @@ import FilmeCard from "../../components/FilmeCards/FilmeCard";
 import type { MainStackParamList } from "../../navigation/MainStack";
 import type { Filme, StatusFilme } from "../../types/Filme";
 import { buscarItem } from "../../lib/storage";
->>>>>>> f6ceb3456ca8f4318e87720b444c106db1f085ab
 
 type FilmesNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 type FiltroTab = 'todos' | StatusFilme;
 
 const TABS: { key: FiltroTab; label: string }[] = [
-<<<<<<< HEAD
   { key: 'todos', label: 'Todos' },
   { key: 'WATCHED', label: 'Assistidos' },
   { key: 'WATCHLIST', label: 'Quero assistir' },
-=======
-  { key: "todos", label: "Todos" },
-  { key: "WATCHED", label: "Assistidos" },
-  { key: "WATCHLIST", label: "Quero assistir" },
->>>>>>> f6ceb3456ca8f4318e87720b444c106db1f085ab
 ];
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
@@ -72,11 +52,6 @@ function mapMovieToFilme(movie: any): Filme {
 export default function FilmesScreen() {
   const navigation = useNavigation<FilmesNavigationProp>();
   // TEMPORÁRIO — substituir por fetch em /filmes quando essa rota existir no backend.
-<<<<<<< HEAD
-  const [filmes, setFilmes] = useState<Filme[]>(MOCK_FILMES);
-  const [busca, setBusca] = useState('');
-  const [tabAtiva, setTabAtiva] = useState<FiltroTab>('todos');
-=======
   const [filmes, setFilmes] = useState<Filme[]>([]);
   const [busca, setBusca] = useState("");
   const [tabAtiva, setTabAtiva] = useState<FiltroTab>("todos");
@@ -118,7 +93,6 @@ export default function FilmesScreen() {
       carregarDados();
     }, [carregarDados]),
   );
->>>>>>> f6ceb3456ca8f4318e87720b444c106db1f085ab
 
   const filmesFiltrados = useMemo(() => {
     return filmes.filter((f) => {
@@ -134,15 +108,11 @@ export default function FilmesScreen() {
     let novoValor = false;
 
     setFilmes((prev) =>
-<<<<<<< HEAD
-      prev.map((f) => (f.id === id ? { ...f, favorito: !f.favorito } : f))
-=======
       prev.map((f) => {
         if (f.id !== id) return f;
         novoValor = !f.favorito;
         return { ...f, favorito: novoValor };
       }),
->>>>>>> f6ceb3456ca8f4318e87720b444c106db1f085ab
     );
 
     if (debounceTimers.current[id]) {

@@ -75,6 +75,11 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: 14,
   },
+  searchPlaceholderText: {
+    flex: 1,
+    color: COLORS.placeholder,
+    fontSize: 14,
+  },
   addButton: {
     width: 46,
     height: 46,

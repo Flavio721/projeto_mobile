@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-<<<<<<< HEAD
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -14,19 +13,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../navigation/RootStack";
-=======
-} from 'react-native';
-import {
-  Ionicons,
-} from '@expo/vector-icons';
-import styles, { COLORS } from './styles';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../../../App';
-import LoadingOverlay from '../Adicionar/components/LoadingOverlay';
 import { useToast } from '../../contexts/ToastContext';
->>>>>>> f6ceb3456ca8f4318e87720b444c106db1f085ab
+import LoadingOverlay from '../components/LoadingOverlay';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 

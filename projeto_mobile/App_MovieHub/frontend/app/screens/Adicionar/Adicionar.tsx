@@ -18,7 +18,7 @@ import StarRatingInput from "../components/StarRatingInput";
 import type { MainStackParamList } from "../../navigation/MainStack";
 import type { StatusFilme } from "../../types/Filme";
 import { buscarItem } from "../../lib/storage";
-import LoadingOverlay from "./components/LoadingOverlay";
+import LoadingOverlay from "../components/LoadingOverlay";
 import { useToast } from "../../contexts/ToastContext";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;

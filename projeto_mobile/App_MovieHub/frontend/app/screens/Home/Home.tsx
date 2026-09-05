@@ -2,7 +2,6 @@ import React, { useCallback, useRef, useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
@@ -11,8 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import styles, { COLORS } from "./styles";
 import FilmeCard from "../../components/FilmeCards/FilmeCard";
+import styles, { COLORS } from "./styles";
 import { buscarItem } from "../../lib/storage";
 import { mapMovieToFilme } from "../../utils/movieMapper";
 import type { MainStackParamList } from "../../navigation/MainStack";
@@ -34,13 +33,11 @@ const STATS_VAZIO: DashboardStats = {
   favoritos: 0,
 };
 
-
 type HomeNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export default function HomeScreen() {
   const navigation = useNavigation<HomeNavigationProp>();
   const [filmes, setFilmes] = useState<Filme[]>([]);
-  const [busca, setBusca] = useState("");
   const [userName, setUserName] = useState("");
   const [stats, setStats] = useState<DashboardStats>(STATS_VAZIO);
   const [carregando, setCarregando] = useState(true);
@@ -91,7 +88,7 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       carregarDados();
-      buscarItem("userName").then((nome: any) => setUserName(nome ?? ""));
+      buscarItem("userName").then((nome) => setUserName(nome ?? ""));
     }, [carregarDados]),
   );
 
@@ -113,9 +110,6 @@ export default function HomeScreen() {
         },
         body: JSON.stringify({ isFavorite: valor }),
       });
-      // Não precisamos reagir ao resultado aqui: a UI já foi atualizada
-      // de forma otimista, e o próximo carregarDados() (ao focar a tela de
-      // novo) corrige qualquer divergência, caso a requisição tenha falhado.
     } catch (error) {
       console.error("Erro ao favoritar:", error);
     }
@@ -132,7 +126,6 @@ export default function HomeScreen() {
       }),
     );
 
-    // Dashboard reage junto, na hora — sem esperar o servidor confirmar.
     setStats((prev) => ({
       ...prev,
       favoritos: prev.favoritos + (novoValor ? 1 : -1),
@@ -178,22 +171,23 @@ export default function HomeScreen() {
         </Text>
         <Text style={styles.subtitle}>Desfrute dos seus filmes favoritos.</Text>
 
+        {/* Não é mais um TextInput funcional — é um botão que abre a tela
+            de Pesquisa de verdade. Por isso "editable" nem existe aqui;
+            o toque inteiro na barra é uma navegação, não uma digitação. */}
         <View style={styles.searchRow}>
-          <View style={styles.searchWrapper}>
+          <TouchableOpacity
+            style={styles.searchWrapper}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate("Pesquisa")}
+          >
             <Ionicons
               name="search-outline"
               size={18}
               color={COLORS.placeholder}
               style={styles.searchIcon}
             />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Pesquisar filmes..."
-              placeholderTextColor={COLORS.placeholder}
-              value={busca}
-              onChangeText={setBusca}
-            />
-          </View>
+            <Text style={styles.searchPlaceholderText}>Pesquisar filmes...</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => navigation.navigate("Adicionar")}
@@ -263,9 +257,7 @@ export default function HomeScreen() {
                     <FilmeCard
                       filme={filme}
                       onToggleFavorito={handleToggleFavorito}
-                      onPress={(filme) =>
-                      navigation.navigate("Detalhes", { filmeId: filme.id })
-                    }
+                      onPress={(f : any) => navigation.navigate("Detalhes", { filmeId: f.id })}
                     />
                   </View>
                 ))}
@@ -296,9 +288,7 @@ export default function HomeScreen() {
                       <FilmeCard
                         filme={filme}
                         onToggleFavorito={handleToggleFavorito}
-                        onPress={(filme) =>
-                        navigation.navigate("Detalhes", { filmeId: filme.id })
-                      }
+                        onPress={(f : any) => navigation.navigate("Detalhes", { filmeId: f.id })}
                       />
                     </View>
                   ))}

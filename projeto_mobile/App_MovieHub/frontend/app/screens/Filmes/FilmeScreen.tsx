@@ -1,42 +1,35 @@
-import React, { useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import styles, { COLORS } from "./styles";
-import FilmeCard from "../../components/FilmeCards/FilmeCard";
-import { MOCK_FILMES } from "../../data/mockFilmes";
-import type { MainStackParamList } from "../../navigation/MainStack";
-import type { Filme, StatusFilme } from "../../types/Filme";
+import React, { useMemo, useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import styles, { COLORS } from './styles';
+import FilmeCard from '../../components/FilmeCards/FilmeCard';
+import { MOCK_FILMES } from '../../data/mockFilmes';
+import type { MainStackParamList } from '../../navigation/MainStack';
+import type { Filme, StatusFilme } from '../../types/Filme';
 
 type FilmesNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
-type FiltroTab = "todos" | StatusFilme;
+type FiltroTab = 'todos' | StatusFilme;
 
 const TABS: { key: FiltroTab; label: string }[] = [
-  { key: "todos", label: "Todos" },
-  { key: "assistido", label: "Assistidos" },
-  { key: "quero_assistir", label: "Quero assistir" },
-  { key: "assistindo", label: "Assistindo" },
+  { key: 'todos', label: 'Todos' },
+  { key: 'WATCHED', label: 'Assistidos' },
+  { key: 'WATCHLIST', label: 'Quero assistir' },
 ];
 
 export default function FilmesScreen() {
   const navigation = useNavigation<FilmesNavigationProp>();
   // TEMPORÁRIO — substituir por fetch em /filmes quando essa rota existir no backend.
   const [filmes, setFilmes] = useState<Filme[]>(MOCK_FILMES);
-  const [busca, setBusca] = useState("");
-  const [tabAtiva, setTabAtiva] = useState<FiltroTab>("todos");
+  const [busca, setBusca] = useState('');
+  const [tabAtiva, setTabAtiva] = useState<FiltroTab>('todos');
 
   const filmesFiltrados = useMemo(() => {
     return filmes.filter((f) => {
-      const bateTab = tabAtiva === "todos" || f.status === tabAtiva;
+      const bateTab = tabAtiva === 'todos' || f.status === tabAtiva;
       const bateBusca = f.titulo.toLowerCase().includes(busca.toLowerCase());
       return bateTab && bateBusca;
     });
@@ -44,7 +37,7 @@ export default function FilmesScreen() {
 
   const handleToggleFavorito = (id: string) => {
     setFilmes((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, favorito: !f.favorito } : f)),
+      prev.map((f) => (f.id === id ? { ...f, favorito: !f.favorito } : f))
     );
   };
 
@@ -55,7 +48,7 @@ export default function FilmesScreen() {
           <Text style={styles.headerTitle}>Filmes</Text>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => alert("Filtros avançados em desenvolvimento")}
+            onPress={() => alert('Filtros avançados em desenvolvimento')}
           >
             <Ionicons name="funnel-outline" size={22} color={COLORS.white} />
           </TouchableOpacity>
@@ -79,7 +72,7 @@ export default function FilmesScreen() {
           </View>
           <TouchableOpacity
             style={styles.sortButton}
-            onPress={() => alert("Ordenação em desenvolvimento")}
+            onPress={() => alert('Ordenação em desenvolvimento')}
           >
             <Ionicons name="options-outline" size={18} color={COLORS.white} />
           </TouchableOpacity>
@@ -98,12 +91,7 @@ export default function FilmesScreen() {
                 style={[styles.tabButton, ativa && styles.tabButtonActive]}
                 onPress={() => setTabAtiva(item.key)}
               >
-                <Text
-                  style={[
-                    styles.tabButtonText,
-                    ativa && styles.tabButtonTextActive,
-                  ]}
-                >
+                <Text style={[styles.tabButtonText, ativa && styles.tabButtonTextActive]}>
                   {item.label}
                 </Text>
               </TouchableOpacity>
@@ -121,23 +109,15 @@ export default function FilmesScreen() {
               <FilmeCard
                 filme={item}
                 onToggleFavorito={handleToggleFavorito}
-                onPress={(filme: any) =>
-                  navigation.navigate("Detalhes", { filme })
-                }
+                onPress={(filme : any) => navigation.navigate('Detalhes', { filmeId: filme.id })}
               />
             </View>
           )}
           ListEmptyComponent={
             <View style={styles.emptyBox}>
-              <Ionicons
-                name="film-outline"
-                size={26}
-                color={COLORS.placeholder}
-              />
+              <Ionicons name="film-outline" size={26} color={COLORS.placeholder} />
               <Text style={styles.emptyText}>
-                {busca
-                  ? "Nenhum filme encontrado para essa busca"
-                  : "Nenhum filme registrado ainda"}
+                {busca ? 'Nenhum filme encontrado para essa busca' : 'Nenhum filme registrado ainda'}
               </Text>
             </View>
           }

@@ -16,9 +16,7 @@ import styles, { COLORS } from "./styles";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import type { RootStackParamList } from "../../../App";
-import { Platform } from "react-native";
-import * as SecureStore from "expo-secure-store";
+import type { RootStackParamList } from "../../navigation/RootStack";
 import { salvarItem } from "../../lib/storage";
 
 

@@ -11,6 +11,8 @@ interface FilmeCardProps {
   showRating?: boolean;
 }
 
+
+
 export default function FilmeCard({
   filme,
   onToggleFavorito,

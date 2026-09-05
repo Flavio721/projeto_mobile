@@ -157,7 +157,181 @@ const getStats = async (req: AuthRequest, res: Response) => {
     }
 };
 
-const toggleFavorite = async (req: AuthRequest, res: Response) => {
+const setFavorite = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: "Erro de autenticação" });
+        }
+
+        const movieId = Number(req.params.id);
+        const { isFavorite } = req.body as { isFavorite?: boolean };
+
+        if (!Number.isInteger(movieId)) {
+            return res.status(400).json({ error: "Id de filme inválido" });
+        }
+
+        if (typeof isFavorite !== 'boolean') {
+            return res.status(400).json({ error: "Campo isFavorite deve ser true ou false" });
+        }
+
+        const filme = await prisma.movie.findUnique({ where: { id: movieId } });
+
+        if (!filme) {
+            return res.status(404).json({ error: "Filme não encontrado" });
+        }
+
+        if (filme.userId !== userId) {
+            return res.status(403).json({ error: "Esse filme não pertence a você" });
+        }
+
+        const filmeAtualizado = await prisma.movie.update({
+            where: { id: movieId },
+            data: { isFavorite },
+            include: { genres: true },
+        });
+
+        return res.status(200).json(filmeAtualizado);
+    } catch (error) {
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao favoritar filme" });
+    }
+};
+
+export { createFilm, getMovies, getStats, setFavorite };
+
+const getMovieById = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: "Erro de autenticação" });
+        }
+
+        const movieId = Number(req.params.id);
+
+        if (!Number.isInteger(movieId)) {
+            return res.status(400).json({ error: "Id de filme inválido" });
+        }
+
+        const filme = await prisma.movie.findUnique({
+            where: { id: movieId },
+            include: { genres: true },
+        });
+
+        if (!filme) {
+            return res.status(404).json({ error: "Filme não encontrado" });
+        }
+
+        if (filme.userId !== userId) {
+            return res.status(403).json({ error: "Esse filme não pertence a você" });
+        }
+
+        return res.status(200).json(filme);
+    } catch (error) {
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao buscar filme" });
+    }
+};
+
+interface UpdateFilmBody {
+    title?: string;
+    coverUrl?: string;
+    releaseYear?: number;
+    durationMovie?: number;
+    director?: string;
+    description?: string;
+    rating?: number;
+    status?: MovieStatus;
+    trailerUrl?: string;
+    genres?: string[];
+}
+
+const updateMovie = async (req: AuthRequest, res: Response) => {
+    try {
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({ error: "Erro de autenticação" });
+        }
+
+        const movieId = Number(req.params.id);
+
+        if (!Number.isInteger(movieId)) {
+            return res.status(400).json({ error: "Id de filme inválido" });
+        }
+
+        const filmeExistente = await prisma.movie.findUnique({ where: { id: movieId } });
+
+        if (!filmeExistente) {
+            return res.status(404).json({ error: "Filme não encontrado" });
+        }
+
+        if (filmeExistente.userId !== userId) {
+            return res.status(403).json({ error: "Esse filme não pertence a você" });
+        }
+
+        const body = req.body as UpdateFilmBody;
+
+        // Mesma validação da criação — edição também exige os campos obrigatórios.
+        const erroValidacao = validarCampos(body);
+        if (erroValidacao) {
+            return res.status(400).json({ error: erroValidacao });
+        }
+
+        const {
+            title, coverUrl, releaseYear, durationMovie, director,
+            description, rating, status, trailerUrl, genres,
+        } = body;
+
+        // Se o título mudou, confirma que não colide com outro filme já
+        // existente do mesmo usuário (a checagem de duplicidade da criação
+        // não se aplica aqui porque esse próprio filme já existe).
+        if (title!.toLowerCase() !== filmeExistente.title.toLowerCase()) {
+            const colisao = await prisma.movie.findFirst({
+                where: {
+                    userId,
+                    title: { equals: title, mode: 'insensitive' },
+                    NOT: { id: movieId },
+                },
+            });
+            if (colisao) {
+                return res.status(409).json({ error: "Você já tem outro filme com esse título" });
+            }
+        }
+
+        const filmeAtualizado = await prisma.movie.update({
+            where: { id: movieId },
+            data: {
+                title: title!,
+                coverUrl: coverUrl!,
+                releaseYear: releaseYear!,
+                duration: durationMovie!,
+                director: director!,
+                description: description!,
+                rating: rating!,
+                status: status ?? undefined,
+                trailerUrl: trailerUrl || undefined,
+                genres: {
+                    set: [], // desconecta os gêneros antigos antes de reconectar os novos
+                    connectOrCreate: genres!.map((nome) => ({
+                        where: { name: nome },
+                        create: { name: nome },
+                    })),
+                },
+            },
+            include: { genres: true },
+        });
+
+        return res.status(200).json(filmeAtualizado);
+    } catch (error) {
+        console.error("Erro: ", error);
+        return res.status(500).json({ error: "Erro ao atualizar filme" });
+    }
+};
+
+const deleteMovie = async (req: AuthRequest, res: Response) => {
     try {
         const userId = req.userId;
 
@@ -181,17 +355,13 @@ const toggleFavorite = async (req: AuthRequest, res: Response) => {
             return res.status(403).json({ error: "Esse filme não pertence a você" });
         }
 
-        const filmeAtualizado = await prisma.movie.update({
-            where: { id: movieId },
-            data: { isFavorite: !filme.isFavorite },
-            include: { genres: true },
-        });
+        await prisma.movie.delete({ where: { id: movieId } });
 
-        return res.status(200).json(filmeAtualizado);
+        return res.status(204).send();
     } catch (error) {
         console.error("Erro: ", error);
-        return res.status(500).json({ error: "Erro ao favoritar filme" });
+        return res.status(500).json({ error: "Erro ao excluir filme" });
     }
 };
 
-export { createFilm, getMovies, getStats, toggleFavorite };
+export { getMovieById, updateMovie, deleteMovie };

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import styles, { COLORS } from "./styles";
 import FilmeCard from "../../components/FilmeCards/FilmeCard";
 import { buscarItem } from "../../lib/storage";
+import { mapMovieToFilme } from "../../utils/movieMapper";
 import type { MainStackParamList } from "../../navigation/MainStack";
 import type { Filme } from "../../types/Filme";
 
@@ -33,27 +34,6 @@ const STATS_VAZIO: DashboardStats = {
   favoritos: 0,
 };
 
-// Converte o formato que vem do backend (Movie) pro formato que os
-// componentes de tela já usam (Filme) — nomes de campo são diferentes
-// dos dois lados (title/titulo, releaseYear/ano, genres[]/genero etc.).
-function mapMovieToFilme(movie: any): Filme {
-  return {
-    id: String(movie.id),
-    titulo: movie.title,
-    posterUri: movie.coverUrl,
-    ano: movie.releaseYear,
-    genero: Array.isArray(movie.genres) && movie.genres.length > 0
-      ? movie.genres.map((g: any) => g.name).join(", ")
-      : "—",
-    duracaoMin: movie.duration,
-    diretor: movie.director,
-    descricao: movie.description,
-    nota: Number(movie.rating),
-    status: movie.status === "WATCHED" ? "WATCHED" : "WATCHLIST",
-    trailerUrl: movie.trailerUrl ?? undefined,
-    favorito: movie.isFavorite,
-  };
-}
 
 type HomeNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
@@ -115,33 +95,56 @@ export default function HomeScreen() {
     }, [carregarDados]),
   );
 
-  const handleToggleFavorito = async (id: string) => {
-    // Atualiza a UI imediatamente (otimista), depois confirma com o backend.
-    setFilmes((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, favorito: !f.favorito } : f)),
-    );
+  // Um timer de debounce por filme, pra suportar cliques repetidos sem
+  // disparar uma requisição a cada clique — só a última intenção é enviada,
+  // meio segundo depois do usuário parar de clicar naquele filme específico.
+  const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
+  const enviarFavoritoParaServidor = useCallback(async (id: string, valor: boolean) => {
     try {
       const token = await buscarItem("token");
       if (!token) return;
 
-      const response = await fetch(`${API_BASE_URL}/movies/${id}/favorite`, {
+      await fetch(`${API_BASE_URL}/movies/${id}/favorite`, {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ isFavorite: valor }),
       });
-
-      if (!response.ok) {
-        // Backend recusou — desfaz a mudança otimista pra não ficar dessincronizado.
-        setFilmes((prev) =>
-          prev.map((f) => (f.id === id ? { ...f, favorito: !f.favorito } : f)),
-        );
-      }
+      // Não precisamos reagir ao resultado aqui: a UI já foi atualizada
+      // de forma otimista, e o próximo carregarDados() (ao focar a tela de
+      // novo) corrige qualquer divergência, caso a requisição tenha falhado.
     } catch (error) {
       console.error("Erro ao favoritar:", error);
-      setFilmes((prev) =>
-        prev.map((f) => (f.id === id ? { ...f, favorito: !f.favorito } : f)),
-      );
     }
+  }, []);
+
+  const handleToggleFavorito = (id: string) => {
+    let novoValor = false;
+
+    setFilmes((prev) =>
+      prev.map((f) => {
+        if (f.id !== id) return f;
+        novoValor = !f.favorito;
+        return { ...f, favorito: novoValor };
+      }),
+    );
+
+    // Dashboard reage junto, na hora — sem esperar o servidor confirmar.
+    setStats((prev) => ({
+      ...prev,
+      favoritos: prev.favoritos + (novoValor ? 1 : -1),
+    }));
+
+    if (debounceTimers.current[id]) {
+      clearTimeout(debounceTimers.current[id]);
+    }
+    debounceTimers.current[id] = setTimeout(() => {
+      enviarFavoritoParaServidor(id, novoValor);
+      delete debounceTimers.current[id];
+    }, 500);
   };
 
   return (
@@ -260,6 +263,9 @@ export default function HomeScreen() {
                     <FilmeCard
                       filme={filme}
                       onToggleFavorito={handleToggleFavorito}
+                      onPress={(filme) =>
+                      navigation.navigate("Detalhes", { filmeId: filme.id })
+                    }
                     />
                   </View>
                 ))}
@@ -290,6 +296,9 @@ export default function HomeScreen() {
                       <FilmeCard
                         filme={filme}
                         onToggleFavorito={handleToggleFavorito}
+                        onPress={(filme) =>
+                        navigation.navigate("Detalhes", { filmeId: filme.id })
+                      }
                       />
                     </View>
                   ))}

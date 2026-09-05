@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { prisma } from "../lib/prisma.js";
+import prisma from '../lib/prisma.js';
 import { AuthRequest } from "../middlewares/authMiddleware.js";
 import { MovieStatus } from '../../generated/prisma/enums.js';
 
@@ -158,6 +158,7 @@ const getStats = async (req: AuthRequest, res: Response) => {
 };
 
 const setFavorite = async (req: AuthRequest, res: Response) => {
+<<<<<<< HEAD
     try {
         const userId = req.userId;
 
@@ -332,6 +333,8 @@ const updateMovie = async (req: AuthRequest, res: Response) => {
 };
 
 const deleteMovie = async (req: AuthRequest, res: Response) => {
+=======
+>>>>>>> f6ceb3456ca8f4318e87720b444c106db1f085ab
     try {
         const userId = req.userId;
 
@@ -340,9 +343,14 @@ const deleteMovie = async (req: AuthRequest, res: Response) => {
         }
 
         const movieId = Number(req.params.id);
+        const { isFavorite } = req.body as { isFavorite?: boolean };
 
         if (!Number.isInteger(movieId)) {
             return res.status(400).json({ error: "Id de filme inválido" });
+        }
+
+        if (typeof isFavorite !== 'boolean') {
+            return res.status(400).json({ error: "Campo isFavorite deve ser true ou false" });
         }
 
         const filme = await prisma.movie.findUnique({ where: { id: movieId } });
@@ -355,7 +363,15 @@ const deleteMovie = async (req: AuthRequest, res: Response) => {
             return res.status(403).json({ error: "Esse filme não pertence a você" });
         }
 
+<<<<<<< HEAD
         await prisma.movie.delete({ where: { id: movieId } });
+=======
+        const filmeAtualizado = await prisma.movie.update({
+            where: { id: movieId },
+            data: { isFavorite },
+            include: { genres: true },
+        });
+>>>>>>> f6ceb3456ca8f4318e87720b444c106db1f085ab
 
         return res.status(204).send();
     } catch (error) {
@@ -364,4 +380,8 @@ const deleteMovie = async (req: AuthRequest, res: Response) => {
     }
 };
 
+<<<<<<< HEAD
 export { getMovieById, updateMovie, deleteMovie };
+=======
+export { createFilm, getMovies, getStats, setFavorite };
+>>>>>>> f6ceb3456ca8f4318e87720b444c106db1f085ab

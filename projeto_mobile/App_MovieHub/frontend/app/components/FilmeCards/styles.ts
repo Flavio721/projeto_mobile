@@ -13,6 +13,7 @@ const COLORS = {
 const styles = StyleSheet.create({
   container: {
     width: 120,
+    margin: 10
   },
   posterWrapper: {
     width: 120,

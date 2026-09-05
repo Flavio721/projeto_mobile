@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,6 +18,8 @@ import StarRatingInput from "../components/StarRatingInput";
 import type { MainStackParamList } from "../../navigation/MainStack";
 import type { StatusFilme } from "../../types/Filme";
 import { buscarItem } from "../../lib/storage";
+import LoadingOverlay from "./components/LoadingOverlay";
+import { useToast } from "../../contexts/ToastContext";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -46,6 +47,7 @@ type AdicionarNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export default function Adicionar() {
   const navigation = useNavigation<AdicionarNavigationProp>();
+  const { showSuccess, showError } = useToast();
 
   const [posterUri, setPosterUri] = useState<string | null>(null);
   const [titulo, setTitulo] = useState("");
@@ -65,10 +67,7 @@ export default function Adicionar() {
   const escolherDaGaleria = async () => {
     const permissao = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissao.granted) {
-      Alert.alert(
-        "Permissão necessária",
-        "Autorize o acesso à galeria para escolher uma capa.",
-      );
+      showError("Autorize o acesso à galeria para escolher uma capa.");
       return;
     }
     const resultado = await ImagePicker.launchImageLibraryAsync({
@@ -85,10 +84,7 @@ export default function Adicionar() {
   const tirarFoto = async () => {
     const permissao = await ImagePicker.requestCameraPermissionsAsync();
     if (!permissao.granted) {
-      Alert.alert(
-        "Permissão necessária",
-        "Autorize o acesso à câmera para tirar uma foto.",
-      );
+      showError("Autorize o acesso à câmera para tirar uma foto.");
       return;
     }
     const resultado = await ImagePicker.launchCameraAsync({
@@ -102,24 +98,20 @@ export default function Adicionar() {
   };
 
   const handleSalvar = async () => {
-    console.log("Entrou na função");
     if (!titulo || !genero || !ano || !status) {
-      Alert.alert("Atenção", "Preencha ao menos Título, Gênero, Ano e Status.");
+      showError("Preencha ao menos Título, Gênero, Ano e Status.");
       return;
     }
     if (!posterUri) {
-      Alert.alert("Atenção", "Selecione uma capa para o filme.");
+      showError("Selecione uma capa para o filme.");
       return;
     }
-    console.log("Passou do if");
 
     setIsSubmitting(true);
-    console.log("Setou true no useState");
     try {
-      console.log("Entrou no try");
       const token = await buscarItem("token");
       if (!token) {
-        Alert.alert("Sessão expirada", "Faça login novamente.");
+        showError("Sessão expirada. Faça login novamente.");
         return;
       }
       const response = await fetch(`${API_BASE_URL}/movies/register`, {
@@ -141,20 +133,19 @@ export default function Adicionar() {
           trailerUrl: trailerUrl || undefined,
         }),
       });
-      console.log("Passou do response");
 
       const data = await response.json();
-      console.log(data);
 
       if (!response.ok) {
-        Alert.alert("Erro", data.error ?? "Não foi possível salvar o filme.");
+        showError(data.error ?? "Não foi possível salvar o filme.");
         return;
       }
 
+      showSuccess("Filme adicionado com sucesso!");
       navigation.goBack();
     } catch (error) {
       console.error("Erro ao salvar filme:", error);
-      Alert.alert("Erro", "Falha de conexão com o servidor.");
+      showError("Falha de conexão com o servidor.");
     } finally {
       setIsSubmitting(false);
     }
@@ -162,6 +153,7 @@ export default function Adicionar() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <LoadingOverlay visible={isSubmitting} message="Salvando filme..." />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled">

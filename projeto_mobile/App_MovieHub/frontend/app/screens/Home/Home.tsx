@@ -91,7 +91,7 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       carregarDados();
-      buscarItem("userName").then((nome) => setUserName(nome ?? ""));
+      buscarItem("userName").then((nome: any) => setUserName(nome ?? ""));
     }, [carregarDados]),
   );
 

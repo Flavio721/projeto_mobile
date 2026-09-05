@@ -16,7 +16,11 @@ import styles, { COLORS } from "./styles";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+<<<<<<< HEAD
 import type { RootStackParamList } from "../../navigation/RootStack";
+=======
+import type { RootStackParamList } from "../../../App";
+>>>>>>> f6ceb3456ca8f4318e87720b444c106db1f085ab
 import { salvarItem } from "../../lib/storage";
 
 
@@ -54,7 +58,7 @@ export default function LoginScreen() {
       });
 
       const data = await response.json();
-  
+
 
       if (!response.ok) {
         Alert.alert("Erro", data.error ?? "Não foi possível entrar.");

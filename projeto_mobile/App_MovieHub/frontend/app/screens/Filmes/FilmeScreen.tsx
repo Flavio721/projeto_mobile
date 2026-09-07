@@ -51,7 +51,6 @@ function mapMovieToFilme(movie: any): Filme {
 
 export default function FilmesScreen() {
   const navigation = useNavigation<FilmesNavigationProp>();
-  // TEMPORÁRIO — substituir por fetch em /filmes quando essa rota existir no backend.
   const [filmes, setFilmes] = useState<Filme[]>([]);
   const [busca, setBusca] = useState("");
   const [tabAtiva, setTabAtiva] = useState<FiltroTab>("todos");
@@ -152,7 +151,7 @@ export default function FilmesScreen() {
           <Text style={styles.headerTitle}>Filmes</Text>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => alert('Filtros avançados em desenvolvimento')}
+            onPress={() => navigation.navigate("Estatisticas")}
           >
             <Ionicons name="funnel-outline" size={22} color={COLORS.white} />
           </TouchableOpacity>
@@ -176,7 +175,7 @@ export default function FilmesScreen() {
           </View>
           <TouchableOpacity
             style={styles.sortButton}
-            onPress={() => alert('Ordenação em desenvolvimento')}
+            onPress={() => navigation.navigate("Generos")}
           >
             <Ionicons name="options-outline" size={18} color={COLORS.white} />
           </TouchableOpacity>

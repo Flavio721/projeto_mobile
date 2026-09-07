@@ -6,6 +6,11 @@ import Detalhes from '../screens/Detalhes/Detalhes';
 import Editar from '../screens/Editar/Index';
 import Excluir from '../screens/Excluir/Index';
 import Pesquisa from '../screens/Pesquisa/Pesquisa';
+import Generos from '../screens/Genero/Genero';
+import Estatisticas from '../screens/Estatisticas/Estatisticas';
+import Compartilhar from '../screens/Compartilhar/Compartilhar';
+import Cinemas from '../screens/Cinemas/Cinemas';
+import Galeria from '../screens/Galeria/Galeria';
 import type { Filme } from '../types/Filme';
 
 export type MainStackParamList = {
@@ -14,7 +19,12 @@ export type MainStackParamList = {
   Detalhes: { filmeId: string };
   Editar: { filmeId: string };
   Excluir: { filme: Filme };
-  Pesquisa: undefined;
+  Pesquisa: { generoInicial?: string } | undefined;
+  Generos: undefined;
+  Estatisticas: undefined;
+  Compartilhar: { filme: Filme };
+  Cinemas: undefined;
+  Galeria: { onSelecionar: (uri: string) => void };
 };
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -30,6 +40,11 @@ export default function MainStack() {
       <Stack.Screen name="Editar" component={Editar} options={{ presentation: 'modal' }} />
       <Stack.Screen name="Excluir" component={Excluir} options={{ presentation: 'modal' }} />
       <Stack.Screen name="Pesquisa" component={Pesquisa} />
+      <Stack.Screen name="Generos" component={Generos} />
+      <Stack.Screen name="Estatisticas" component={Estatisticas} />
+      <Stack.Screen name="Compartilhar" component={Compartilhar} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="Cinemas" component={Cinemas} />
+      <Stack.Screen name="Galeria" component={Galeria} options={{ presentation: 'modal' }} />
     </Stack.Navigator>
   );
 }

@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
 import styles, { COLORS } from './styles';
 import FiltrosModal from '../components/FiltrosModal/FiltrosModal';
 import LoadingOverlay from '../components/LoadingOverlay';
@@ -19,16 +20,21 @@ const CHAVE_BUSCAS_RECENTES = 'recentSearches';
 const MAX_BUSCAS_RECENTES = 6;
 
 type PesquisaNavigationProp = NativeStackNavigationProp<MainStackParamList>;
+type PesquisaRouteProp = RouteProp<MainStackParamList, 'Pesquisa'>;
 
 export default function Pesquisa() {
   const navigation = useNavigation<PesquisaNavigationProp>();
+  const route = useRoute<PesquisaRouteProp>();
+  const generoInicial = route.params?.generoInicial ?? null;
 
   const [busca, setBusca] = useState('');
   const [termoAtivo, setTermoAtivo] = useState('');
   const [buscasRecentes, setBuscasRecentes] = useState<string[]>([]);
   const [todosFilmes, setTodosFilmes] = useState<Filme[]>([]);
   const [carregando, setCarregando] = useState(true);
-  const [filtros, setFiltros] = useState<Filtros>(FILTROS_PADRAO);
+  const [filtros, setFiltros] = useState<Filtros>(
+    generoInicial ? { ...FILTROS_PADRAO, genero: generoInicial } : FILTROS_PADRAO
+  );
   const [filtrosVisiveis, setFiltrosVisiveis] = useState(false);
 
   useEffect(() => {

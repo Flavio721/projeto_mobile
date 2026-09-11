@@ -11,6 +11,7 @@ import Estatisticas from '../screens/Estatisticas/Estatisticas';
 import Compartilhar from '../screens/Compartilhar/Compartilhar';
 import Cinemas from '../screens/Cinemas/Cinemas';
 import Galeria from '../screens/Galeria/Galeria';
+import Configuracoes from '../screens/Configuracoes/Configuracoes';
 import type { Filme } from '../types/Filme';
 
 export type MainStackParamList = {
@@ -25,6 +26,7 @@ export type MainStackParamList = {
   Compartilhar: { filme: Filme };
   Cinemas: undefined;
   Galeria: { onSelecionar: (uri: string) => void };
+  Configuracoes: undefined;
 };
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -45,6 +47,7 @@ export default function MainStack() {
       <Stack.Screen name="Compartilhar" component={Compartilhar} options={{ presentation: 'modal' }} />
       <Stack.Screen name="Cinemas" component={Cinemas} />
       <Stack.Screen name="Galeria" component={Galeria} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="Configuracoes" component={Configuracoes} />
     </Stack.Navigator>
   );
 }

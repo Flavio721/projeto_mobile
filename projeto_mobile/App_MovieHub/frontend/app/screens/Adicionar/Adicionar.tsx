@@ -20,6 +20,7 @@ import type { StatusFilme } from "../../types/Filme";
 import { buscarItem } from "../../lib/storage";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { useToast } from "../../contexts/ToastContext";
+import { uploadImagem } from '../../lib/uploadImagem';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 

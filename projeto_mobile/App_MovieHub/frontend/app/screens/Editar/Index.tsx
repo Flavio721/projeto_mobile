@@ -21,6 +21,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { buscarItem } from '../../lib/storage';
 import type { MainStackParamList } from '../../navigation/MainStack';
 import type { StatusFilme } from '../../types/Filme';
+import { uploadImagem } from '../../lib/uploadImagem';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -34,12 +35,6 @@ const STATUS_OPTIONS: { label: string; value: StatusFilme }[] = [
   { label: 'Assistido', value: 'WATCHED' },
   { label: 'Quero assistir', value: 'WATCHLIST' },
 ];
-
-// Traduz o valor salvo (enum do backend) pro rótulo em português
-const STATUS_BACKEND: Record<string, 'WATCHED' | 'WATCHLIST'> = {
-  assistido: 'WATCHED',
-  quero_assistir: 'WATCHLIST',
-};
 
 type EditarNavigationProp = NativeStackNavigationProp<MainStackParamList, 'Editar'>;
 type EditarRouteProp = RouteProp<MainStackParamList, 'Editar'>;
@@ -166,7 +161,17 @@ export default function Editar() {
       showError('Preencha ao menos Título, Gênero, Ano e Status.');
       return;
     }
-    if (!posterUri) {
+
+    let coverUrlFinal: string;
+    try {
+      coverUrlFinal = await uploadImagem(posterUri!);
+    } catch (error: any) {
+      showError(error.message ?? 'Falha ao enviar a imagem.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!coverUrlFinal) {
       showError('Selecione uma capa para o filme.');
       return;
     }
@@ -187,14 +192,14 @@ export default function Editar() {
         },
         body: JSON.stringify({
           title: titulo,
-          coverUrl: posterUri,
+          coverUrl: coverUrlFinal,
           genres: [genero],
           releaseYear: Number(ano),
           durationMovie: duracaoMin ? Number(duracaoMin) : undefined,
           director: diretor || undefined,
           description: descricao || undefined,
           rating: nota,
-          status: STATUS_BACKEND[status],
+          status: status ?? undefined,
           trailerUrl: trailerUrl || undefined,
         }),
       });

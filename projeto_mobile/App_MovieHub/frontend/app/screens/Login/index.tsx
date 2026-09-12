@@ -7,6 +7,7 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
+import { useToast } from "../../contexts/ToastContext";
 import {
   Ionicons,
   MaterialCommunityIcons,
@@ -18,7 +19,6 @@ import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../navigation/RootStack";
 import { salvarItem } from "../../lib/storage";
-
 
 // const API_BASE_URL = "http://IP_DA_MAQUINA:3000";
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
@@ -34,6 +34,8 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const navigation = useNavigation<LoginNavigationProp>();
+
+  const { showSuccess, showError } = useToast();
 
   const handleLogin = async () => {
     console.log("Entrou na função");
@@ -55,19 +57,18 @@ export default function LoginScreen() {
 
       const data = await response.json();
 
-
       if (!response.ok) {
-        Alert.alert("Erro", data.error ?? "Não foi possível entrar.");
+        showError(data.error ?? "Não foi possível entrar.");
         return;
       }
 
-      Alert.alert("Sucesso", "Login efetuado com sucesso!");
+      showSuccess("Login efetuado com sucesso!");
       await salvarItem("token", data.token);
       await salvarItem("userName", data.user.name);
       navigation.reset({ index: 0, routes: [{ name: "Main" }] });
     } catch (error) {
       console.error("Erro: ", error);
-      Alert.alert("Erro", "Erro ao fazer login");
+      showError("Erro ao fazer login");
     }
   };
 
@@ -75,8 +76,7 @@ export default function LoginScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
+        keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <View style={styles.logoRow}>
             <MaterialCommunityIcons
@@ -140,8 +140,7 @@ export default function LoginScreen() {
         <View style={styles.optionsRow}>
           <TouchableOpacity
             style={styles.rememberRow}
-            onPress={() => setRememberMe((prev) => !prev)}
-          >
+            onPress={() => setRememberMe((prev) => !prev)}>
             <MaterialIcons
               name={rememberMe ? "check-box" : "check-box-outline-blank"}
               size={18}

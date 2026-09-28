@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import styles, { COLORS } from './styles';
-import FilmeCard from '../../components/FilmeCards/FilmeCard';
+import FilmeCard from '../components/FilmeCards/FilmeCard';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { buscarItem } from '../../lib/storage';
 import { mapMovieToFilme } from '../../utils/movieMapper';

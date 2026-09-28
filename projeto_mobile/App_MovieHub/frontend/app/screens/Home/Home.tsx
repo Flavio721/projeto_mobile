@@ -10,7 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import FilmeCard from "../../components/FilmeCards/FilmeCard";
+import FilmeCard from "../components/FilmeCards/FilmeCard";
 import styles, { COLORS } from "./styles";
 import { buscarItem } from "../../lib/storage";
 import { mapMovieToFilme } from "../../utils/movieMapper";

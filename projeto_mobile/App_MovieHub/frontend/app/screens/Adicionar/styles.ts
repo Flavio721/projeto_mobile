@@ -1,19 +1,12 @@
 import { StyleSheet } from "react-native";
+import type { Paleta } from '../../theme/paletas';
 
-const COLORS = {
-  background: "#151327",
-  card: "rgba(255,255,255,0.06)",
-  border: "rgba(255,255,255,0.12)",
-  gold: "#F4B400",
-  white: "#FFFFFF",
-  muted: "#9C97B8",
-  placeholder: "#6E6A8C",
-};
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) =>
+   StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -29,7 +22,7 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   title: {
-    color: COLORS.white,
+    color: cores.white,
     fontSize: 18,
     fontWeight: "700",
   },
@@ -38,8 +31,8 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderStyle: "dashed",
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.card,
+    borderColor: cores.border,
+    backgroundColor: cores.card,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 20,
@@ -50,7 +43,7 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   coverHint: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     marginTop: 8,
     marginBottom: 12,
@@ -68,7 +61,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 6,
   },
   coverActionText: {
-    color: COLORS.gold,
+    color: cores.gold,
     fontSize: 12,
     fontWeight: "600",
     marginLeft: 6,
@@ -77,19 +70,19 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    color: COLORS.white,
+    color: cores.white,
     fontSize: 13,
     fontWeight: "600",
     marginBottom: 8,
   },
   input: {
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 12,
     paddingHorizontal: 14,
     height: 50,
-    color: COLORS.white,
+    color: cores.white,
     fontSize: 14,
   },
   textArea: {
@@ -106,7 +99,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 6,
   },
   primaryButton: {
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
     borderRadius: 12,
     height: 52,
     alignItems: "center",
@@ -125,14 +118,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
   },
   secondaryButtonText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 15,
     fontWeight: "600",
   },
 });
 
-export { COLORS };
-export default styles;
+export default criarStyles

@@ -1,8 +1,9 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import styles, { COLORS } from "./styles";
-import type { Filme } from "../../types/Filme";
+import criarStyles from './styles'
+import type { Filme } from "../../../types/Filme";
+import { useStyles, useTema } from "../../../contexts/TemaContext";
 
 interface FilmeCardProps {
   filme: Filme;
@@ -19,6 +20,9 @@ export default function FilmeCard({
   onPress,
   showRating = true,
 }: FilmeCardProps) {
+
+  const styles = useStyles(criarStyles)
+  const { cores } = useTema()
   return (
     <TouchableOpacity
       style={styles.container}
@@ -37,7 +41,7 @@ export default function FilmeCard({
             <MaterialCommunityIcons
               name="movie-open-outline"
               size={36}
-              color={COLORS.muted}
+              color={cores.muted}
             />
           </View>
         )}
@@ -50,7 +54,7 @@ export default function FilmeCard({
           <Ionicons
             name={filme.favorito ? "heart" : "heart-outline"}
             size={16}
-            color={filme.favorito ? COLORS.heartOn : COLORS.heartOff}
+            color={filme.favorito ? cores.heartOn : cores.heartOff}
           />
         </TouchableOpacity>
       </View>
@@ -64,7 +68,7 @@ export default function FilmeCard({
 
       {showRating && (
         <View style={styles.ratingRow}>
-          <Ionicons name="star" size={12} color={COLORS.gold} />
+          <Ionicons name="star" size={12} color={cores.gold} />
           <Text style={styles.ratingText}>{filme.nota.toFixed(1)}</Text>
         </View>
       )}

@@ -9,6 +9,7 @@ import LoadingOverlay from '../components/LoadingOverlay';
 import { useToast } from '../../contexts/ToastContext';
 import { buscarItem, removerItem } from '../../lib/storage';
 import type { MainStackParamList } from '../../navigation/MainStack';
+import { uploadImagem } from '../../lib/uploadImagem';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -85,6 +86,8 @@ export default function Perfil() {
   const fotoParaExibir = usuario?.avatarUrl ?? avatarLocal;
 
   const handleAlterarFoto = () => {
+
+    
     navigation.navigate('Galeria', {
       onSelecionar: (uri) => {
         setAvatarLocal(uri);
@@ -191,7 +194,7 @@ export default function Perfil() {
         <View style={styles.menuCard}>
           <TouchableOpacity
             style={[styles.menuRow, styles.menuRowBorder]}
-            onPress={() => itemEmDesenvolvimento('Editar perfil')}
+            onPress={() => navigation.navigate("EditarPerfil")}
           >
             <View style={styles.menuIcon}>
               <Ionicons name="person-outline" size={18} color={COLORS.white} />
@@ -210,7 +213,7 @@ export default function Perfil() {
 
           <TouchableOpacity
             style={[styles.menuRow, styles.menuRowBorder]}
-            onPress={() => itemEmDesenvolvimento('Alterar senha')}
+            onPress={() => navigation.navigate("AlterarSenha")}
           >
             <View style={styles.menuIcon}>
               <Ionicons name="key-outline" size={18} color={COLORS.white} />

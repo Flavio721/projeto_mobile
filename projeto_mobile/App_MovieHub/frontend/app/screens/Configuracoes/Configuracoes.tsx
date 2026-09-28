@@ -1,15 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Switch, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import styles, { COLORS } from './styles';
-import { useToast } from '../../contexts/ToastContext';
-import { buscarItem, salvarItem } from '../../lib/storage';
-import type { MainStackParamList } from '../../navigation/MainStack';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Switch,
+  Alert,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import styles, { COLORS } from "./styles";
+import { useToast } from "../../contexts/ToastContext";
+import { buscarItem, salvarItem } from "../../lib/storage";
+import type { MainStackParamList } from "../../navigation/MainStack";
+import { useTema } from "../../contexts/TemaContext";
+import TemaModal from "../components/TemaModal/TemaModal";
 
-const CHAVE_CONFIGURACOES = 'configuracoes';
+const CHAVE_CONFIGURACOES = "configuracoes";
 
 interface ConfiguracoesState {
   corDestaque: boolean;
@@ -34,12 +43,15 @@ const PADRAO: ConfiguracoesState = {
   atualizarAoAbrir: true,
 };
 
-type ConfiguracoesNavigationProp = NativeStackNavigationProp<MainStackParamList>;
+type ConfiguracoesNavigationProp =
+  NativeStackNavigationProp<MainStackParamList>;
 
 export default function Configuracoes() {
   const navigation = useNavigation<ConfiguracoesNavigationProp>();
   const { showSuccess, showError } = useToast();
   const [config, setConfig] = useState<ConfiguracoesState>(PADRAO);
+  const [temaVisivel, setTemaVisivel] = useState(false);
+  const { nomeTema } = useTema();
 
   useEffect(() => {
     (async () => {
@@ -63,26 +75,32 @@ export default function Configuracoes() {
   };
 
   const handleLimparCache = () => {
-    Alert.alert('Limpar cache', 'Isso vai liberar 12,4 MB de espaço.', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Limpar', onPress: () => showSuccess('Cache limpo com sucesso!') },
+    Alert.alert("Limpar cache", "Isso vai liberar 12,4 MB de espaço.", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Limpar",
+        onPress: () => showSuccess("Cache limpo com sucesso!"),
+      },
     ]);
   };
 
   const handleSobre = () => {
     Alert.alert(
-      'Sobre o MovieHub',
-      'MovieHub — gerenciador pessoal de filmes.\nVersão 1.0.0 (projeto de estudo).',
+      "Sobre o MovieHub",
+      "MovieHub — gerenciador pessoal de filmes.\nVersão 1.0.0 (projeto de estudo).",
     );
   };
 
-  const naoImplementado = (nome: string) => showError(`${nome} ainda não foi implementado.`);
+  const naoImplementado = (nome: string) =>
+    showError(`${nome} ainda não foi implementado.`);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.topBar}>
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={22} color={COLORS.white} />
           </TouchableOpacity>
           <Text style={styles.title}>Configurações</Text>
@@ -92,23 +110,25 @@ export default function Configuracoes() {
         <View style={styles.sectionCard}>
           <TouchableOpacity
             style={[styles.row, styles.rowBorder]}
-            onPress={() => naoImplementado('Troca de tema')}
-          >
+            onPress={() => setTemaVisivel(true)}>
             <View style={styles.rowIcon}>
               <Ionicons name="moon-outline" size={18} color={COLORS.white} />
             </View>
-            <Text style={styles.rowLabel}>Tema</Text>
-            <Text style={styles.rowValue}>Escuro</Text>
+           <Text style={styles.rowValue}>{nomeTema === 'escuro' ? 'Escuro' : 'Claro'}</Text>
             <Ionicons name="chevron-forward" size={16} color={COLORS.muted} />
           </TouchableOpacity>
           <View style={styles.row}>
             <View style={styles.rowIcon}>
-              <Ionicons name="color-palette-outline" size={18} color={COLORS.white} />
+              <Ionicons
+                name="color-palette-outline"
+                size={18}
+                color={COLORS.white}
+              />
             </View>
             <Text style={styles.rowLabel}>Cor de destaque</Text>
             <Switch
               value={config.corDestaque}
-              onValueChange={(v) => atualizar('corDestaque', v)}
+              onValueChange={(v) => atualizar("corDestaque", v)}
               trackColor={{ false: COLORS.border, true: COLORS.gold }}
               thumbColor={COLORS.white}
             />
@@ -119,12 +139,16 @@ export default function Configuracoes() {
         <View style={styles.sectionCard}>
           <View style={[styles.row, styles.rowBorder]}>
             <View style={styles.rowIcon}>
-              <Ionicons name="notifications-outline" size={18} color={COLORS.white} />
+              <Ionicons
+                name="notifications-outline"
+                size={18}
+                color={COLORS.white}
+              />
             </View>
             <Text style={styles.rowLabel}>Lembretes de filmes</Text>
             <Switch
               value={config.lembretes}
-              onValueChange={(v) => atualizar('lembretes', v)}
+              onValueChange={(v) => atualizar("lembretes", v)}
               trackColor={{ false: COLORS.border, true: COLORS.gold }}
               thumbColor={COLORS.white}
             />
@@ -136,7 +160,7 @@ export default function Configuracoes() {
             <Text style={styles.rowLabel}>Novidades e lançamentos</Text>
             <Switch
               value={config.novidades}
-              onValueChange={(v) => atualizar('novidades', v)}
+              onValueChange={(v) => atualizar("novidades", v)}
               trackColor={{ false: COLORS.border, true: COLORS.gold }}
               thumbColor={COLORS.white}
             />
@@ -147,12 +171,16 @@ export default function Configuracoes() {
         <View style={styles.sectionCard}>
           <View style={[styles.row, styles.rowBorder]}>
             <View style={styles.rowIcon}>
-              <Ionicons name="cloud-upload-outline" size={18} color={COLORS.white} />
+              <Ionicons
+                name="cloud-upload-outline"
+                size={18}
+                color={COLORS.white}
+              />
             </View>
             <Text style={styles.rowLabel}>Sincronizar com a nuvem</Text>
             <Switch
               value={config.sincronizarNuvem}
-              onValueChange={(v) => atualizar('sincronizarNuvem', v)}
+              onValueChange={(v) => atualizar("sincronizarNuvem", v)}
               trackColor={{ false: COLORS.border, true: COLORS.gold }}
               thumbColor={COLORS.white}
             />
@@ -164,7 +192,7 @@ export default function Configuracoes() {
             <Text style={styles.rowLabel}>Atualizar ao abrir o app</Text>
             <Switch
               value={config.atualizarAoAbrir}
-              onValueChange={(v) => atualizar('atualizarAoAbrir', v)}
+              onValueChange={(v) => atualizar("atualizarAoAbrir", v)}
               trackColor={{ false: COLORS.border, true: COLORS.gold }}
               thumbColor={COLORS.white}
             />
@@ -175,8 +203,7 @@ export default function Configuracoes() {
         <View style={styles.sectionCard}>
           <TouchableOpacity
             style={[styles.row, styles.rowBorder]}
-            onPress={() => naoImplementado('Troca de idioma')}
-          >
+            onPress={() => naoImplementado("Troca de idioma")}>
             <View style={styles.rowIcon}>
               <Ionicons name="globe-outline" size={18} color={COLORS.white} />
             </View>
@@ -184,7 +211,9 @@ export default function Configuracoes() {
             <Text style={styles.rowValue}>Português</Text>
             <Ionicons name="chevron-forward" size={16} color={COLORS.muted} />
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.row, styles.rowBorder]} onPress={handleLimparCache}>
+          <TouchableOpacity
+            style={[styles.row, styles.rowBorder]}
+            onPress={handleLimparCache}>
             <View style={styles.rowIcon}>
               <Ionicons name="trash-outline" size={18} color={COLORS.white} />
             </View>
@@ -194,13 +223,19 @@ export default function Configuracoes() {
           </TouchableOpacity>
           <TouchableOpacity style={styles.row} onPress={handleSobre}>
             <View style={styles.rowIcon}>
-              <Ionicons name="information-circle-outline" size={18} color={COLORS.white} />
+              <Ionicons
+                name="information-circle-outline"
+                size={18}
+                color={COLORS.white}
+              />
             </View>
             <Text style={styles.rowLabel}>Sobre o MovieHub</Text>
             <Ionicons name="chevron-forward" size={16} color={COLORS.muted} />
           </TouchableOpacity>
         </View>
+        <TemaModal visible={temaVisivel} onClose={() => setTemaVisivel(false)} />
       </ScrollView>
     </SafeAreaView>
+    
   );
 }

@@ -12,7 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import styles, { COLORS } from "./styles";
-import FilmeCard from "../../components/FilmeCards/FilmeCard";
+import FilmeCard from "../components/FilmeCards/FilmeCard";
 import type { MainStackParamList } from "../../navigation/MainStack";
 import type { Filme, StatusFilme } from "../../types/Filme";
 import { buscarItem } from "../../lib/storage";

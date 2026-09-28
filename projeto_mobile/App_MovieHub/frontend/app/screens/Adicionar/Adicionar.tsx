@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import{ useState } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,8 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import styles, { COLORS } from "./styles";
+import criarStyles from './styles'
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import SelectField from "../components/SelectField";
 import StarRatingInput from "../components/StarRatingInput";
 import type { MainStackParamList } from "../../navigation/MainStack";
@@ -61,6 +62,8 @@ export default function Adicionar() {
   const [status, setStatus] = useState<StatusFilme | null>(null);
   const [trailerUrl, setTrailerUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const styles = useStyles(criarStyles)
+  const { cores } = useTema()
 
   const statusLabel =
     STATUS_OPTIONS.find((s) => s.value === status)?.label ?? null;
@@ -162,7 +165,7 @@ export default function Adicionar() {
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={22} color={COLORS.white} />
+            <Ionicons name="arrow-back" size={22} color={cores.white} />
           </TouchableOpacity>
           <Text style={styles.title}>Novo Filme</Text>
         </View>
@@ -174,7 +177,7 @@ export default function Adicionar() {
           {posterUri ? (
             <Image source={{ uri: posterUri }} style={styles.coverImage} />
           ) : (
-            <Ionicons name="film-outline" size={32} color={COLORS.muted} />
+            <Ionicons name="film-outline" size={32} color={cores.muted} />
           )}
         </TouchableOpacity>
         <Text style={styles.coverHint}>Adicionar capa do filme</Text>
@@ -186,13 +189,13 @@ export default function Adicionar() {
           <TouchableOpacity
             style={styles.coverActionButton}
             onPress={escolherDaGaleria}>
-            <Ionicons name="images-outline" size={16} color={COLORS.gold} />
+            <Ionicons name="images-outline" size={16} color={cores.gold} />
             <Text style={styles.coverActionText}>Galeria</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.coverActionButton}
             onPress={tirarFoto}>
-            <Ionicons name="camera-outline" size={16} color={COLORS.gold} />
+            <Ionicons name="camera-outline" size={16} color={cores.gold} />
             <Text style={styles.coverActionText}>Câmera</Text>
           </TouchableOpacity>
         </View>
@@ -202,7 +205,7 @@ export default function Adicionar() {
           <TextInput
             style={styles.input}
             placeholder="Digite o título do filme"
-            placeholderTextColor={COLORS.placeholder}
+            placeholderTextColor={cores.placeholder}
             value={titulo}
             onChangeText={setTitulo}
           />
@@ -225,7 +228,7 @@ export default function Adicionar() {
             <TextInput
               style={styles.input}
               placeholder="Ex.: 2024"
-              placeholderTextColor={COLORS.placeholder}
+              placeholderTextColor={cores.placeholder}
               value={ano}
               onChangeText={setAno}
               keyboardType="number-pad"
@@ -237,7 +240,7 @@ export default function Adicionar() {
             <TextInput
               style={styles.input}
               placeholder="Ex.: 142"
-              placeholderTextColor={COLORS.placeholder}
+              placeholderTextColor={cores.placeholder}
               value={duracaoMin}
               onChangeText={setDuracaoMin}
               keyboardType="number-pad"
@@ -250,7 +253,7 @@ export default function Adicionar() {
           <TextInput
             style={styles.input}
             placeholder="Digite o nome do diretor"
-            placeholderTextColor={COLORS.placeholder}
+            placeholderTextColor={cores.placeholder}
             value={diretor}
             onChangeText={setDiretor}
           />
@@ -261,7 +264,7 @@ export default function Adicionar() {
           <TextInput
             style={[styles.input, styles.textArea]}
             placeholder="Fale sobre o filme..."
-            placeholderTextColor={COLORS.placeholder}
+            placeholderTextColor={cores.placeholder}
             value={descricao}
             onChangeText={setDescricao}
             multiline
@@ -293,7 +296,7 @@ export default function Adicionar() {
           <TextInput
             style={styles.input}
             placeholder="Cole o link do trailer (opcional)"
-            placeholderTextColor={COLORS.placeholder}
+            placeholderTextColor={cores.placeholder}
             value={trailerUrl}
             onChangeText={setTrailerUrl}
             autoCapitalize="none"

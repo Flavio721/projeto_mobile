@@ -8,13 +8,14 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import styles, { COLORS } from "./styles";
+import criarStyles from './styles'
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../navigation/RootStack";
 import { useToast } from '../../contexts/ToastContext';
 import LoadingOverlay from '../components/LoadingOverlay';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -30,7 +31,8 @@ export default function CadastroScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigation = useNavigation<CadastroNavigationProp>();
   const { showSuccess, showError } = useToast();
-
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema()
   const handleCadastro = async () => {
     if (!fullName || !email || !password || !confirmPassword) {
       showError('Preencha todos os campos.');
@@ -83,7 +85,7 @@ export default function CadastroScreen() {
       >
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={22} color={COLORS.white} />
+            <Ionicons name="arrow-back" size={22} color={cores.white} />
           </TouchableOpacity>
           <View style={styles.topBarTitles}>
             <Text style={styles.title}>Criar Conta</Text>
@@ -93,7 +95,7 @@ export default function CadastroScreen() {
 
         <View style={styles.avatarSection}>
           <View style={styles.avatarCircle}>
-            <Ionicons name="camera-outline" size={30} color={COLORS.white} />
+            <Ionicons name="camera-outline" size={30} color={cores.white} />
             <View style={styles.avatarBadge}>
               <Ionicons name="add" size={16} color="#241C00" />
             </View>
@@ -107,13 +109,13 @@ export default function CadastroScreen() {
             <Ionicons
               name="person-outline"
               size={18}
-              color={COLORS.placeholder}
+              color={cores.placeholder}
               style={styles.inputIcon}
             />
             <TextInput
               style={styles.input}
               placeholder="Digite seu nome"
-              placeholderTextColor={COLORS.placeholder}
+              placeholderTextColor={cores.placeholder}
               value={fullName}
               onChangeText={setFullName}
             />
@@ -126,13 +128,13 @@ export default function CadastroScreen() {
             <Ionicons
               name="mail-outline"
               size={18}
-              color={COLORS.placeholder}
+              color={cores.placeholder}
               style={styles.inputIcon}
             />
             <TextInput
               style={styles.input}
               placeholder="seu@email.com"
-              placeholderTextColor={COLORS.placeholder}
+              placeholderTextColor={cores.placeholder}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -147,13 +149,13 @@ export default function CadastroScreen() {
             <Ionicons
               name="lock-closed-outline"
               size={18}
-              color={COLORS.placeholder}
+              color={cores.placeholder}
               style={styles.inputIcon}
             />
             <TextInput
               style={styles.input}
               placeholder="Mínimo 6 caracteres"
-              placeholderTextColor={COLORS.placeholder}
+              placeholderTextColor={cores.placeholder}
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -162,7 +164,7 @@ export default function CadastroScreen() {
               <Ionicons
                 name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                 size={18}
-                color={COLORS.placeholder}
+                color={cores.placeholder}
               />
             </TouchableOpacity>
           </View>
@@ -174,13 +176,13 @@ export default function CadastroScreen() {
             <Ionicons
               name="lock-closed-outline"
               size={18}
-              color={COLORS.placeholder}
+              color={cores.placeholder}
               style={styles.inputIcon}
             />
             <TextInput
               style={styles.input}
               placeholder="Digite novamente sua senha"
-              placeholderTextColor={COLORS.placeholder}
+              placeholderTextColor={cores.placeholder}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={!showConfirmPassword}
@@ -191,7 +193,7 @@ export default function CadastroScreen() {
               <Ionicons
                 name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
                 size={18}
-                color={COLORS.placeholder}
+                color={cores.placeholder}
               />
             </TouchableOpacity>
           </View>

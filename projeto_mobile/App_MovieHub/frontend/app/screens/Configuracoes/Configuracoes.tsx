@@ -87,7 +87,7 @@ export default function Configuracoes() {
   const handleSobre = () => {
     Alert.alert(
       "Sobre o MovieHub",
-      "MovieHub — gerenciador pessoal de filmes.\nVersão 1.0.0 (projeto de estudo).",
+      "MovieHub — gerenciador pessoal de filmes.\nVersão 1.0.0 (projeto de estudo).\n\nEste aplicativo usa TMDB e as APIs do TMDB, mas não é endossado, certificado ou aprovado pelo TMDB.\n\nDados e imagens de filmes fornecidos pelo TMDB (The Movie Database).\nthemoviedb.org",
     );
   };
 

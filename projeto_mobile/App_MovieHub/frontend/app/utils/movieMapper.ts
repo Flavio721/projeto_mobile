@@ -1,20 +1,41 @@
 import type { Filme } from '../types/Filme';
 
-export function mapMovieToFilme(movie: any): Filme {
+type ApiMovie = {
+  id: string | number;
+  tmdbId?: number;
+  title: string;
+  coverUrl?: string | null;
+  releaseYear?: number | null;
+  duration?: number | null;
+  director?: string | null;
+  description?: string | null;
+  tmdbRating?: number | null;
+  rating?: number | null;
+  status?: 'WATCHED' | 'WATCHLIST' | null;
+  isFavorite?: boolean;
+  genres?: Array<{ name: string }>;
+  comment?: string | null;
+  watchedAt?: string | null;
+  inLibrary?: boolean;
+};
+
+export function mapMovieToFilme(movie: ApiMovie): Filme {
   return {
-    id: String(movie.id),
+    id: String(movie.tmdbId ?? movie.id),
     titulo: movie.title,
-    posterUri: movie.coverUrl,
-    ano: movie.releaseYear,
-    genero: Array.isArray(movie.genres) && movie.genres.length > 0
-      ? movie.genres.map((g: any) => g.name).join(", ")
-      : "—",
-    duracaoMin: movie.duration,
-    diretor: movie.director,
-    descricao: movie.description,
-    nota: Number(movie.rating),
-    status: movie.status === "WATCHED" ? "WATCHED" : "WATCHLIST",
-    trailerUrl: movie.trailerUrl ?? undefined,
-    favorito: movie.isFavorite,
+    posterUri: movie.coverUrl ?? undefined,
+    ano: movie.releaseYear ?? 0,
+    genero: movie.genres?.map((genre) => genre.name).join(', ') || '—',
+    duracaoMin: movie.duration ?? undefined,
+    diretor: movie.director ?? undefined,
+    descricao: movie.description ?? undefined,
+    nota: movie.rating ?? 0,
+    tmdbRating: movie.tmdbRating ?? null,
+    status: movie.status ?? null,
+    comentario: movie.comment ?? null,
+    assistidoEm: movie.watchedAt ?? null,
+    naLista: movie.inLibrary ?? (movie.status != null),
+    trailerUrl: undefined,
+    favorito: movie.isFavorite ?? false,
   };
 }

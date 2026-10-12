@@ -1,10 +1,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import MainTabs from "./MainTabs";
-import Adicionar from "../screens/Adicionar/Adicionar";
 import Detalhes from "../screens/Detalhes/Detalhes";
-import Editar from "../screens/Editar/Index";
-import Excluir from "../screens/Excluir/Index";
 import Pesquisa from "../screens/Pesquisa/Pesquisa";
 import Generos from "../screens/Generos/Genero";
 import Estatisticas from "../screens/Estatisticas/Estatisticas";
@@ -18,10 +15,7 @@ import AlterarSenha from "../screens/AlterarSenha/AlterarSenha";
 
 export type MainStackParamList = {
   TabsRoot: undefined;
-  Adicionar: undefined;
   Detalhes: { filmeId: string };
-  Editar: { filmeId: string };
-  Excluir: { filme: Filme };
   Pesquisa: { generoInicial?: string } | undefined;
   Generos: undefined;
   Estatisticas: undefined;
@@ -43,22 +37,7 @@ export default function MainStack() {
         contentStyle: { backgroundColor: "#151327" },
       }}>
       <Stack.Screen name="TabsRoot" component={MainTabs} />
-      <Stack.Screen
-        name="Adicionar"
-        component={Adicionar}
-        options={{ presentation: "modal" }}
-      />
       <Stack.Screen name="Detalhes" component={Detalhes} />
-      <Stack.Screen
-        name="Editar"
-        component={Editar}
-        options={{ presentation: "modal" }}
-      />
-      <Stack.Screen
-        name="Excluir"
-        component={Excluir}
-        options={{ presentation: "modal" }}
-      />
       <Stack.Screen name="Pesquisa" component={Pesquisa} />
       <Stack.Screen name="Generos" component={Generos} />
       <Stack.Screen name="Estatisticas" component={Estatisticas} />

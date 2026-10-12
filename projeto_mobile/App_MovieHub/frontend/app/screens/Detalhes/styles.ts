@@ -173,6 +173,19 @@ const styles = StyleSheet.create({
   actionButtonTextDanger: {
     color: COLORS.danger,
   },
+  primaryButton: {
+    minHeight: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.gold,
+    borderRadius: 12,
+    marginTop: 4,
+  },
+  primaryButtonText: {
+    color: '#241C00',
+    fontSize: 15,
+    fontWeight: '700',
+  },
   errorText: {
     color: COLORS.muted,
     fontSize: 14,

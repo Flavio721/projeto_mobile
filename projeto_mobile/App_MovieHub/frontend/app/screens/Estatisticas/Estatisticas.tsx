@@ -9,35 +9,8 @@ import styles, { COLORS } from './styles';
 import { useToast } from '../../contexts/ToastContext';
 import type { MainStackParamList } from '../../navigation/MainStack';
 import { buscarItem } from '../../lib/storage';
-
-// TEMPORÁRIO — dados mockados. Quando a consulta real existir no backend
-// (algo como GET /movies/statistics), a resposta precisa vir exatamente
-// nesse formato pra essa tela funcionar sem precisar mexer no layout:
-const MOCK_ESTATISTICAS = {
-  totalFilmes: 42,
-  assistidos: 31,
-  queroAssistir: 8,
-  assistindo: 3, // sempre 0 até o enum de status ganhar um terceiro valor
-  favoritos: 12,
-  notaMedia: 4.2,
-  porGenero: [
-    { genero: 'Ação', quantidade: 12, cor: '#4EA1F3' },
-    { genero: 'Drama', quantidade: 9, cor: '#3DDC97' },
-    { genero: 'Ficção Científica', quantidade: 8, cor: '#F4B400' },
-    { genero: 'Comédia', quantidade: 5, cor: '#E5484D' },
-    { genero: 'Terror', quantidade: 4, cor: '#9C6ADE' },
-    { genero: 'Outros', quantidade: 4, cor: '#6E6A8C' },
-  ],
-  evolucaoMensal: [
-    { mes: 'Jan', quantidade: 2 },
-    { mes: 'Fev', quantidade: 3 },
-    { mes: 'Mar', quantidade: 4 },
-    { mes: 'Abr', quantidade: 6 },
-    { mes: 'Mai', quantidade: 8 },
-    { mes: 'Jun', quantidade: 10 },
-    { mes: 'Jul', quantidade: 9 },
-  ],
-};
+import { mapMovieToFilme } from '../../utils/movieMapper';
+import type { Filme } from '../../types/Filme';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -60,12 +33,21 @@ type EstatisticasNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 export default function Estatisticas() {
   const navigation = useNavigation<EstatisticasNavigationProp>();
   const { showError } = useToast();
-  const dados = MOCK_ESTATISTICAS;
   const [ carregando, setCarregando ] = useState(false);
   const [stats, setStats] = useState<DashboardStats>(STATS_VAZIO);
-
-  const totalGeneros = dados.porGenero.reduce((soma, g) => soma + g.quantidade, 0);
-  const maiorMes = Math.max(...dados.evolucaoMensal.map((m) => m.quantidade), 1);
+  const [filmes, setFilmes] = useState<Filme[]>([]);
+  const avaliados = filmes.filter((filme) => filme.status === 'WATCHED' && filme.nota > 0);
+  const notaMedia = avaliados.length ? avaliados.reduce((sum, filme) => sum + filme.nota, 0) / avaliados.length : 0;
+  const genreColors = ['#4EA1F3', '#3DDC97', '#F4B400', '#E5484D', '#9C6ADE', '#6E6A8C'];
+  const genreCounts = new Map<string, number>();
+  filmes.filter((filme) => filme.status === 'WATCHED').forEach((filme) => {
+    filme.genero.split(',').map((genre) => genre.trim()).filter((genre) => genre && genre !== '—').forEach((genre) => genreCounts.set(genre, (genreCounts.get(genre) ?? 0) + 1));
+  });
+  const porGenero = [...genreCounts.entries()].sort((a, b) => b[1] - a[1]).map(([genero, quantidade], index) => ({ genero, quantidade, cor: genreColors[index % genreColors.length] }));
+  const totalGeneros = Math.max(porGenero.reduce((sum, genre) => sum + genre.quantidade, 0), 1);
+  const nomesMeses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const evolucaoMensal = nomesMeses.map((mes, index) => ({ mes, quantidade: filmes.filter((filme) => filme.status === 'WATCHED' && filme.assistidoEm && new Date(filme.assistidoEm).getMonth() === index && new Date(filme.assistidoEm).getFullYear() === new Date().getFullYear()).length }));
+  const maiorMes = Math.max(...evolucaoMensal.map((month) => month.quantidade), 1);
 
   const carregarDados = useCallback(async () => {
       setCarregando(true);
@@ -78,7 +60,10 @@ export default function Estatisticas() {
   
         const headers = { Authorization: `Bearer ${token}` };
   
-        const statsResponse = await fetch(`${API_BASE_URL}/movies/stats`, { headers });
+        const [statsResponse, moviesResponse] = await Promise.all([
+          fetch(`${API_BASE_URL}/movies/stats`, { headers }),
+          fetch(`${API_BASE_URL}/movies`, { headers }),
+        ]);
   
         if (statsResponse.ok) {
           const statsData = await statsResponse.json();
@@ -87,9 +72,16 @@ export default function Estatisticas() {
           console.error("Erro ao buscar stats:", statsResponse.status);
           setStats(STATS_VAZIO);
         }
+        if (moviesResponse.ok) {
+          const moviesData = await moviesResponse.json();
+          setFilmes(moviesData.map(mapMovieToFilme));
+        } else {
+          setFilmes([]);
+        }
       } catch (error) {
         console.error("Falha de conexão ao carregar Home:", error);
         setStats(STATS_VAZIO);
+        setFilmes([]);
       } finally {
         setCarregando(false);
       }
@@ -171,13 +163,13 @@ export default function Estatisticas() {
           </View>
           <View style={styles.statBox}>
             <View style={styles.statBoxInner}>
-              <Text style={styles.statValue}>{dados.notaMedia.toFixed(1)}</Text>
+                <Text style={styles.statValue}>{notaMedia.toFixed(1)}</Text>
               <Text style={styles.statLabel}>Nota média</Text>
               <View style={styles.statStarsRow}>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Ionicons
                     key={star}
-                    name={star <= Math.round(dados.notaMedia) ? 'star' : 'star-outline'}
+                    name={star <= Math.round(notaMedia) ? 'star' : 'star-outline'}
                     size={12}
                     color={COLORS.gold}
                     style={{ marginRight: 2 }}
@@ -197,7 +189,7 @@ export default function Estatisticas() {
           </View>
 
           <View style={styles.proporcaoBar}>
-            {dados.porGenero.map((g) => (
+            {porGenero.map((g) => (
               <View
                 key={g.genero}
                 style={{ flex: g.quantidade / totalGeneros, backgroundColor: g.cor }}
@@ -205,7 +197,7 @@ export default function Estatisticas() {
             ))}
           </View>
 
-          {dados.porGenero.map((g) => (
+          {porGenero.map((g) => (
             <View key={g.genero} style={styles.legendaItem}>
               <View style={styles.legendaLeft}>
                 <View style={[styles.legendaDot, { backgroundColor: g.cor }]} />
@@ -223,7 +215,7 @@ export default function Estatisticas() {
             <Text style={styles.sectionTitle}>Evolução mensal</Text>
           </View>
           <View style={styles.barChartRow}>
-            {dados.evolucaoMensal.map((m) => (
+            {evolucaoMensal.map((m) => (
               <View key={m.mes} style={styles.barColumn}>
                 <Text style={styles.barValue}>{m.quantidade}</Text>
                 <View
@@ -238,9 +230,6 @@ export default function Estatisticas() {
           </View>
         </View>
 
-        <Text style={styles.mockNotice}>
-          Dados de exemplo — ainda não conectados à API.
-        </Text>
       </ScrollView>
     </SafeAreaView>
   );

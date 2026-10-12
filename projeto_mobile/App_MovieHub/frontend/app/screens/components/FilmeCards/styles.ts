@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { Paleta } from "../../theme/paletas";
+import { Paleta } from "../../../theme/paletas";
 
 const criarStyles = (cores: Paleta) =>
   StyleSheet.create({

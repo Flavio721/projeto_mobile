@@ -190,7 +190,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.addButton}
-            onPress={() => navigation.navigate("Adicionar")}
+            onPress={() => navigation.navigate("Pesquisa")}
           >
             <Ionicons name="add" size={24} color="#241C00" />
           </TouchableOpacity>
@@ -239,7 +239,7 @@ export default function HomeScreen() {
           <View style={styles.emptyGeneralBox}>
             <Text style={styles.emptyGeneralEmoji}>🎬</Text>
             <Text style={styles.emptyGeneralText}>
-              Registre um filme para começar
+              Pesquise um filme para começar sua lista
             </Text>
           </View>
         ) : (

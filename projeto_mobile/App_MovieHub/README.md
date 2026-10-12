@@ -34,7 +34,7 @@ Projeto acadêmico desenvolvido para a disciplina de Programação para Aplicati
 
 | Categoria | Tecnologia |
 |---|---|
-| Runtime | Node.js (ESM) |
+| Runtime | Node.js 20.19+ (ESM) |
 | Framework | Express 5 |
 | Linguagem | TypeScript (execução via `tsx`) |
 | ORM | Prisma 7, com driver adapter `@prisma/adapter-pg` |
@@ -77,7 +77,7 @@ App_MovieHub/
 
 ## Pré-requisitos
 
-- Node.js 18 ou superior
+- Node.js 20.19 ou superior (exigido pelo Expo SDK 54)
 - Uma instância PostgreSQL acessível (o projeto foi desenvolvido usando o [Neon](https://neon.tech))
 - Expo Go instalado no celular (para testar via QR code), **ou** um emulador Android/iOS configurado
 - Celular e computador na mesma rede Wi-Fi (necessário para o app conseguir alcançar o backend em desenvolvimento)
@@ -91,6 +91,7 @@ Crie um arquivo `.env` dentro de `backend/` com:
 ```
 DATABASE_URL=postgresql://usuario:senha@host/banco?sslmode=require
 JWT_SECRET=uma_string_longa_e_aleatoria
+TMDB_READ_ACCESS_TOKEN=token_de_leitura_da_api_do_tmdb
 ```
 
 Instale as dependências e aplique as migrations:
@@ -99,7 +100,10 @@ Instale as dependências e aplique as migrations:
 cd backend
 npm install
 npx prisma migrate dev
+npx prisma generate
 ```
+
+`TMDB_READ_ACCESS_TOKEN` é o API Read Access Token criado nas configurações da conta TMDB. Ele fica somente no backend; não coloque essa credencial em variáveis `EXPO_PUBLIC_*` nem no app mobile. A migration `20261012120000_tmdb_personal_movie_log` remove os filmes e gêneros antigos cadastrados por usuário, preservando as contas e perfis, conforme decisão do projeto.
 
 Crie a pasta de uploads (o `multer` não cria sozinha):
 
@@ -142,7 +146,7 @@ Escaneie o QR code com o app Expo Go, ou pressione `a`/`i` no terminal para abri
 
 ## Endpoints da API
 
-Todas as rotas abaixo (exceto cadastro e login) exigem o header `Authorization: Bearer <token>`.
+Todas as rotas abaixo (exceto cadastro e login) exigem o header `Authorization: Bearer <token>`. A API consulta o TMDB pelo backend, assim a credencial de leitura não é incluída no aplicativo publicado.
 
 ### Usuários (`/users`)
 
@@ -158,13 +162,14 @@ Todas as rotas abaixo (exceto cadastro e login) exigem o header `Authorization: 
 
 | Método | Rota | Descrição |
 |---|---|---|
-| POST | `/movies/register` | Cadastra um novo filme |
-| GET | `/movies` | Lista os filmes do usuário autenticado |
+| GET | `/movies/search?query=...&page=1` | Pesquisa filmes no catálogo TMDB pelo texto informado |
+| GET | `/movies/catalog/:tmdbId` | Busca os detalhes TMDB e o registro pessoal, se houver |
+| GET | `/movies` | Lista os registros pessoais do usuário autenticado |
 | GET | `/movies/stats` | Retorna estatísticas da coleção (total, assistidos, quero assistir, favoritos) |
-| GET | `/movies/:id` | Retorna os detalhes de um filme |
-| PUT | `/movies/:id` | Atualiza um filme |
-| DELETE | `/movies/:id` | Remove um filme |
-| PATCH | `/movies/:id/favorite` | Define se um filme é favorito (`{ "isFavorite": boolean }`) |
+| GET | `/movies/:tmdbId/library` | Obtém a lista pessoal para um filme |
+| PUT | `/movies/:tmdbId/library` | Adiciona ou atualiza status, favorito, nota, comentário e data assistida |
+| DELETE | `/movies/:tmdbId/library` | Remove o filme da lista pessoal, sem remover o catálogo |
+| PATCH | `/movies/:tmdbId/favorite` | Define se o filme da lista é favorito (`{ "isFavorite": boolean }`) |
 
 ### Upload (`/upload`)
 
@@ -177,26 +182,27 @@ Todas as rotas abaixo (exceto cadastro e login) exigem o header `Authorization: 
 ```
 User
 ├── id, name, email (único), password (hash), avatarUrl?
-└── movies: Movie[]
+└── movies: UserMovie[]
 
 Movie
-├── id, title, coverUrl, releaseYear, duration, director, description
-├── rating (0.0 a 5.0), status (WATCHED | WATCHLIST), isFavorite, trailerUrl?
-├── pertence a um User (userId)
-└── genres: Genre[] (relação muitos-para-muitos)
+├── tmdbId (único), title, posterPath, releaseDate, overview, runtime
+├── genres e nota pública do TMDB
+└── registros pessoais: UserMovie[]
 
-Genre
-├── id, name (único)
-└── movies: Movie[]
+UserMovie
+├── userId + movieId (únicos em conjunto)
+├── status (WATCHED | WATCHLIST), isFavorite
+└── rating (1 a 5, opcional), comment e watchedAt
 ```
 
-Cada filme pertence a um único usuário — não existe um catálogo compartilhado entre contas; cada usuário cadastra e mantém a própria lista.
+O catálogo é consultado no TMDB e seus metadados são guardados localmente quando alguém adiciona um filme. Cada conta tem um único registro pessoal por filme TMDB. Marcar como assistido exige a data; esse registro pode ser atualizado, sem criar múltiplas avaliações para reassistidas.
 
 ## Funcionalidades
 
 - Cadastro e login com autenticação JWT
-- Cadastro, edição e exclusão de filmes, com upload de capa (galeria ou câmera)
-- Organização por gênero, status (assistido / quero assistir) e favoritos
+- Pesquisa de títulos no catálogo do TMDB
+- Organização por status (assistido / quero assistir) e favoritos
+- Registro de nota de 1 a 5 estrelas, comentário e data em que assistiu
 - Busca e filtros (gênero, status, ano, nota mínima, apenas favoritos) e ordenação (título, data, nota, ano)
 - Estatísticas da coleção pessoal
 - Localização de cinemas próximos via mapa (dados de localização reais; lista de cinemas ilustrativa — ver limitações)
@@ -211,3 +217,5 @@ Cada filme pertence a um único usuário — não existe um catálogo compartilh
 - **react-native-maps não funciona no modo web** (`expo start --web`); a tela de Cinemas possui uma versão alternativa para esse ambiente, sem mapa.
 - **Build de produção (APK):** o projeto ainda não define `android.package` nem os plugins de permissão (câmera, localização, galeria) no `app.json`, necessários para gerar um instalável fora do Expo Go.
 - **Backend sem deploy público:** a API roda localmente, na rede do desenvolvedor — um APK instalado fora dessa rede não consegue se conectar até o backend ser hospedado publicamente.
+- **TMDB:** antes de publicar, adicionar o logo oficial aprovado e manter em uma área Sobre/Créditos o aviso “Este produto usa a API do TMDB, mas não é endossado nem certificado pelo TMDB.”. A chave privada deve permanecer no backend. Consulte também os termos atuais do TMDB para a publicação planejada.
+- **Migration dos filmes:** a migration nova apaga os registros antigos de filmes e gêneros e conserva as contas. Revise a migration e faça backup do banco antes de aplicá-la em qualquer banco com dados que precisem ser preservados.

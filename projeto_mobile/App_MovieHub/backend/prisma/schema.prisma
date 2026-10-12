@@ -13,48 +13,48 @@ enum MovieStatus {
 }
 
 model User {
-  id        String  @id @default(cuid())
+  id        String      @id @default(cuid())
   name      String
-  email     String  @unique
+  email     String      @unique
   password  String
   avatarUrl String?
-
-  movies Movie[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  movies    UserMovie[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
 
+// Metadata is fetched from TMDB and cached only when a user adds a movie.
 model Movie {
-  id Int @id @default(autoincrement())
-
+  id          Int         @id @default(autoincrement())
+  tmdbId      Int         @unique
   title       String
-  coverUrl    String
-  releaseYear Int
-  duration    Int
-  director    String
-  description String
-  rating      Decimal @db.Decimal(2, 1)
-
-  status     MovieStatus @default(WATCHED)
-  isFavorite Boolean     @default(false)
-
-  trailerUrl String?
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  genres Genre[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, title])
+  posterPath  String?
+  releaseDate String?
+  overview    String      @default("")
+  runtime     Int?
+  genres      String[]    @default([])
+  voteAverage Float?
+  entries     UserMovie[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
-model Genre {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+// One personal entry per account and TMDB movie. Rewatching edits this entry.
+model UserMovie {
+  id         Int         @id @default(autoincrement())
+  userId     String
+  movieId    Int
+  status     MovieStatus @default(WATCHLIST)
+  isFavorite Boolean     @default(false)
+  rating     Int?
+  comment    String?
+  watchedAt  DateTime?
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie      Movie       @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
 
-  movies Movie[]
+  @@unique([userId, movieId])
+  @@index([userId, status])
+  @@index([userId, isFavorite])
 }

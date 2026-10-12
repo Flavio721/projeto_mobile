@@ -399,7 +399,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 export const ModelName = {
   User: 'User',
   Movie: 'Movie',
-  Genre: 'Genre'
+  UserMovie: 'UserMovie'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -415,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "movie" | "genre"
+    modelProps: "user" | "movie" | "userMovie"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -567,77 +567,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Genre: {
-      payload: Prisma.$GenrePayload<ExtArgs>
-      fields: Prisma.GenreFieldRefs
+    UserMovie: {
+      payload: Prisma.$UserMoviePayload<ExtArgs>
+      fields: Prisma.UserMovieFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.GenreFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenrePayload> | null
+          args: Prisma.UserMovieFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserMoviePayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.GenreFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenrePayload>
+          args: Prisma.UserMovieFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserMoviePayload>
         }
         findFirst: {
-          args: Prisma.GenreFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenrePayload> | null
+          args: Prisma.UserMovieFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserMoviePayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.GenreFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenrePayload>
+          args: Prisma.UserMovieFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserMoviePayload>
         }
         findMany: {
-          args: Prisma.GenreFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenrePayload>[]
+          args: Prisma.UserMovieFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserMoviePayload>[]
         }
         create: {
-          args: Prisma.GenreCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenrePayload>
+          args: Prisma.UserMovieCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserMoviePayload>
         }
         createMany: {
-          args: Prisma.GenreCreateManyArgs<ExtArgs>
+          args: Prisma.UserMovieCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.GenreCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenrePayload>[]
+          args: Prisma.UserMovieCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserMoviePayload>[]
         }
         delete: {
-          args: Prisma.GenreDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenrePayload>
+          args: Prisma.UserMovieDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserMoviePayload>
         }
         update: {
-          args: Prisma.GenreUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenrePayload>
+          args: Prisma.UserMovieUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserMoviePayload>
         }
         deleteMany: {
-          args: Prisma.GenreDeleteManyArgs<ExtArgs>
+          args: Prisma.UserMovieDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.GenreUpdateManyArgs<ExtArgs>
+          args: Prisma.UserMovieUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.GenreUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenrePayload>[]
+          args: Prisma.UserMovieUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserMoviePayload>[]
         }
         upsert: {
-          args: Prisma.GenreUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$GenrePayload>
+          args: Prisma.UserMovieUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserMoviePayload>
         }
         aggregate: {
-          args: Prisma.GenreAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateGenre>
+          args: Prisma.UserMovieAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserMovie>
         }
         groupBy: {
-          args: Prisma.GenreGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.GenreGroupByOutputType>[]
+          args: Prisma.UserMovieGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserMovieGroupByOutputType>[]
         }
         count: {
-          args: Prisma.GenreCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.GenreCountAggregateOutputType> | number
+          args: Prisma.UserMovieCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserMovieCountAggregateOutputType> | number
         }
       }
     }
@@ -685,6 +685,7 @@ export const UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   password: 'password',
+  avatarUrl: 'avatarUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -694,17 +695,14 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const MovieScalarFieldEnum = {
   id: 'id',
+  tmdbId: 'tmdbId',
   title: 'title',
-  coverUrl: 'coverUrl',
-  releaseYear: 'releaseYear',
-  duration: 'duration',
-  director: 'director',
-  description: 'description',
-  rating: 'rating',
-  status: 'status',
-  isFavorite: 'isFavorite',
-  trailerUrl: 'trailerUrl',
-  userId: 'userId',
+  posterPath: 'posterPath',
+  releaseDate: 'releaseDate',
+  overview: 'overview',
+  runtime: 'runtime',
+  genres: 'genres',
+  voteAverage: 'voteAverage',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -712,12 +710,20 @@ export const MovieScalarFieldEnum = {
 export type MovieScalarFieldEnum = (typeof MovieScalarFieldEnum)[keyof typeof MovieScalarFieldEnum]
 
 
-export const GenreScalarFieldEnum = {
+export const UserMovieScalarFieldEnum = {
   id: 'id',
-  name: 'name'
+  userId: 'userId',
+  movieId: 'movieId',
+  status: 'status',
+  isFavorite: 'isFavorite',
+  rating: 'rating',
+  comment: 'comment',
+  watchedAt: 'watchedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
-export type GenreScalarFieldEnum = (typeof GenreScalarFieldEnum)[keyof typeof GenreScalarFieldEnum]
+export type UserMovieScalarFieldEnum = (typeof UserMovieScalarFieldEnum)[keyof typeof UserMovieScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -793,16 +799,16 @@ export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'Decimal'
+ * Reference to a field of type 'Float'
  */
-export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
 
 /**
- * Reference to a field of type 'Decimal[]'
+ * Reference to a field of type 'Float[]'
  */
-export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -824,20 +830,6 @@ export type ListEnumMovieStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
-    
-
-
-/**
- * Reference to a field of type 'Float'
- */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-/**
- * Reference to a field of type 'Float[]'
- */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -993,7 +985,7 @@ export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaC
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   movie?: Prisma.MovieOmit
-  genre?: Prisma.GenreOmit
+  userMovie?: Prisma.UserMovieOmit
 }
 
 /* Types for Logging */

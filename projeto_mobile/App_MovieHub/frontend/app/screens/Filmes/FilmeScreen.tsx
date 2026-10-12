@@ -16,6 +16,7 @@ import FilmeCard from "../components/FilmeCards/FilmeCard";
 import type { MainStackParamList } from "../../navigation/MainStack";
 import type { Filme, StatusFilme } from "../../types/Filme";
 import { buscarItem } from "../../lib/storage";
+import { mapMovieToFilme } from "../../utils/movieMapper";
 
 type FilmesNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
@@ -28,26 +29,6 @@ const TABS: { key: FiltroTab; label: string }[] = [
 ];
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
-
-function mapMovieToFilme(movie: any): Filme {
-  return {
-    id: String(movie.id),
-    titulo: movie.title,
-    posterUri: movie.coverUrl,
-    ano: movie.releaseYear,
-    genero: Array.isArray(movie.genres) && movie.genres.length > 0
-      ? movie.genres.map((g: any) => g.name).join(", ")
-      : "—",
-    duracaoMin: movie.duration,
-    diretor: movie.director,
-    descricao: movie.description,
-    nota: Number(movie.rating),
-    status: movie.status === "WATCHED" ? "WATCHED" : "WATCHLIST",
-    trailerUrl: movie.trailerUrl ?? undefined,
-    favorito: movie.isFavorite,
-  };
-}
-
 
 export default function FilmesScreen() {
   const navigation = useNavigation<FilmesNavigationProp>();

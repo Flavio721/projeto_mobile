@@ -52,7 +52,7 @@ export type User = Prisma.UserModel
  */
 export type Movie = Prisma.MovieModel
 /**
- * Model Genre
+ * Model UserMovie
  * 
  */
-export type Genre = Prisma.GenreModel
+export type UserMovie = Prisma.UserMovieModel

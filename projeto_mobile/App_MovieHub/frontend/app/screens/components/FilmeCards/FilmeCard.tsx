@@ -63,13 +63,15 @@ export default function FilmeCard({
         {filme.titulo}
       </Text>
       <Text style={styles.metaText}>
-        {filme.ano} · {filme.genero}
+        {filme.ano || 'Ano indisponível'} · {filme.genero}
       </Text>
 
       {showRating && (
         <View style={styles.ratingRow}>
           <Ionicons name="star" size={12} color={cores.gold} />
-          <Text style={styles.ratingText}>{filme.nota.toFixed(1)}</Text>
+          <Text style={styles.ratingText}>
+            {filme.nota > 0 ? `${filme.nota}/5` : filme.tmdbRating != null ? `${filme.tmdbRating.toFixed(1)}/10` : 'Sem nota'}
+          </Text>
         </View>
       )}
     </TouchableOpacity>

@@ -53,7 +53,7 @@ export const AnyNull = runtime.AnyNull
 export const ModelName = {
   User: 'User',
   Movie: 'Movie',
-  Genre: 'Genre'
+  UserMovie: 'UserMovie'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -77,6 +77,7 @@ export const UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   password: 'password',
+  avatarUrl: 'avatarUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -86,17 +87,14 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const MovieScalarFieldEnum = {
   id: 'id',
+  tmdbId: 'tmdbId',
   title: 'title',
-  coverUrl: 'coverUrl',
-  releaseYear: 'releaseYear',
-  duration: 'duration',
-  director: 'director',
-  description: 'description',
-  rating: 'rating',
-  status: 'status',
-  isFavorite: 'isFavorite',
-  trailerUrl: 'trailerUrl',
-  userId: 'userId',
+  posterPath: 'posterPath',
+  releaseDate: 'releaseDate',
+  overview: 'overview',
+  runtime: 'runtime',
+  genres: 'genres',
+  voteAverage: 'voteAverage',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -104,12 +102,20 @@ export const MovieScalarFieldEnum = {
 export type MovieScalarFieldEnum = (typeof MovieScalarFieldEnum)[keyof typeof MovieScalarFieldEnum]
 
 
-export const GenreScalarFieldEnum = {
+export const UserMovieScalarFieldEnum = {
   id: 'id',
-  name: 'name'
+  userId: 'userId',
+  movieId: 'movieId',
+  status: 'status',
+  isFavorite: 'isFavorite',
+  rating: 'rating',
+  comment: 'comment',
+  watchedAt: 'watchedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
-export type GenreScalarFieldEnum = (typeof GenreScalarFieldEnum)[keyof typeof GenreScalarFieldEnum]
+export type UserMovieScalarFieldEnum = (typeof UserMovieScalarFieldEnum)[keyof typeof UserMovieScalarFieldEnum]
 
 
 export const SortOrder = {

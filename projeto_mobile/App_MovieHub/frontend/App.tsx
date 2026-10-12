@@ -3,6 +3,7 @@ import { ToastProvider } from "./app/contexts/ToastContext";
 import RootStack from "./app/navigation/RootStack";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { TemaProvider } from "./app/contexts/TemaContext";
+import { IdiomaProvider } from "./app/contexts/IdiomaContext";
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -15,12 +16,14 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <TemaProvider>
-      <ToastProvider>
-        <NavigationContainer>
-          <RootStack />
-        </NavigationContainer>
-      </ToastProvider>
-    </TemaProvider>
+    <IdiomaProvider>
+      <TemaProvider>
+        <ToastProvider>
+          <NavigationContainer>
+            <RootStack />
+          </NavigationContainer>
+        </ToastProvider>
+      </TemaProvider>
+    </IdiomaProvider>
   );
 }

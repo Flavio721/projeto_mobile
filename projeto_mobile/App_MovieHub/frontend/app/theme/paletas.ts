@@ -18,6 +18,8 @@ export const TEMA_ESCURO = {
   heartOn: '#E5484D',
   heartOff: '#6E6A8C',
   overlay: 'rgba(0,0,0,0.55)',
+  successSurface: '#1E3A2E',
+  dangerSurface: '#3A1E22',
 };
 
 export type Paleta = typeof TEMA_ESCURO;
@@ -41,6 +43,8 @@ export const TEMA_CLARO: Paleta = {
   heartOn: '#C92A2F',
   heartOff: '#8E8AA3',
   overlay: 'rgba(0,0,0,0.35)',
+  successSurface: '#E2F4EA',
+  dangerSurface: '#F9E7E8',
 };
 
 export const PALETAS: Record<NomeTema, Paleta> = {

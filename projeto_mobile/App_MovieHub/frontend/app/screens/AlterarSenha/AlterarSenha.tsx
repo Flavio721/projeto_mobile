@@ -1,5 +1,7 @@
+import TextInput from '../components/CampoTextoLocalizado';
+import Text from '../components/TextoLocalizado';
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, TextInput as NativeTextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';

@@ -1,9 +1,7 @@
 import React from "react";
 import { View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
-const GOLD = "#F4B400";
-const INACTIVE = "#6E6A8C";
+import { useTema } from '../../contexts/TemaContext';
 
 interface StarRatingInputProps {
   value: number; // 0 a 5
@@ -16,6 +14,7 @@ export default function StarRatingInput({
   onChange,
   size = 26,
 }: StarRatingInputProps) {
+  const { cores } = useTema();
   return (
     <View style={{ flexDirection: "row" }}>
       {[1, 2, 3, 4, 5].map((star) => (
@@ -27,7 +26,7 @@ export default function StarRatingInput({
           <Ionicons
             name={star <= value ? "star" : "star-outline"}
             size={size}
-            color={star <= value ? GOLD : INACTIVE}
+            color={star <= value ? cores.gold : cores.placeholder}
             style={{ marginRight: 4 }}
           />
         </TouchableOpacity>

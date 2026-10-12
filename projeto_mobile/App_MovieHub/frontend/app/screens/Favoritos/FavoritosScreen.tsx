@@ -1,10 +1,12 @@
+import Text from '../components/TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { View, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import styles, { COLORS } from './styles';
+import criarStyles from './styles';
 import FilmeCard from '../components/FilmeCards/FilmeCard';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { buscarItem } from '../../lib/storage';
@@ -17,6 +19,8 @@ const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 type FavoritosNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export default function FavoritosScreen() {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const navigation = useNavigation<FavoritosNavigationProp>();
   const [favoritos, setFavoritos] = useState<Filme[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -87,11 +91,11 @@ export default function FavoritosScreen() {
       <View style={styles.container}>
         <View style={styles.topBar}>
           <View style={styles.titleRow}>
-            <Ionicons name="heart" size={20} color={COLORS.danger} />
+            <Ionicons name="heart" size={20} color={cores.danger} />
             <Text style={styles.title}>Favoritos</Text>
           </View>
           <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Pesquisa')}>
-            <Ionicons name="search-outline" size={22} color={COLORS.white} />
+            <Ionicons name="search-outline" size={22} color={cores.text} />
           </TouchableOpacity>
         </View>
         <Text style={styles.subtitle}>

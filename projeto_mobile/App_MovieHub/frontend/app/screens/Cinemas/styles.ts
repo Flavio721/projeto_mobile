@@ -1,18 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-const COLORS = {
-  background: '#151327',
-  card: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.12)',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-  muted: '#9C97B8',
-};
+import type { Paleta } from '../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
   },
   topBar: {
     flexDirection: 'row',
@@ -30,7 +23,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   title: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -47,7 +40,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   locationText: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 13,
     fontWeight: '600',
     marginLeft: 6,
@@ -58,7 +51,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     marginBottom: 16,
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
   },
   map: {
     flex: 1,
@@ -70,7 +63,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   mapPlaceholderText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     textAlign: 'center',
     marginTop: 10,
@@ -83,18 +76,18 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
   },
   listContainer: {
     flex: 1,
     paddingHorizontal: 20,
   },
   sectionTitle: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     fontWeight: '700',
     marginBottom: 12,
@@ -102,9 +95,9 @@ const styles = StyleSheet.create({
   cinemaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 14,
     padding: 12,
     marginBottom: 10,
@@ -118,7 +111,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   cinemaLogoText: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 9,
     fontWeight: '700',
     textAlign: 'center',
@@ -132,17 +125,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   cinemaNome: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     fontWeight: '700',
   },
   cinemaDistancia: {
-    color: COLORS.gold,
+    color: cores.gold,
     fontSize: 12,
     fontWeight: '700',
   },
   cinemaEndereco: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     marginTop: 3,
   },
@@ -151,13 +144,13 @@ const styles = StyleSheet.create({
     paddingTop: 40,
   },
   emptyText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
     marginTop: 10,
     textAlign: 'center',
   },
   mockNotice: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 11,
     textAlign: 'center',
     marginVertical: 12,
@@ -165,5 +158,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

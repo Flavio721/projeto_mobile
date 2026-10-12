@@ -46,12 +46,24 @@ async function request<T>(path: string): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export async function searchTmdbMovies(query: string, page: number) {
-  const params = new URLSearchParams({ query, language: 'pt-BR', page: String(page) });
+export async function searchTmdbMovies(query: string, page: number, language = 'pt-BR') {
+  const params = new URLSearchParams({ query, language, page: String(page) });
   return request<TmdbSearchResponse>(`/search/movie?${params.toString()}`);
 }
 
-export async function getTmdbMovie(tmdbId: number) {
-  const params = new URLSearchParams({ language: 'pt-BR' });
+export async function getPopularTmdbMovies(language: string, page = 1) {
+  const params = new URLSearchParams({
+    language,
+    page: String(page),
+    include_adult: 'false',
+    include_video: 'false',
+    sort_by: 'vote_average.desc',
+    'vote_count.gte': '300',
+  });
+  return request<TmdbSearchResponse>(`/discover/movie?${params.toString()}`);
+}
+
+export async function getTmdbMovie(tmdbId: number, language = 'pt-BR') {
+  const params = new URLSearchParams({ language });
   return request<TmdbMovie>(`/movie/${tmdbId}?${params.toString()}`);
 }

@@ -1,12 +1,7 @@
+import TextInput from '../components/CampoTextoLocalizado';
+import Text from '../components/TextoLocalizado';
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { View, TextInput as NativeTextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import criarStyles from './styles'
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -97,7 +92,7 @@ export default function CadastroScreen() {
           <View style={styles.avatarCircle}>
             <Ionicons name="camera-outline" size={30} color={cores.white} />
             <View style={styles.avatarBadge}>
-              <Ionicons name="add" size={16} color="#241C00" />
+              <Ionicons name="add" size={16} color={cores.onGold} />
             </View>
           </View>
           <Text style={styles.avatarHint}>Adicionar foto (opcional)</Text>

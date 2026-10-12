@@ -1,24 +1,15 @@
 import { StyleSheet } from 'react-native';
 
-const COLORS = {
-  background: '#151327',
-  card: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.12)',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-  muted: '#9C97B8',
-  placeholder: '#6E6A8C',
-  overlay: 'rgba(0,0,0,0.55)',
-};
+import type { Paleta } from '../../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: COLORS.overlay,
+    backgroundColor: cores.overlay,
     justifyContent: 'flex-end',
   },
   sheet: {
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     maxHeight: '90%',
@@ -32,15 +23,15 @@ const styles = StyleSheet.create({
     paddingTop: 18,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: cores.border,
   },
   title: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 17,
     fontWeight: '700',
   },
   limparText: {
-    color: COLORS.gold,
+    color: cores.gold,
     fontSize: 13,
     fontWeight: '600',
   },
@@ -52,7 +43,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   label: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 13,
     fontWeight: '700',
     marginBottom: 10,
@@ -66,21 +57,21 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 20,
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
   },
   statusPillActive: {
-    backgroundColor: COLORS.gold,
-    borderColor: COLORS.gold,
+    backgroundColor: cores.gold,
+    borderColor: cores.gold,
   },
   statusPillText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     fontWeight: '600',
   },
   statusPillTextActive: {
-    color: '#241C00',
+    color: cores.onGold,
   },
   rangeRow: {
     flexDirection: 'row',
@@ -91,13 +82,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 6,
   },
   input: {
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 12,
     paddingHorizontal: 14,
     height: 46,
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
   },
   ratingRow: {
@@ -106,7 +97,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   ratingHint: {
-    color: COLORS.gold,
+    color: cores.gold,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -117,7 +108,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   toggleLabel: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -127,7 +118,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flexDirection: 'row',
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
     borderRadius: 12,
     height: 52,
     alignItems: 'center',
@@ -135,7 +126,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   primaryButtonText: {
-    color: '#241C00',
+    color: cores.onGold,
     fontSize: 15,
     fontWeight: '700',
     marginLeft: 8,
@@ -146,14 +137,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
   },
   secondaryButtonText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 15,
     fontWeight: '600',
   },
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

@@ -1,10 +1,12 @@
+import Text from '../components/TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useCallback, useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { View, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import styles, { COLORS } from './styles';
+import criarStyles from './styles';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { buscarItem } from '../../lib/storage';
 import { mapMovieToFilme } from '../../utils/movieMapper';
@@ -36,6 +38,8 @@ interface GeneroContagem {
 type GenerosNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export default function Generos() {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const navigation = useNavigation<GenerosNavigationProp>();
   const [generos, setGeneros] = useState<GeneroContagem[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -96,12 +100,12 @@ export default function Generos() {
         <View style={styles.topBar}>
           <View style={styles.topBarLeft}>
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={22} color={COLORS.white} />
+              <Ionicons name="arrow-back" size={22} color={cores.text} />
             </TouchableOpacity>
             <Text style={styles.title}>Gêneros</Text>
           </View>
           <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Pesquisa')}>
-            <Ionicons name="search-outline" size={22} color={COLORS.white} />
+            <Ionicons name="search-outline" size={22} color={cores.text} />
           </TouchableOpacity>
         </View>
         <Text style={styles.subtitle}>Selecione um gênero</Text>
@@ -125,13 +129,13 @@ export default function Generos() {
                   {item.quantidade} {item.quantidade === 1 ? 'filme' : 'filmes'}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={18} color={COLORS.muted} />
+              <Ionicons name="chevron-forward" size={18} color={cores.muted} />
             </TouchableOpacity>
           )}
           ListEmptyComponent={
             !carregando ? (
               <View style={styles.emptyBox}>
-                <Ionicons name="film-outline" size={24} color={COLORS.placeholder} />
+                <Ionicons name="film-outline" size={24} color={cores.placeholder} />
                 <Text style={styles.emptyText}>Nenhum gênero ainda — cadastre um filme primeiro</Text>
               </View>
             ) : null

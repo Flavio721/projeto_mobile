@@ -1,19 +1,16 @@
+import Text from '../components/TextoLocalizado';
 import React, { useCallback, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  ActivityIndicator,
-} from "react-native";
+import { View, TouchableOpacity, ScrollView, ActivityIndicator, Image } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import FilmeCard from "../components/FilmeCards/FilmeCard";
-import styles, { COLORS } from "./styles";
+import criarStyles from "./styles";
 import { buscarItem } from "../../lib/storage";
 import { mapMovieToFilme } from "../../utils/movieMapper";
+import { useStyles, useTema } from "../../contexts/TemaContext";
+import { useIdioma } from "../../contexts/IdiomaContext";
 import type { MainStackParamList } from "../../navigation/MainStack";
 import type { Filme } from "../../types/Filme";
 
@@ -37,7 +34,11 @@ type HomeNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export default function HomeScreen() {
   const navigation = useNavigation<HomeNavigationProp>();
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
+  const { idioma, idiomaTmdb, t } = useIdioma();
   const [filmes, setFilmes] = useState<Filme[]>([]);
+  const [populares, setPopulares] = useState<Filme[]>([]);
   const [userName, setUserName] = useState("");
   const [stats, setStats] = useState<DashboardStats>(STATS_VAZIO);
   const [carregando, setCarregando] = useState(true);
@@ -51,14 +52,16 @@ export default function HomeScreen() {
       if (!token) {
         setFilmes([]);
         setStats(STATS_VAZIO);
+        setPopulares([]);
         return;
       }
 
       const headers = { Authorization: `Bearer ${token}` };
 
-      const [filmesResponse, statsResponse] = await Promise.all([
+      const [filmesResponse, statsResponse, popularesResponse] = await Promise.all([
         fetch(`${API_BASE_URL}/movies`, { headers }),
         fetch(`${API_BASE_URL}/movies/stats`, { headers }),
+        fetch(`${API_BASE_URL}/movies/popular?language=${idiomaTmdb}`, { headers }),
       ]);
 
       if (filmesResponse.ok) {
@@ -76,20 +79,27 @@ export default function HomeScreen() {
         console.error("Erro ao buscar stats:", statsResponse.status);
         setStats(STATS_VAZIO);
       }
+      if (popularesResponse.ok) {
+        const popularData = await popularesResponse.json();
+        setPopulares((popularData.results ?? []).map(mapMovieToFilme));
+      } else {
+        setPopulares([]);
+      }
     } catch (error) {
       console.error("Falha de conexão ao carregar Home:", error);
       setFilmes([]);
       setStats(STATS_VAZIO);
+      setPopulares([]);
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [idiomaTmdb]);
 
   useFocusEffect(
     useCallback(() => {
       carregarDados();
       buscarItem("userName").then((nome) => setUserName(nome ?? ""));
-    }, [carregarDados]),
+    }, [carregarDados, idioma]),
   );
 
   // Um timer de debounce por filme, pra suportar cliques repetidos sem
@@ -151,7 +161,7 @@ export default function HomeScreen() {
             style={styles.iconButton}
             onPress={() => alert("Menu em desenvolvimento")}
           >
-            <Ionicons name="menu-outline" size={26} color={COLORS.white} />
+            <Ionicons name="menu-outline" size={26} color={cores.text} />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>MovieHub</Text>
           <TouchableOpacity
@@ -161,15 +171,15 @@ export default function HomeScreen() {
             <Ionicons
               name="notifications-outline"
               size={24}
-              color={COLORS.white}
+              color={cores.text}
             />
           </TouchableOpacity>
         </View>
 
         <Text style={styles.greeting}>
-          Olá{userName ? `, ${userName}` : ""}!
+          {t('hello')}{userName ? `, ${userName}` : ""}!
         </Text>
-        <Text style={styles.subtitle}>Desfrute dos seus filmes favoritos.</Text>
+        <Text style={styles.subtitle}>{t('subtitle')}</Text>
 
         {/* Não é mais um TextInput funcional — é um botão que abre a tela
             de Pesquisa de verdade. Por isso "editable" nem existe aqui;
@@ -183,16 +193,16 @@ export default function HomeScreen() {
             <Ionicons
               name="search-outline"
               size={18}
-              color={COLORS.placeholder}
+              color={cores.placeholder}
               style={styles.searchIcon}
             />
-            <Text style={styles.searchPlaceholderText}>Pesquisar filmes...</Text>
+            <Text style={styles.searchPlaceholderText}>{t('search')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => navigation.navigate("Pesquisa")}
           >
-            <Ionicons name="add" size={24} color="#241C00" />
+            <Ionicons name="add" size={24} color={cores.onGold} />
           </TouchableOpacity>
         </View>
 
@@ -203,52 +213,73 @@ export default function HomeScreen() {
             justifyContent: "space-between",
           }}
         >
-          <Text style={styles.sectionTitle}>Resumo</Text>
+          <Text style={styles.sectionTitle}>{t('summary')}</Text>
           {carregando && (
-            <ActivityIndicator size="small" color={COLORS.gold} />
+            <ActivityIndicator size="small" color={cores.gold} />
           )}
         </View>
         <View style={styles.summaryRow}>
           <View style={styles.summaryBox}>
-            <Ionicons name="film-outline" size={18} color={COLORS.gold} />
+            <Ionicons name="film-outline" size={18} color={cores.gold} />
             <Text style={styles.summaryNumber}>{stats.total}</Text>
-            <Text style={styles.summaryLabel}>Total de filmes</Text>
+            <Text style={styles.summaryLabel}>{t('totalMovies')}</Text>
           </View>
           <View style={styles.summaryBox}>
             <Ionicons
               name="checkmark-circle-outline"
               size={18}
-              color="#3DDC97"
+              color={cores.success}
             />
             <Text style={styles.summaryNumber}>{stats.assistidos}</Text>
-            <Text style={styles.summaryLabel}>Assistidos</Text>
+            <Text style={styles.summaryLabel}>{t('watched')}</Text>
           </View>
           <View style={styles.summaryBox}>
-            <Ionicons name="time-outline" size={18} color="#4EA1F3" />
+            <Ionicons name="time-outline" size={18} color={cores.info} />
             <Text style={styles.summaryNumber}>{stats.queroAssistir}</Text>
-            <Text style={styles.summaryLabel}>Quero assistir</Text>
+            <Text style={styles.summaryLabel}>{t('watchlist')}</Text>
           </View>
           <View style={[styles.summaryBox, styles.summaryBoxLast]}>
-            <Ionicons name="heart" size={18} color="#E5484D" />
+            <Ionicons name="heart" size={18} color={cores.heartOn} />
             <Text style={styles.summaryNumber}>{stats.favoritos}</Text>
             <Text style={styles.summaryLabel}>Favoritos</Text>
           </View>
+        </View>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeaderRow}>
+            <View>
+              <Text style={styles.sectionTitle}>{t('popular')}</Text>
+              <Text style={styles.popularSubtitle}>{t('popularSubtitle')}</Text>
+            </View>
+            {carregando && <ActivityIndicator size="small" color={cores.gold} />}
+          </View>
+          {populares.length > 0 ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {populares.map((filme) => (
+                <TouchableOpacity key={filme.id} style={styles.popularCard} onPress={() => navigation.navigate('Detalhes', { filmeId: filme.id })}>
+                  {filme.posterUri ? <Image source={{ uri: filme.posterUri }} style={styles.popularPoster} /> : <View style={[styles.popularPoster, styles.posterFallback]}><Ionicons name="film-outline" size={24} color={cores.muted} /></View>}
+                  <Text style={styles.popularTitle} numberOfLines={1}>{filme.titulo}</Text>
+                  <View style={styles.popularRating}><Ionicons name="star" size={12} color={cores.gold} /><Text style={styles.popularRatingText}>{filme.tmdbRating?.toFixed(1) ?? '—'} TMDB</Text></View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          ) : !carregando ? <Text style={styles.emptySectionText}>{t('emptyPopular')}</Text> : null}
         </View>
 
         {!carregando && filmes.length === 0 ? (
           <View style={styles.emptyGeneralBox}>
             <Text style={styles.emptyGeneralEmoji}>🎬</Text>
             <Text style={styles.emptyGeneralText}>
-              Pesquise um filme para começar sua lista
+              {t('search')}
             </Text>
           </View>
         ) : (
           <>
             <View style={styles.section}>
               <View style={styles.sectionHeaderRow}>
-                <Text style={styles.sectionTitle}>Filmes Recentes</Text>
+                <Text style={styles.sectionTitle}>{t('recent')}</Text>
                 <TouchableOpacity onPress={() => navigation.navigate("TabsRoot")}>
-                  <Text style={styles.seeAllText}>Ver todos</Text>
+                  <Text style={styles.seeAllText}>{t('seeAll')}</Text>
                 </TouchableOpacity>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -266,9 +297,9 @@ export default function HomeScreen() {
 
             <View style={styles.section}>
               <View style={styles.sectionHeaderRow}>
-                <Text style={styles.sectionTitle}>Favoritos</Text>
+                <Text style={styles.sectionTitle}>{t('favorites')}</Text>
                 <TouchableOpacity onPress={() => navigation.navigate("TabsRoot")}>
-                  <Text style={styles.seeAllText}>Ver todos</Text>
+                  <Text style={styles.seeAllText}>{t('seeAll')}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -277,7 +308,7 @@ export default function HomeScreen() {
                   <Ionicons
                     name="heart-outline"
                     size={22}
-                    color={COLORS.placeholder}
+                    color={cores.placeholder}
                   />
                   <Text style={styles.emptyStateText}>Nenhum favorito ainda</Text>
                 </View>

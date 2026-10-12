@@ -1,17 +1,21 @@
+import Text from '../components/TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useEffect } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../navigation/RootStack';
 import { buscarItem, removerItem } from '../../lib/storage';
-import styles, { COLORS } from './style';
+import criarStyles from './style';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 type SplashNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Splash'>;
 
 export default function SplashScreen() {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const navigation = useNavigation<SplashNavigationProp>();
 
   useEffect(() => {
@@ -67,13 +71,13 @@ export default function SplashScreen() {
         <MaterialCommunityIcons
           name="movie-open-outline"
           size={110}
-          color={COLORS.white}
+          color={cores.text}
           style={styles.clapperIcon}
         />
         <MaterialCommunityIcons
           name="popcorn"
           size={44}
-          color={COLORS.gold}
+          color={cores.gold}
           style={styles.popcornIcon}
         />
       </View>
@@ -82,7 +86,7 @@ export default function SplashScreen() {
       <Text style={styles.tagline}>Gerenciador de Filmes</Text>
 
       <View style={styles.loadingSection}>
-        <ActivityIndicator size="small" color={COLORS.gold} />
+        <ActivityIndicator size="small" color={cores.gold} />
         <Text style={styles.loadingText}>Carregando...</Text>
         <Text style={styles.loadingSubtext}>Preparando sua experiência</Text>
         <View style={styles.progressTrack}>

@@ -1,15 +1,19 @@
+import TextInput from '../components/CampoTextoLocalizado';
+import Text from '../components/TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
+import { View, TextInput as NativeTextInput, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import styles, { COLORS } from './styles';
+import criarStyles from './styles';
 import { buscarItem, salvarItem } from '../../lib/storage';
 import { mapMovieToFilme } from '../../utils/movieMapper';
 import type { Filme } from '../../types/Filme';
 import type { MainStackParamList } from '../../navigation/MainStack';
 import { useToast } from '../../contexts/ToastContext';
+import { useIdioma } from '../../contexts/IdiomaContext';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const RECENT_SEARCHES_KEY = 'recentSearches';
@@ -17,6 +21,9 @@ const MAX_RECENT_SEARCHES = 6;
 type SearchNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export default function Pesquisa() {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
+  const { idiomaTmdb } = useIdioma();
   const navigation = useNavigation<SearchNavigationProp>();
   const { showError } = useToast();
   const [query, setQuery] = useState('');
@@ -58,7 +65,7 @@ export default function Pesquisa() {
     try {
       const token = await buscarItem('token');
       if (!token) throw new Error('Sua sessão expirou. Entre novamente.');
-      const response = await fetch(`${API_BASE_URL}/movies/search?query=${encodeURIComponent(term)}`, {
+      const response = await fetch(`${API_BASE_URL}/movies/search?query=${encodeURIComponent(term)}&language=${idiomaTmdb}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json().catch(() => ({}));
@@ -72,7 +79,7 @@ export default function Pesquisa() {
     } finally {
       setLoading(false);
     }
-  }, [saveRecent, showError]);
+  }, [idiomaTmdb, saveRecent, showError]);
 
   const loadMore = async () => {
     if (loadingMore || page >= totalPages || !activeQuery) return;
@@ -81,7 +88,7 @@ export default function Pesquisa() {
       const token = await buscarItem('token');
       if (!token) throw new Error('Sua sessão expirou. Entre novamente.');
       const nextPage = page + 1;
-      const response = await fetch(`${API_BASE_URL}/movies/search?query=${encodeURIComponent(activeQuery)}&page=${nextPage}`, {
+      const response = await fetch(`${API_BASE_URL}/movies/search?query=${encodeURIComponent(activeQuery)}&page=${nextPage}&language=${idiomaTmdb}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json().catch(() => ({}));
@@ -106,18 +113,18 @@ export default function Pesquisa() {
       <View style={styles.container}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={22} color={COLORS.white} />
+            <Ionicons name="arrow-back" size={22} color={cores.text} />
           </TouchableOpacity>
           <Text style={styles.title}>Pesquisar filmes</Text>
         </View>
 
         <View style={styles.searchRow}>
           <View style={styles.searchWrapper}>
-            <Ionicons name="search-outline" size={18} color={COLORS.placeholder} style={styles.searchIcon} />
+            <Ionicons name="search-outline" size={18} color={cores.placeholder} style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
               placeholder="Digite o título de um filme"
-              placeholderTextColor={COLORS.placeholder}
+              placeholderTextColor={cores.placeholder}
               value={query}
               onChangeText={setQuery}
               onSubmitEditing={() => search(query)}
@@ -127,12 +134,12 @@ export default function Pesquisa() {
             />
           </View>
           <TouchableOpacity style={styles.filterButton} onPress={() => search(query)} accessibilityLabel="Pesquisar">
-            <Ionicons name="search" size={19} color={COLORS.white} />
+            <Ionicons name="search" size={19} color={cores.text} />
           </TouchableOpacity>
         </View>
 
         {loading ? (
-          <View style={styles.emptyBox}><ActivityIndicator color={COLORS.gold} /><Text style={styles.emptyText}>Pesquisando no TMDB...</Text></View>
+          <View style={styles.emptyBox}><ActivityIndicator color={cores.gold} /><Text style={styles.emptyText}>Pesquisando no TMDB...</Text></View>
         ) : activeQuery ? (
           <FlatList
             data={results}
@@ -140,17 +147,17 @@ export default function Pesquisa() {
             ListHeaderComponent={<Text style={styles.resultadosTitle}>Resultados para “{activeQuery}” ({results.length})</Text>}
             renderItem={({ item }) => (
               <TouchableOpacity style={styles.resultRow} onPress={() => navigation.navigate('Detalhes', { filmeId: item.id })}>
-                {item.posterUri ? <Image source={{ uri: item.posterUri }} style={styles.poster} /> : <View style={[styles.poster, styles.posterFallback]}><Ionicons name="film-outline" size={18} color={COLORS.white} /></View>}
+                {item.posterUri ? <Image source={{ uri: item.posterUri }} style={styles.poster} /> : <View style={[styles.poster, styles.posterFallback]}><Ionicons name="film-outline" size={18} color={cores.text} /></View>}
                 <View style={styles.resultInfo}>
                   <Text style={styles.resultTitulo} numberOfLines={2}>{item.titulo}</Text>
                   <Text style={styles.resultMeta}>{item.ano || 'Ano indisponível'}</Text>
-                  <View style={styles.resultRatingRow}><Ionicons name="star" size={12} color={COLORS.gold} /><Text style={styles.resultRatingText}>{item.tmdbRating?.toFixed(1) ?? '—'} TMDB</Text></View>
+                  <View style={styles.resultRatingRow}><Ionicons name="star" size={12} color={cores.gold} /><Text style={styles.resultRatingText}>{item.tmdbRating?.toFixed(1) ?? '—'} TMDB</Text></View>
                 </View>
-                <Ionicons name={item.naLista ? 'bookmark' : 'chevron-forward'} size={18} color={item.naLista ? COLORS.gold : COLORS.muted} />
+                <Ionicons name={item.naLista ? 'bookmark' : 'chevron-forward'} size={18} color={item.naLista ? cores.gold : cores.muted} />
               </TouchableOpacity>
             )}
-            ListEmptyComponent={<View style={styles.emptyBox}><Ionicons name="search-outline" size={24} color={COLORS.placeholder} /><Text style={styles.emptyText}>Nenhum resultado encontrado</Text></View>}
-            ListFooterComponent={page < totalPages ? <TouchableOpacity onPress={loadMore} disabled={loadingMore} style={{ padding: 16, alignItems: 'center' }}>{loadingMore ? <ActivityIndicator color={COLORS.gold} /> : <Text style={{ color: COLORS.gold, fontWeight: '700' }}>Carregar mais resultados</Text>}</TouchableOpacity> : null}
+            ListEmptyComponent={<View style={styles.emptyBox}><Ionicons name="search-outline" size={24} color={cores.placeholder} /><Text style={styles.emptyText}>Nenhum resultado encontrado</Text></View>}
+            ListFooterComponent={page < totalPages ? <TouchableOpacity onPress={loadMore} disabled={loadingMore} style={{ padding: 16, alignItems: 'center' }}>{loadingMore ? <ActivityIndicator color={cores.gold} /> : <Text style={{ color: cores.gold, fontWeight: '700' }}>Carregar mais resultados</Text>}</TouchableOpacity> : null}
           />
         ) : (
           <FlatList
@@ -163,7 +170,7 @@ export default function Pesquisa() {
                   <View style={styles.sectionRow}><Text style={styles.sectionTitle}>Buscas recentes</Text><TouchableOpacity onPress={clearRecents}><Text style={styles.limparTudoText}>Limpar tudo</Text></TouchableOpacity></View>
                   <View style={styles.tagsRow}>{recentSearches.map((term) => <TouchableOpacity key={term} style={styles.tag} onPress={() => search(term)}><Text style={styles.tagText}>{term}</Text></TouchableOpacity>)}</View>
                 </>}
-                <View style={styles.hintBox}><Ionicons name="information-circle-outline" size={20} color={COLORS.gold} /><View style={styles.hintTextWrapper}><Text style={styles.hintTitle}>Catálogo TMDB</Text><Text style={styles.hintText}>Pesquise pelo título para encontrar filmes e adicioná-los à sua lista.</Text></View></View>
+                <View style={styles.hintBox}><Ionicons name="information-circle-outline" size={20} color={cores.gold} /><View style={styles.hintTextWrapper}><Text style={styles.hintTitle}>Catálogo TMDB</Text><Text style={styles.hintText}>Pesquise pelo título para encontrar filmes e adicioná-los à sua lista.</Text></View></View>
               </>
             )}
           />

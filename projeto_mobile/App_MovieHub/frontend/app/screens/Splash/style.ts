@@ -1,18 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-const COLORS = {
-  background: '#151327',
-  backgroundGlow: '#241f42',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-  muted: '#9C97B8',
-  track: 'rgba(255,255,255,0.15)',
-};
+import type { Paleta } from '../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -22,7 +15,7 @@ const styles = StyleSheet.create({
     width: 260,
     height: 260,
     borderRadius: 130,
-    backgroundColor: COLORS.backgroundGlow,
+    backgroundColor: cores.surface,
     opacity: 0.55,
   },
   iconStack: {
@@ -40,13 +33,13 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '10deg' }],
   },
   appName: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 34,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
   tagline: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 14,
     marginTop: 6,
     marginBottom: 60,
@@ -58,13 +51,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     marginTop: 14,
     fontWeight: '600',
   },
   loadingSubtext: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     marginTop: 4,
     marginBottom: 22,
@@ -73,18 +66,18 @@ const styles = StyleSheet.create({
     width: 120,
     height: 4,
     borderRadius: 2,
-    backgroundColor: COLORS.track,
+    backgroundColor: cores.border,
     overflow: 'hidden',
   },
   progressFill: {
     width: '55%',
     height: '100%',
     borderRadius: 2,
-    backgroundColor: COLORS.white,
+    backgroundColor: cores.text,
   },
 
   
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

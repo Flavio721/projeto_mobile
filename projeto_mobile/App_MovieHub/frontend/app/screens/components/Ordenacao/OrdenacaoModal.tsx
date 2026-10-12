@@ -1,7 +1,9 @@
+import Text from '../TextoLocalizado';
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Modal, Pressable, ScrollView } from 'react-native';
+import { View, TouchableOpacity, Modal, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import styles, { COLORS } from './styles'
+import criarStyles from './styles';
+import { useStyles, useTema } from '../../../contexts/TemaContext';
 import type { OrdemFilmes } from '../../../types/Ordenacao';
 
 interface OpcaoOrdenacao {
@@ -30,6 +32,8 @@ interface OrdenacaoModalProps {
 }
 
 export default function OrdenacaoModal({ visible, ordemAtual, onClose, onAplicar }: OrdenacaoModalProps) {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const [selecionado, setSelecionado] = useState<OrdemFilmes>(ordemAtual);
 
   useEffect(() => {
@@ -60,7 +64,7 @@ export default function OrdenacaoModal({ visible, ordemAtual, onClose, onAplicar
                   onPress={() => setSelecionado(opcao.value)}
                 >
                   <View style={styles.optionIcon}>
-                    <Ionicons name={opcao.icon} size={16} color={COLORS.gold} />
+                    <Ionicons name={opcao.icon} size={16} color={cores.gold} />
                   </View>
                   <View style={styles.optionTextWrapper}>
                     <Text style={styles.optionLabel}>{opcao.label}</Text>
@@ -69,7 +73,7 @@ export default function OrdenacaoModal({ visible, ordemAtual, onClose, onAplicar
                   <Ionicons
                     name={ativo ? 'radio-button-on' : 'radio-button-off'}
                     size={20}
-                    color={ativo ? COLORS.gold : COLORS.muted}
+                    color={ativo ? cores.gold : cores.muted}
                   />
                 </TouchableOpacity>
               );

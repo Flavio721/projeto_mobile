@@ -1,18 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-const COLORS = {
-  background: '#151327',
-  card: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.12)',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-  muted: '#9C97B8',
-};
+import type { Paleta } from '../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -33,7 +26,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   title: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -44,20 +37,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
   },
   summaryCardTitle: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 15,
     fontWeight: '700',
   },
   summaryCardSubtitle: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     marginTop: 2,
   },
@@ -65,7 +58,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: 'rgba(244,180,0,0.12)',
+    backgroundColor: cores.card,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -81,9 +74,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   statBoxInner: {
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 14,
     padding: 14,
     alignItems: 'center',
@@ -97,12 +90,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   statValue: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 20,
     fontWeight: '700',
   },
   statLabel: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 11,
     marginTop: 2,
     textAlign: 'center',
@@ -112,9 +105,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   sectionCard: {
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 16,
     padding: 16,
     marginBottom: 20,
@@ -126,12 +119,12 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   sectionTitle: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     fontWeight: '700',
   },
   verTodosText: {
-    color: COLORS.gold,
+    color: cores.gold,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -159,11 +152,11 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   legendaLabel: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 12,
   },
   legendaValue: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -179,22 +172,22 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   barValue: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 10,
     marginBottom: 4,
   },
   bar: {
     width: 16,
     borderRadius: 4,
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
   },
   barLabel: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 10,
     marginTop: 6,
   },
   mockNotice: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 11,
     textAlign: 'center',
     marginTop: 4,
@@ -202,5 +195,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

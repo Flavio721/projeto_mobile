@@ -1,20 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-const COLORS = {
-  background: '#151327',
-  card: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.12)',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-  muted: '#9C97B8',
-  placeholder: '#6E6A8C',
-  hintBg: 'rgba(244,180,0,0.08)',
-};
+import type { Paleta } from '../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
   },
   container: {
     flex: 1,
@@ -30,7 +21,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   title: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -43,9 +34,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 12,
     paddingHorizontal: 14,
     height: 46,
@@ -55,23 +46,23 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
   },
   filterButton: {
     width: 46,
     height: 46,
     borderRadius: 12,
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 10,
   },
   filterButtonActive: {
-    backgroundColor: COLORS.gold,
-    borderColor: COLORS.gold,
+    backgroundColor: cores.gold,
+    borderColor: cores.gold,
   },
   filterDot: {
     position: 'absolute',
@@ -80,9 +71,9 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
     borderWidth: 1,
-    borderColor: COLORS.background,
+    borderColor: cores.background,
   },
   sectionRow: {
     flexDirection: 'row',
@@ -91,12 +82,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionTitle: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     fontWeight: '700',
   },
   limparTudoText: {
-    color: COLORS.gold,
+    color: cores.gold,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -109,30 +100,30 @@ const styles = StyleSheet.create({
   tag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 20,
     paddingVertical: 7,
     paddingHorizontal: 12,
   },
   tagText: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 12,
     fontWeight: '600',
     marginRight: 6,
   },
   resultadosTitle: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
     marginBottom: 12,
   },
   resultRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 14,
     padding: 10,
     marginBottom: 10,
@@ -141,7 +132,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 70,
     borderRadius: 8,
-    backgroundColor: '#3B3566',
+    backgroundColor: cores.posterFallback,
   },
   posterFallback: {
     alignItems: 'center',
@@ -152,12 +143,12 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   resultTitulo: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     fontWeight: '700',
   },
   resultMeta: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     marginTop: 4,
   },
@@ -167,14 +158,14 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   resultRatingText: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 12,
     fontWeight: '600',
     marginLeft: 4,
   },
   hintBox: {
     flexDirection: 'row',
-    backgroundColor: COLORS.hintBg,
+    backgroundColor: cores.card,
     borderRadius: 14,
     padding: 14,
     marginTop: 8,
@@ -184,13 +175,13 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   hintTitle: {
-    color: COLORS.gold,
+    color: cores.gold,
     fontSize: 13,
     fontWeight: '700',
     marginBottom: 4,
   },
   hintText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     lineHeight: 17,
   },
@@ -199,12 +190,12 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   emptyText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
     marginTop: 10,
     textAlign: 'center',
   },
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

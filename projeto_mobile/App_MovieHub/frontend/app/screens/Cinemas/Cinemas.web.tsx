@@ -1,10 +1,12 @@
+import Text from '../components/TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import React from 'react';
-import { View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { View, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import styles, { COLORS } from './styles';
+import criarStyles from './styles';
 import type { MainStackParamList } from '../../navigation/MainStack';
 
 // O Metro/bundler escolhe este arquivo automaticamente quando o app roda
@@ -19,6 +21,8 @@ const MOCK_CINEMAS = [
 type CinemasNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export default function Cinemas() {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const navigation = useNavigation<CinemasNavigationProp>();
 
   return (
@@ -26,7 +30,7 @@ export default function Cinemas() {
       <View style={styles.topBar}>
         <View style={styles.topBarLeft}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={22} color={COLORS.white} />
+            <Ionicons name="arrow-back" size={22} color={cores.text} />
           </TouchableOpacity>
           <Text style={styles.title}>Cinemas Próximos</Text>
         </View>
@@ -34,7 +38,7 @@ export default function Cinemas() {
 
       <View style={styles.mapWrapper}>
         <View style={styles.mapPlaceholder}>
-          <Ionicons name="map-outline" size={28} color={COLORS.muted} />
+          <Ionicons name="map-outline" size={28} color={cores.muted} />
           <Text style={styles.mapPlaceholderText}>
             Mapa disponível apenas no app instalado (Android/iOS) — não funciona no navegador.
           </Text>

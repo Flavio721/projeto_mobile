@@ -1,13 +1,9 @@
+import Text from './TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useState } from "react";
-import {
-  Text,
-  TouchableOpacity,
-  Modal,
-  FlatList,
-  Pressable,
-} from "react-native";
+import { TouchableOpacity, Modal, FlatList, Pressable } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
-import styles, { COLORS } from "./styles";
+import criarStyles from './styles';
 
 interface SelectFieldProps {
   label: string;
@@ -24,6 +20,8 @@ export default function SelectField({
   options,
   onSelect,
 }: SelectFieldProps) {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const [visible, setVisible] = useState(false);
 
   return (
@@ -32,7 +30,7 @@ export default function SelectField({
         <Text style={[styles.triggerText, !value && styles.placeholderText]}>
           {value ?? placeholder}
         </Text>
-        <Ionicons name="chevron-down" size={16} color={COLORS.placeholder} />
+        <Ionicons name="chevron-down" size={16} color={cores.placeholder} />
       </TouchableOpacity>
 
       <Modal
@@ -64,7 +62,7 @@ export default function SelectField({
                     {item}
                   </Text>
                   {item === value && (
-                    <Ionicons name="checkmark" size={18} color={COLORS.gold} />
+                    <Ionicons name="checkmark" size={18} color={cores.gold} />
                   )}
                 </TouchableOpacity>
               )}

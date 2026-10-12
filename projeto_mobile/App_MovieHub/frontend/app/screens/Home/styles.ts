@@ -1,22 +1,10 @@
 import { StyleSheet } from "react-native";
+import type { Paleta } from "../../theme/paletas";
 
-const COLORS = {
-  background: "#151327",
-  placeholder: "#6E6A8C",
-  card: "rgba(255,255,255,0.06)",
-  border: "rgba(255,255,255,0.12)",
-  white: "#FFFFFF",
-  muted: "#9C97B8",
-  gold: "#F4B400",
-  heartInactive: "#6E6A8C",
-  heartActive: "#E5484D",
-  posterFallback: "#3B3566",
-};
-
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -30,7 +18,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   topBarTitle: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 18,
     fontWeight: "700",
   },
@@ -41,13 +29,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   greeting: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 22,
     fontWeight: "700",
     marginBottom: 4,
   },
   subtitle: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
     marginBottom: 18,
   },
@@ -60,9 +48,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 12,
     paddingHorizontal: 14,
     height: 46,
@@ -72,25 +60,25 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
   },
   searchPlaceholderText: {
     flex: 1,
-    color: COLORS.placeholder,
+    color: cores.placeholder,
     fontSize: 14,
   },
   addButton: {
     width: 46,
     height: 46,
     borderRadius: 12,
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
     alignItems: "center",
     justifyContent: "center",
     marginLeft: 10,
   },
   sectionTitle: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 15,
     fontWeight: "700",
     marginBottom: 12,
@@ -102,9 +90,9 @@ const styles = StyleSheet.create({
   },
   summaryBox: {
     flex: 1,
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 12,
     alignItems: "center",
     paddingVertical: 12,
@@ -114,13 +102,13 @@ const styles = StyleSheet.create({
     marginRight: 0,
   },
   summaryNumber: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 16,
     fontWeight: "700",
     marginTop: 6,
   },
   summaryLabel: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 10,
     marginTop: 2,
     textAlign: "center",
@@ -131,8 +119,40 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 12,
   },
+  popularSubtitle: {
+    color: cores.muted,
+    fontSize: 11,
+    marginTop: -8,
+    marginBottom: 12,
+  },
+  popularCard: {
+    width: 112,
+    marginRight: 12,
+  },
+  popularPoster: {
+    width: 112,
+    height: 158,
+    borderRadius: 10,
+    backgroundColor: cores.posterFallback,
+  },
+  popularTitle: {
+    color: cores.text,
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: 7,
+  },
+  popularRating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  popularRatingText: {
+    color: cores.muted,
+    fontSize: 10,
+    marginLeft: 4,
+  },
   seeAllText: {
-    color: COLORS.gold,
+    color: cores.gold,
     fontSize: 12,
     fontWeight: "600",
   },
@@ -152,21 +172,21 @@ const styles = StyleSheet.create({
     paddingVertical: 50,
   },
   emptyStateText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 14,
     marginTop: 12,
     textAlign: "center",
   },
   emptySectionText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
   },
   emptyGeneralBox: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 16,
     paddingVertical: 60,
     marginTop: 8,
@@ -176,7 +196,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyGeneralText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 15,
     fontWeight: "600",
     textAlign: "center",
@@ -184,9 +204,9 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 14,
     padding: 10,
   },
@@ -194,7 +214,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 78,
     borderRadius: 8,
-    backgroundColor: COLORS.posterFallback,
+    backgroundColor: cores.posterFallback,
   },
   posterFallback: {
     alignItems: "center",
@@ -206,12 +226,12 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   titulo: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 15,
     fontWeight: "700",
   },
   meta: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     marginTop: 4,
   },
@@ -221,7 +241,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   ratingText: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 12,
     fontWeight: "600",
     marginLeft: 4,
@@ -231,5 +251,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export { COLORS };
-export default styles;
+export default criarStyles;

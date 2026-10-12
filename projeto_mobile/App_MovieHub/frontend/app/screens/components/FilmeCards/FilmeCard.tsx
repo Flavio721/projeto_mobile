@@ -1,5 +1,6 @@
+import Text from '../TextoLocalizado';
 import React from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Image, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import criarStyles from './styles'
 import type { Filme } from "../../../types/Filme";

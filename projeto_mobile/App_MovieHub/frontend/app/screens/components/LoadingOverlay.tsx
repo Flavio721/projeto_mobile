@@ -1,11 +1,8 @@
+import Text from './TextoLocalizado';
 import React from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, Modal } from 'react-native';
-
-const COLORS = {
-  overlay: 'rgba(21, 19, 39, 0.75)',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-};
+import { View, ActivityIndicator, StyleSheet, Modal } from 'react-native';
+import { useTema } from '../../contexts/TemaContext';
+import type { Paleta } from '../../theme/paletas';
 
 interface LoadingOverlayProps {
   visible: boolean;
@@ -13,13 +10,15 @@ interface LoadingOverlayProps {
 }
 
 export default function LoadingOverlay({ visible, message }: LoadingOverlayProps) {
+  const { cores } = useTema();
+  const styles = criarStyles(cores);
   if (!visible) return null;
 
   return (
     <Modal transparent animationType="fade" visible={visible}>
       <View style={styles.overlay}>
         <View style={styles.card}>
-          <ActivityIndicator size="large" color={COLORS.gold} />
+          <ActivityIndicator size="large" color={cores.gold} />
           {message && <Text style={styles.message}>{message}</Text>}
         </View>
       </View>
@@ -27,15 +26,15 @@ export default function LoadingOverlay({ visible, message }: LoadingOverlayProps
   );
 }
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: COLORS.overlay,
+    backgroundColor: cores.overlay,
     alignItems: 'center',
     justifyContent: 'center',
   },
   card: {
-    backgroundColor: '#1E1B38',
+    backgroundColor: cores.surface,
     borderRadius: 16,
     paddingVertical: 24,
     paddingHorizontal: 32,
@@ -43,7 +42,7 @@ const styles = StyleSheet.create({
     minWidth: 140,
   },
   message: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 13,
     fontWeight: '600',
     marginTop: 12,

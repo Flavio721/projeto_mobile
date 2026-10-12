@@ -1,5 +1,7 @@
+import Text from '../components/TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Image } from 'react-native';
+import { View, TouchableOpacity, FlatList, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as MediaLibrary from 'expo-media-library';
@@ -7,7 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
-import styles, { COLORS } from './styles';
+import criarStyles from './styles';
 import { useToast } from '../../contexts/ToastContext';
 import type { MainStackParamList } from '../../navigation/MainStack';
 
@@ -17,6 +19,8 @@ type GaleriaNavigationProp = NativeStackNavigationProp<MainStackParamList, 'Gale
 type GaleriaRouteProp = RouteProp<MainStackParamList, 'Galeria'>;
 
 export default function Galeria() {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const navigation = useNavigation<GaleriaNavigationProp>();
   const route = useRoute<GaleriaRouteProp>();
   const { onSelecionar } = route.params;
@@ -83,7 +87,7 @@ export default function Galeria() {
       <View style={styles.container}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={22} color={COLORS.white} />
+            <Ionicons name="arrow-back" size={22} color={cores.text} />
           </TouchableOpacity>
           <Text style={styles.title}>Galeria</Text>
         </View>
@@ -112,7 +116,7 @@ export default function Galeria() {
             <Text style={styles.sectionTitle}>Recentes</Text>
             {permissaoNegada ? (
               <View style={styles.emptyBox}>
-                <Ionicons name="images-outline" size={28} color={COLORS.muted} />
+                <Ionicons name="images-outline" size={28} color={cores.muted} />
                 <Text style={styles.emptyText}>
                   Autorize o acesso às fotos do aparelho pra escolher uma capa daqui.
                 </Text>
@@ -134,7 +138,7 @@ export default function Galeria() {
                       <Image source={{ uri: item.uri }} style={styles.gridImage} />
                       {ativo && (
                         <View style={styles.selectedBadge}>
-                          <Ionicons name="checkmark" size={13} color="#241C00" />
+                          <Ionicons name="checkmark" size={13} color={cores.onGold} />
                         </View>
                       )}
                     </TouchableOpacity>
@@ -143,7 +147,7 @@ export default function Galeria() {
                 ListEmptyComponent={
                   !carregando ? (
                     <View style={styles.emptyBox}>
-                      <Ionicons name="images-outline" size={28} color={COLORS.muted} />
+                      <Ionicons name="images-outline" size={28} color={cores.muted} />
                       <Text style={styles.emptyText}>Nenhuma foto encontrada no aparelho.</Text>
                     </View>
                   ) : null
@@ -154,13 +158,13 @@ export default function Galeria() {
         ) : (
           <View style={styles.cameraBox}>
             <View style={styles.cameraIconCircle}>
-              <Ionicons name="camera" size={36} color={COLORS.gold} />
+              <Ionicons name="camera" size={36} color={cores.gold} />
             </View>
             <Text style={styles.cameraText}>
               Tire uma foto na hora pra usar como capa do filme.
             </Text>
             <TouchableOpacity style={styles.cameraButton} onPress={handleTirarFoto}>
-              <Ionicons name="camera-outline" size={18} color="#241C00" />
+              <Ionicons name="camera-outline" size={18} color={cores.onGold} />
               <Text style={styles.cameraButtonText}>Abrir câmera</Text>
             </TouchableOpacity>
           </View>
@@ -173,7 +177,7 @@ export default function Galeria() {
               onPress={handleUsarSelecionada}
               disabled={!selecionada}
             >
-              <Ionicons name="checkmark" size={18} color="#241C00" />
+              <Ionicons name="checkmark" size={18} color={cores.onGold} />
               <Text style={styles.primaryButtonText}>
                 Usar imagem selecionada {selecionada ? '(1)' : '(0)'}
               </Text>

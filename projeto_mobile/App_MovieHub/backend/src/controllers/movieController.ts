@@ -2,7 +2,7 @@ import type { Response } from 'express';
 import { prisma } from '../lib/prisma.js';
 import type { AuthRequest } from '../middlewares/authMiddleware.js';
 import { MovieStatus } from '../../generated/prisma/enums.js';
-import { getTmdbMovie, posterUrl, searchTmdbMovies, type TmdbMovie } from '../services/tmdbService.js';
+import { getPopularTmdbMovies, getTmdbMovie, posterUrl, searchTmdbMovies, type TmdbMovie } from '../services/tmdbService.js';
 
 type PersonalFields = {
   status?: MovieStatus;
@@ -27,6 +27,11 @@ function tmdbIdFromRequest(value: string | string[] | undefined): number | null 
   if (typeof value !== 'string' || !/^\d+$/.test(value)) return null;
   const id = Number(value);
   return Number.isSafeInteger(id) && id > 0 ? id : null;
+}
+
+function tmdbLanguageFromRequest(value: unknown): string | null {
+  const language = value === undefined ? 'pt-BR' : value;
+  return typeof language === 'string' && ['pt-BR', 'en-US', 'es-ES'].includes(language) ? language : null;
 }
 
 function serializeTmdb(movie: TmdbMovie) {
@@ -144,12 +149,14 @@ async function cacheTmdbMovie(movie: TmdbMovie) {
 export async function searchMovies(req: AuthRequest, res: Response) {
   const query = typeof req.query.query === 'string' ? req.query.query.trim() : '';
   const page = typeof req.query.page === 'string' ? Number(req.query.page) : 1;
+  const language = tmdbLanguageFromRequest(req.query.language);
   if (!query) return res.status(400).json({ error: 'Digite o nome de um filme para pesquisar.' });
   if (query.length > 100) return res.status(400).json({ error: 'A pesquisa deve ter até 100 caracteres.' });
   if (!Number.isInteger(page) || page < 1 || page > 500) return res.status(400).json({ error: 'Página inválida.' });
+  if (!language) return res.status(400).json({ error: 'Idioma inválido.' });
 
   try {
-    const response = await searchTmdbMovies(query, page);
+    const response = await searchTmdbMovies(query, page, language);
     return res.json({
       page: response.page,
       totalPages: response.total_pages,
@@ -161,12 +168,39 @@ export async function searchMovies(req: AuthRequest, res: Response) {
   }
 }
 
+export async function getPopularMovies(req: AuthRequest, res: Response) {
+  const language = typeof req.query.language === 'string' ? req.query.language : 'pt-BR';
+  if (!['pt-BR', 'en-US', 'es-ES'].includes(language)) {
+    return res.status(400).json({ error: 'Idioma inválido.' });
+  }
+  try {
+    const watched = await prisma.userMovie.findMany({
+      where: { userId: req.userId!, status: MovieStatus.WATCHED },
+      select: { movie: { select: { tmdbId: true } } },
+    });
+    const watchedIds = new Set(watched.map(({ movie }) => movie.tmdbId));
+    const results: TmdbMovie[] = [];
+    // Read at most three pages so users with a large watched list still get
+    // useful recommendations without turning a Home request into a long scan.
+    for (let page = 1; page <= 3 && results.length < 12; page += 1) {
+      const response = await getPopularTmdbMovies(language, page);
+      results.push(...response.results.filter((movie) => !watchedIds.has(movie.id)));
+      if (page >= response.total_pages) break;
+    }
+    return res.json({ results: results.slice(0, 12).map(serializeTmdb) });
+  } catch (error) {
+    return tmdbError(res, error);
+  }
+}
+
 export async function getCatalogMovie(req: AuthRequest, res: Response) {
   const tmdbId = tmdbIdFromRequest(req.params.tmdbId);
+  const language = tmdbLanguageFromRequest(req.query.language);
   if (!tmdbId) return res.status(400).json({ error: 'Id TMDB inválido.' });
+  if (!language) return res.status(400).json({ error: 'Idioma inválido.' });
   try {
     const [movie, entry] = await Promise.all([
-      getTmdbMovie(tmdbId),
+      getTmdbMovie(tmdbId, language),
       prisma.userMovie.findFirst({
         where: { userId: req.userId!, movie: { tmdbId } },
         include: { movie: true },
@@ -212,7 +246,9 @@ export async function getStats(req: AuthRequest, res: Response) {
 
 export async function saveLibraryEntry(req: AuthRequest, res: Response) {
   const tmdbId = tmdbIdFromRequest(req.params.tmdbId);
+  const language = tmdbLanguageFromRequest(req.query.language);
   if (!tmdbId) return res.status(400).json({ error: 'Id TMDB inválido.' });
+  if (!language) return res.status(400).json({ error: 'Idioma inválido.' });
   if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
     return res.status(400).json({ error: 'Envie os dados do registro pessoal.' });
   }
@@ -222,7 +258,7 @@ export async function saveLibraryEntry(req: AuthRequest, res: Response) {
   if (body.status === undefined) return res.status(400).json({ error: 'Informe o status do filme.' });
 
   try {
-    const tmdbMovie = await getTmdbMovie(tmdbId);
+    const tmdbMovie = await getTmdbMovie(tmdbId, language);
     const movie = await cacheTmdbMovie(tmdbMovie);
     const entry = await prisma.userMovie.upsert({
       where: { userId_movieId: { userId: req.userId!, movieId: movie.id } },

@@ -1,8 +1,10 @@
+import Text from '../TextoLocalizado';
 import React from 'react';
-import { View, Text, TouchableOpacity, Modal, Pressable, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Modal, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTema } from '../../../contexts/TemaContext';
 import type { NomeTema, Paleta } from '../../../theme/paletas';
+import { useIdioma } from '../../../contexts/IdiomaContext';
 
 const OPCOES: { valor: NomeTema; rotulo: string; icone: keyof typeof Ionicons.glyphMap }[] = [
   { valor: 'escuro', rotulo: 'Escuro', icone: 'moon-outline' },
@@ -16,14 +18,16 @@ interface TemaModalProps {
 
 export default function TemaModal({ visible, onClose }: TemaModalProps) {
   const { nomeTema, definirTema, cores } = useTema();
+  const { t } = useIdioma();
   const styles = criarStyles(cores);
+  const opcoes = OPCOES.map((opcao) => ({ ...opcao, rotulo: opcao.valor === 'escuro' ? t('dark') : t('light') }));
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
         <Pressable style={styles.sheet}>
           <Text style={styles.titulo}>Tema</Text>
-          {OPCOES.map((opcao) => {
+          {opcoes.map((opcao) => {
             const ativo = opcao.valor === nomeTema;
             return (
               <TouchableOpacity

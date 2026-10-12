@@ -5,19 +5,14 @@ import HomeScreen from '../screens/Home/Home';
 import FilmesScreen from '../screens/Filmes/FilmeScreen';
 import FavoritosScreen from '../screens/Favoritos/FavoritosScreen';
 import PerfilScreen from '../screens/Perfil/PerfilScreen';
+import { useTema } from '../contexts/TemaContext';
+import { useIdioma } from '../contexts/IdiomaContext';
 
 export type MainTabsParamList = {
     Home: undefined;
     Filmes: undefined;
     Favoritos: undefined;
     Perfil: undefined;
-};
-
-const COLORS = {
-    background: '#151327',
-    border: 'rgba(255,255,255,0.10)',
-    gold: '#F4B400',
-    muted: '#6E6A8C',
 };
 
 const ICONS: Record<keyof MainTabsParamList, { active: any; inactive: any }> = {
@@ -30,16 +25,18 @@ const ICONS: Record<keyof MainTabsParamList, { active: any; inactive: any }> = {
 const Tab = createBottomTabNavigator<MainTabsParamList>();
 
 export default function MainTabs() {
+    const { cores } = useTema();
+    const { t } = useIdioma();
     return (
         <Tab.Navigator
             initialRouteName="Home"
             screenOptions={({ route }) => ({
                 headerShown: false,
-                tabBarActiveTintColor: COLORS.gold,
-                tabBarInactiveTintColor: COLORS.muted,
+                tabBarActiveTintColor: cores.gold,
+                tabBarInactiveTintColor: cores.muted,
                 tabBarStyle: {
-                    backgroundColor: COLORS.background,
-                    borderTopColor: COLORS.border,
+                    backgroundColor: cores.background,
+                    borderTopColor: cores.border,
                 },
                 tabBarIcon: ({ focused, color, size }) => {
                     const iconSet = ICONS[route.name as keyof MainTabsParamList];
@@ -48,10 +45,10 @@ export default function MainTabs() {
                 },
             })}
         >
-            <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: 'Home' }} />
-            <Tab.Screen name="Filmes" component={FilmesScreen} options={{ tabBarLabel: 'Filmes' }} />
-            <Tab.Screen name="Favoritos" component={FavoritosScreen} options={{ tabBarLabel: 'Favoritos' }} />
-            <Tab.Screen name="Perfil" component={PerfilScreen} options={{ tabBarLabel: 'Perfil' }} />
+            <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: t('home') }} />
+            <Tab.Screen name="Filmes" component={FilmesScreen} options={{ tabBarLabel: t('movies') }} />
+            <Tab.Screen name="Favoritos" component={FavoritosScreen} options={{ tabBarLabel: t('favorites') }} />
+            <Tab.Screen name="Perfil" component={PerfilScreen} options={{ tabBarLabel: t('profile') }} />
         </Tab.Navigator>
     );
 }

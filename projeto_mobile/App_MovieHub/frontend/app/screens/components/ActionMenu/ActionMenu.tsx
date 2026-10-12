@@ -1,14 +1,9 @@
+import Text from '../TextoLocalizado';
 import React from 'react';
-import { View, Text, TouchableOpacity, Modal, Pressable, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Modal, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-const COLORS = {
-  overlay: 'rgba(0,0,0,0.4)',
-  sheet: '#1E1B38',
-  border: 'rgba(255,255,255,0.12)',
-  white: '#FFFFFF',
-  danger: '#E5484D',
-};
+import { useTema } from '../../../contexts/TemaContext';
+import type { Paleta } from '../../../theme/paletas';
 
 export interface ActionMenuOption {
   label: string;
@@ -24,6 +19,8 @@ interface ActionMenuProps {
 }
 
 export default function ActionMenu({ visible, onClose, options }: ActionMenuProps) {
+  const { cores } = useTema();
+  const styles = criarStyles(cores);
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
@@ -40,9 +37,9 @@ export default function ActionMenu({ visible, onClose, options }: ActionMenuProp
               <Ionicons
                 name={option.icon}
                 size={18}
-                color={option.danger ? COLORS.danger : COLORS.white}
+                color={option.danger ? cores.danger : cores.text}
               />
-              <Text style={[styles.optionText, option.danger && { color: COLORS.danger }]}>
+              <Text style={[styles.optionText, option.danger && { color: cores.danger }]}>
                 {option.label}
               </Text>
             </TouchableOpacity>
@@ -53,19 +50,19 @@ export default function ActionMenu({ visible, onClose, options }: ActionMenuProp
   );
 }
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: COLORS.overlay,
+    backgroundColor: cores.overlay,
     alignItems: 'flex-end',
     paddingTop: 90,
     paddingRight: 20,
   },
   menu: {
-    backgroundColor: COLORS.sheet,
+    backgroundColor: cores.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     minWidth: 170,
     overflow: 'hidden',
   },
@@ -77,10 +74,10 @@ const styles = StyleSheet.create({
   },
   optionBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: cores.border,
   },
   optionText: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 10,

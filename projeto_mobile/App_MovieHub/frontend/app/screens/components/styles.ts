@@ -1,49 +1,40 @@
 import { StyleSheet } from "react-native";
 
-const COLORS = {
-  card: "rgba(255,255,255,0.06)",
-  border: "rgba(255,255,255,0.12)",
-  white: "#FFFFFF",
-  muted: "#9C97B8",
-  placeholder: "#6E6A8C",
-  gold: "#F4B400",
-  overlay: "rgba(0,0,0,0.55)",
-  sheet: "#1E1B38",
-};
+import type { Paleta } from '../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   trigger: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 12,
     paddingHorizontal: 14,
     height: 50,
   },
   triggerText: {
     fontSize: 14,
-    color: COLORS.white,
+    color: cores.text,
   },
   placeholderText: {
-    color: COLORS.placeholder,
+    color: cores.placeholder,
   },
   overlay: {
     flex: 1,
-    backgroundColor: COLORS.overlay,
+    backgroundColor: cores.overlay,
     justifyContent: "flex-end",
   },
   sheet: {
-    backgroundColor: COLORS.sheet,
+    backgroundColor: cores.surface,
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
     paddingBottom: 24,
     maxHeight: "60%",
   },
   sheetTitle: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 15,
     fontWeight: "700",
     paddingHorizontal: 20,
@@ -57,14 +48,14 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   optionText: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
   },
   optionTextActive: {
-    color: COLORS.gold,
+    color: cores.gold,
     fontWeight: "700",
   },
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

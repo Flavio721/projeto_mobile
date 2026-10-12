@@ -1,12 +1,14 @@
+import Text from '../components/TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Platform } from 'react-native';
+import { View, TouchableOpacity, FlatList, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import styles, { COLORS } from './styles';
+import criarStyles from './styles';
 import { useToast } from '../../contexts/ToastContext';
 import type { MainStackParamList } from '../../navigation/MainStack';
 
@@ -28,6 +30,8 @@ const REGIAO_PADRAO = { latitude: -23.2237, longitude: -45.9009 };
 type CinemasNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export default function Cinemas() {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const navigation = useNavigation<CinemasNavigationProp>();
   const { showError } = useToast();
   const mapRef = React.useRef<MapView>(null);
@@ -77,7 +81,7 @@ export default function Cinemas() {
       <View style={styles.topBar}>
         <View style={styles.topBarLeft}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={22} color={COLORS.white} />
+            <Ionicons name="arrow-back" size={22} color={cores.text} />
           </TouchableOpacity>
           <Text style={styles.title}>Cinemas Próximos</Text>
         </View>
@@ -85,11 +89,11 @@ export default function Cinemas() {
 
       <View style={styles.locationRow}>
         <View style={styles.locationLeft}>
-          <Ionicons name="location-outline" size={16} color={COLORS.gold} />
+          <Ionicons name="location-outline" size={16} color={cores.gold} />
           <Text style={styles.locationText} numberOfLines={1}>{cidade}</Text>
         </View>
         <TouchableOpacity onPress={() => Location.requestForegroundPermissionsAsync()}>
-          <Ionicons name="create-outline" size={18} color={COLORS.muted} />
+          <Ionicons name="create-outline" size={18} color={cores.muted} />
         </TouchableOpacity>
       </View>
 
@@ -116,7 +120,7 @@ export default function Cinemas() {
           ))}
         </MapView>
         <TouchableOpacity style={styles.recenterButton} onPress={recentralizar}>
-          <Ionicons name="locate-outline" size={18} color={COLORS.white} />
+          <Ionicons name="locate-outline" size={18} color={cores.text} />
         </TouchableOpacity>
       </View>
 

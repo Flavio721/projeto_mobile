@@ -1,7 +1,10 @@
+import TextInput from '../CampoTextoLocalizado';
+import Text from '../TextoLocalizado';
+import { useStyles, useTema } from '../../../contexts/TemaContext';
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Modal, Pressable, ScrollView, Switch } from 'react-native';
+import { View, TextInput as NativeTextInput, TouchableOpacity, Modal, Pressable, ScrollView, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import styles, { COLORS } from './styles';
+import criarStyles from './styles';
 import SelectField from '../SelectField';
 import StarRatingInput from '../StarRatingInput';
 import { FILTROS_PADRAO } from '../../../types/Filtros';
@@ -34,6 +37,8 @@ interface FiltrosModalProps {
 }
 
 export default function FiltrosModal({ visible, filtrosAtuais, onClose, onAplicar }: FiltrosModalProps) {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const [filtros, setFiltros] = useState<Filtros>(filtrosAtuais);
 
   // Sempre que o modal reabrir, começa do que já estava aplicado —
@@ -101,7 +106,7 @@ export default function FiltrosModal({ visible, filtrosAtuais, onClose, onAplica
                   <TextInput
                     style={styles.input}
                     placeholder="Ex.: 1990"
-                    placeholderTextColor={COLORS.placeholder}
+                    placeholderTextColor={cores.placeholder}
                     keyboardType="number-pad"
                     maxLength={4}
                     value={filtros.anoMin}
@@ -112,7 +117,7 @@ export default function FiltrosModal({ visible, filtrosAtuais, onClose, onAplica
                   <TextInput
                     style={styles.input}
                     placeholder="Ex.: 2024"
-                    placeholderTextColor={COLORS.placeholder}
+                    placeholderTextColor={cores.placeholder}
                     keyboardType="number-pad"
                     maxLength={4}
                     value={filtros.anoMax}
@@ -140,8 +145,8 @@ export default function FiltrosModal({ visible, filtrosAtuais, onClose, onAplica
               <Switch
                 value={filtros.apenasFavoritos}
                 onValueChange={(apenasFavoritos) => setFiltros((prev) => ({ ...prev, apenasFavoritos }))}
-                trackColor={{ false: COLORS.border, true: COLORS.gold }}
-                thumbColor={COLORS.white}
+                trackColor={{ false: cores.border, true: cores.gold }}
+                thumbColor={cores.text}
               />
             </View>
 
@@ -162,7 +167,7 @@ export default function FiltrosModal({ visible, filtrosAtuais, onClose, onAplica
 
           <View style={styles.footer}>
             <TouchableOpacity style={styles.primaryButton} onPress={handleAplicar}>
-              <Ionicons name="options-outline" size={18} color="#241C00" />
+              <Ionicons name="options-outline" size={18} color={cores.onGold} />
               <Text style={styles.primaryButtonText}>Aplicar filtros</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.secondaryButton} onPress={onClose}>

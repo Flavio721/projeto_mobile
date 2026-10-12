@@ -1,21 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-const COLORS = {
-  background: '#151327',
-  card: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.12)',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-  muted: '#9C97B8',
-  placeholder: '#6E6A8C',
-  danger: '#E5484D',
-  posterFallback: '#3B3566',
-};
+import type { Paleta } from '../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
   },
   centered: {
     flex: 1,
@@ -34,7 +24,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   topBarTitle: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 17,
     fontWeight: '700',
   },
@@ -52,7 +42,7 @@ const styles = StyleSheet.create({
     width: 110,
     height: 156,
     borderRadius: 12,
-    backgroundColor: COLORS.posterFallback,
+    backgroundColor: cores.posterFallback,
   },
   posterFallback: {
     alignItems: 'center',
@@ -64,13 +54,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   titulo: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 20,
     fontWeight: '700',
     marginBottom: 6,
   },
   metaLine: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
     marginBottom: 8,
   },
@@ -80,20 +70,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   ratingText: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     fontWeight: '700',
     marginLeft: 6,
   },
   statusBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 4,
   },
   statusBadgeText: {
-    color: '#241C00',
+    color: cores.onGold,
     fontSize: 11,
     fontWeight: '700',
   },
@@ -101,21 +91,21 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionLabel: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     fontWeight: '700',
     marginBottom: 6,
     textTransform: 'uppercase',
   },
   sectionValue: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     lineHeight: 20,
   },
   card: {
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 14,
     padding: 16,
     marginBottom: 20,
@@ -126,7 +116,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   myRatingValue: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     fontWeight: '700',
     marginLeft: 8,
@@ -135,9 +125,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 14,
     padding: 16,
     marginBottom: 20,
@@ -147,7 +137,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   trailerText: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 10,
@@ -162,37 +152,37 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   actionButtonText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 11,
     marginTop: 6,
     fontWeight: '600',
   },
   actionButtonTextActive: {
-    color: COLORS.gold,
+    color: cores.gold,
   },
   actionButtonTextDanger: {
-    color: COLORS.danger,
+    color: cores.danger,
   },
   primaryButton: {
     minHeight: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
     borderRadius: 12,
     marginTop: 4,
   },
   primaryButtonText: {
-    color: '#241C00',
+    color: cores.onGold,
     fontSize: 15,
     fontWeight: '700',
   },
   errorText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 14,
     marginTop: 12,
     textAlign: 'center',
   },
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

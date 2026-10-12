@@ -1,6 +1,6 @@
 # MovieHub
 
-Aplicativo mobile para gerenciamento pessoal de filmes. O usuário cria uma conta, cadastra os filmes que já assistiu ou pretende assistir, organiza por gênero, favorita, avalia e acompanha estatísticas da própria coleção.
+Aplicativo mobile para gerenciamento pessoal de filmes. O usuário pesquisa títulos do catálogo TMDB e registra o que assistiu ou pretende assistir, com favoritos, avaliações e estatísticas pessoais.
 
 Projeto acadêmico desenvolvido para a disciplina de Programação para Aplicativos Móveis (ETEC).
 
@@ -163,6 +163,7 @@ Todas as rotas abaixo (exceto cadastro e login) exigem o header `Authorization: 
 | Método | Rota | Descrição |
 |---|---|---|
 | GET | `/movies/search?query=...&page=1` | Pesquisa filmes no catálogo TMDB pelo texto informado |
+| GET | `/movies/popular?language=pt-BR` | Recomenda filmes bem avaliados que o usuário ainda não marcou como assistidos |
 | GET | `/movies/catalog/:tmdbId` | Busca os detalhes TMDB e o registro pessoal, se houver |
 | GET | `/movies` | Lista os registros pessoais do usuário autenticado |
 | GET | `/movies/stats` | Retorna estatísticas da coleção (total, assistidos, quero assistir, favoritos) |
@@ -201,6 +202,7 @@ O catálogo é consultado no TMDB e seus metadados são guardados localmente qua
 
 - Cadastro e login com autenticação JWT
 - Pesquisa de títulos no catálogo do TMDB
+- Recomendações de filmes bem avaliados na Home, excluindo títulos já assistidos
 - Organização por status (assistido / quero assistir) e favoritos
 - Registro de nota de 1 a 5 estrelas, comentário e data em que assistiu
 - Busca e filtros (gênero, status, ano, nota mínima, apenas favoritos) e ordenação (título, data, nota, ano)
@@ -208,11 +210,11 @@ O catálogo é consultado no TMDB e seus metadados são guardados localmente qua
 - Localização de cinemas próximos via mapa (dados de localização reais; lista de cinemas ilustrativa — ver limitações)
 - Compartilhamento de filmes via WhatsApp, Telegram, e-mail, SMS ou folha de compartilhamento do sistema
 - Edição de perfil (nome, foto, senha)
-- Tema claro e escuro, com preferência salva no dispositivo
+- Tema claro/escuro e idioma (português, inglês ou espanhol), com preferências salvas no dispositivo
 
 ## Limitações conhecidas
 
-- **Tema claro/escuro:** a infraestrutura existe e funciona nas telas já migradas, mas nem todas as telas do app foram convertidas para reagir à troca de tema.
+- **Idioma:** textos da interface, placeholders e recomendações/consultas TMDB acompanham o idioma selecionado. Mensagens futuras adicionadas sem tradução cadastrada aparecem no idioma de origem até receberem uma tradução.
 - **Cinemas Próximos:** a localização do usuário é real (GPS do dispositivo), mas a lista de cinemas exibida é ilustrativa — integrar uma API de lugares (ex.: Google Places) exigiria uma chave paga e um proxy no backend.
 - **react-native-maps não funciona no modo web** (`expo start --web`); a tela de Cinemas possui uma versão alternativa para esse ambiente, sem mapa.
 - **Build de produção (APK):** o projeto ainda não define `android.package` nem os plugins de permissão (câmera, localização, galeria) no `app.json`, necessários para gerar um instalável fora do Expo Go.

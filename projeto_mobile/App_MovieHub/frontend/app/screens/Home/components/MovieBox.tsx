@@ -1,7 +1,9 @@
+import Text from '../../components/TextoLocalizado';
 // components/MovieRow.tsx
 import { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import styles from "../styles";
+import { View, Image, TouchableOpacity } from 'react-native';
+import criarStyles from "../styles";
+import { useStyles } from '../../../contexts/TemaContext';
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w342";
@@ -31,6 +33,7 @@ type MovieNavigationProp = NavigationProp<{
 }>;
 
 function MovieRow({ item, genres }: MovieRowProps) {
+  const styles = useStyles(criarStyles);
   // 3. Tipagem do estado (pode ser número ou nulo)
   const [runtime, setRuntime] = useState<number | null>(null);
   const navigation = useNavigation<MovieNavigationProp>();

@@ -1,10 +1,12 @@
+import Text from '../components/TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
+import { View, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import styles, { COLORS } from './styles';
+import criarStyles from './styles';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { useToast } from '../../contexts/ToastContext';
 import { buscarItem, removerItem } from '../../lib/storage';
@@ -40,6 +42,8 @@ function formatarData(iso: string): string {
 }
 
 export default function Perfil() {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const navigation = useNavigation<PerfilNavigationProp>();
   const { showError } = useToast();
 
@@ -131,7 +135,7 @@ export default function Perfil() {
         <View style={styles.topBar}>
           <Text style={styles.title}>Meu Perfil</Text>
           <TouchableOpacity style={styles.iconButton} onPress={() => navigation.navigate('Configuracoes')}>
-            <Ionicons name="settings-outline" size={18} color={COLORS.white} />
+            <Ionicons name="settings-outline" size={18} color={cores.text} />
           </TouchableOpacity>
         </View>
 
@@ -141,11 +145,11 @@ export default function Perfil() {
               {fotoParaExibir ? (
                 <Image source={{ uri: fotoParaExibir }} style={styles.avatarImage} />
               ) : (
-                <Ionicons name="person" size={38} color={COLORS.muted} />
+                <Ionicons name="person" size={38} color={cores.muted} />
               )}
             </View>
             <View style={styles.avatarCameraBadge}>
-              <Ionicons name="camera" size={13} color="#241C00" />
+              <Ionicons name="camera" size={13} color={cores.onGold} />
             </View>
           </TouchableOpacity>
 
@@ -154,7 +158,7 @@ export default function Perfil() {
 
           {usuario?.createdAt && (
             <View style={styles.membroRow}>
-              <Ionicons name="calendar-outline" size={13} color={COLORS.muted} />
+              <Ionicons name="calendar-outline" size={13} color={cores.muted} />
               <Text style={styles.membroText}>Membro desde {formatarData(usuario.createdAt)}</Text>
             </View>
           )}
@@ -162,29 +166,29 @@ export default function Perfil() {
 
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
-            <View style={[styles.statIconCircle, { backgroundColor: 'rgba(78,161,243,0.15)' }]}>
-              <Ionicons name="film-outline" size={16} color="#4EA1F3" />
+            <View style={[styles.statIconCircle, { backgroundColor: cores.card }]}>
+              <Ionicons name="film-outline" size={16} color={cores.info} />
             </View>
             <Text style={styles.statValue}>{stats.total}</Text>
             <Text style={styles.statLabel}>Total de filmes</Text>
           </View>
           <View style={styles.statBox}>
-            <View style={[styles.statIconCircle, { backgroundColor: 'rgba(244,180,0,0.15)' }]}>
-              <Ionicons name="heart" size={16} color={COLORS.gold} />
+            <View style={[styles.statIconCircle, { backgroundColor: cores.card }]}>
+              <Ionicons name="heart" size={16} color={cores.gold} />
             </View>
             <Text style={styles.statValue}>{stats.favoritos}</Text>
             <Text style={styles.statLabel}>Favoritos</Text>
           </View>
           <View style={styles.statBox}>
-            <View style={[styles.statIconCircle, { backgroundColor: 'rgba(61,220,151,0.15)' }]}>
-              <Ionicons name="checkmark-circle-outline" size={16} color="#3DDC97" />
+            <View style={[styles.statIconCircle, { backgroundColor: cores.card }]}>
+              <Ionicons name="checkmark-circle-outline" size={16} color={cores.success} />
             </View>
             <Text style={styles.statValue}>{stats.assistidos}</Text>
             <Text style={styles.statLabel}>Assistidos</Text>
           </View>
           <View style={[styles.statBox, styles.statBoxLast]}>
-            <View style={[styles.statIconCircle, { backgroundColor: 'rgba(229,72,77,0.15)' }]}>
-              <Ionicons name="bookmark-outline" size={16} color="#E5484D" />
+            <View style={[styles.statIconCircle, { backgroundColor: cores.card }]}>
+              <Ionicons name="bookmark-outline" size={16} color={cores.danger} />
             </View>
             <Text style={styles.statValue}>{stats.queroAssistir}</Text>
             <Text style={styles.statLabel}>Quero assistir</Text>
@@ -197,18 +201,18 @@ export default function Perfil() {
             onPress={() => navigation.navigate("EditarPerfil")}
           >
             <View style={styles.menuIcon}>
-              <Ionicons name="person-outline" size={18} color={COLORS.white} />
+              <Ionicons name="person-outline" size={18} color={cores.text} />
             </View>
             <Text style={styles.menuLabel}>Editar perfil</Text>
-            <Ionicons name="chevron-forward" size={16} color={COLORS.muted} />
+            <Ionicons name="chevron-forward" size={16} color={cores.muted} />
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.menuRow, styles.menuRowBorder]} onPress={handleAlterarFoto}>
             <View style={styles.menuIcon}>
-              <Ionicons name="camera-outline" size={18} color={COLORS.white} />
+              <Ionicons name="camera-outline" size={18} color={cores.text} />
             </View>
             <Text style={styles.menuLabel}>Alterar foto</Text>
-            <Ionicons name="chevron-forward" size={16} color={COLORS.muted} />
+            <Ionicons name="chevron-forward" size={16} color={cores.muted} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -216,10 +220,10 @@ export default function Perfil() {
             onPress={() => navigation.navigate("AlterarSenha")}
           >
             <View style={styles.menuIcon}>
-              <Ionicons name="key-outline" size={18} color={COLORS.white} />
+              <Ionicons name="key-outline" size={18} color={cores.text} />
             </View>
             <Text style={styles.menuLabel}>Alterar senha</Text>
-            <Ionicons name="chevron-forward" size={16} color={COLORS.muted} />
+            <Ionicons name="chevron-forward" size={16} color={cores.muted} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -227,23 +231,23 @@ export default function Perfil() {
             onPress={() => itemEmDesenvolvimento('Preferências')}
           >
             <View style={styles.menuIcon}>
-              <Ionicons name="options-outline" size={18} color={COLORS.white} />
+              <Ionicons name="options-outline" size={18} color={cores.text} />
             </View>
             <Text style={styles.menuLabel}>Preferências</Text>
-            <Ionicons name="chevron-forward" size={16} color={COLORS.muted} />
+            <Ionicons name="chevron-forward" size={16} color={cores.muted} />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuRow} onPress={() => itemEmDesenvolvimento('Sincronizar dados')}>
             <View style={styles.menuIcon}>
-              <Ionicons name="cloud-outline" size={18} color={COLORS.white} />
+              <Ionicons name="cloud-outline" size={18} color={cores.text} />
             </View>
             <Text style={styles.menuLabel}>Sincronizar dados</Text>
-            <Ionicons name="chevron-forward" size={16} color={COLORS.muted} />
+            <Ionicons name="chevron-forward" size={16} color={cores.muted} />
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={18} color={COLORS.danger} />
+          <Ionicons name="log-out-outline" size={18} color={cores.danger} />
           <Text style={styles.logoutText}>Sair da conta</Text>
         </TouchableOpacity>
       </ScrollView>

@@ -1,16 +1,11 @@
+import Text from './TextoLocalizado';
 import React from 'react';
-import { Animated, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Animated, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTema } from '../../contexts/TemaContext';
+import type { Paleta } from '../../theme/paletas';
 
 export type ToastType = 'success' | 'error';
-
-const COLORS = {
-  successBg: '#1E3A2E',
-  successBorder: '#3DDC97',
-  errorBg: '#3A1E22',
-  errorBorder: '#E5484D',
-  white: '#FFFFFF',
-};
 
 interface ToastProps {
   type: ToastType;
@@ -22,6 +17,8 @@ interface ToastProps {
 
 export default function Toast({ type, message, opacity, translateY, onDismiss }: ToastProps) {
   const isSuccess = type === 'success';
+  const { cores } = useTema();
+  const styles = criarStyles(cores);
 
   return (
     <Animated.View
@@ -34,19 +31,19 @@ export default function Toast({ type, message, opacity, translateY, onDismiss }:
       <Ionicons
         name={isSuccess ? 'checkmark-circle' : 'alert-circle'}
         size={20}
-        color={isSuccess ? COLORS.successBorder : COLORS.errorBorder}
+        color={isSuccess ? cores.success : cores.danger}
       />
       <Text style={styles.message} numberOfLines={3}>
         {message}
       </Text>
       <TouchableOpacity onPress={onDismiss} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-        <Ionicons name="close" size={16} color={COLORS.white} />
+        <Ionicons name="close" size={16} color={cores.text} />
       </TouchableOpacity>
     </Animated.View>
   );
 }
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   container: {
     position: 'absolute',
     top: 56,
@@ -62,16 +59,16 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   success: {
-    backgroundColor: COLORS.successBg,
-    borderColor: COLORS.successBorder,
+    backgroundColor: cores.successSurface,
+    borderColor: cores.success,
   },
   error: {
-    backgroundColor: COLORS.errorBg,
-    borderColor: COLORS.errorBorder,
+    backgroundColor: cores.dangerSurface,
+    borderColor: cores.danger,
   },
   message: {
     flex: 1,
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 13,
     fontWeight: '600',
     marginHorizontal: 10,

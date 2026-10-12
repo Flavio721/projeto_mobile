@@ -1,17 +1,14 @@
+import TextInput from '../components/CampoTextoLocalizado';
+import Text from '../components/TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import { useState, useCallback, useMemo, useRef } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { View, TextInput as NativeTextInput, TouchableOpacity, FlatList } from 'react-native';
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import styles, { COLORS } from "./styles";
+import criarStyles from './styles';
 import FilmeCard from "../components/FilmeCards/FilmeCard";
 import type { MainStackParamList } from "../../navigation/MainStack";
 import type { Filme, StatusFilme } from "../../types/Filme";
@@ -31,6 +28,8 @@ const TABS: { key: FiltroTab; label: string }[] = [
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export default function FilmesScreen() {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const navigation = useNavigation<FilmesNavigationProp>();
   const [filmes, setFilmes] = useState<Filme[]>([]);
   const [busca, setBusca] = useState("");
@@ -134,7 +133,7 @@ export default function FilmesScreen() {
             style={styles.iconButton}
             onPress={() => navigation.navigate("Estatisticas")}
           >
-            <Ionicons name="funnel-outline" size={22} color={COLORS.white} />
+            <Ionicons name="funnel-outline" size={22} color={cores.text} />
           </TouchableOpacity>
         </View>
 
@@ -143,13 +142,13 @@ export default function FilmesScreen() {
             <Ionicons
               name="search-outline"
               size={18}
-              color={COLORS.placeholder}
+              color={cores.placeholder}
               style={styles.searchIcon}
             />
             <TextInput
               style={styles.searchInput}
               placeholder="Pesquisar filmes..."
-              placeholderTextColor={COLORS.placeholder}
+              placeholderTextColor={cores.placeholder}
               value={busca}
               onChangeText={setBusca}
             />
@@ -158,7 +157,7 @@ export default function FilmesScreen() {
             style={styles.sortButton}
             onPress={() => navigation.navigate("Generos")}
           >
-            <Ionicons name="options-outline" size={18} color={COLORS.white} />
+            <Ionicons name="options-outline" size={18} color={cores.text} />
           </TouchableOpacity>
         </View>
 
@@ -200,7 +199,7 @@ export default function FilmesScreen() {
           )}
           ListEmptyComponent={
             <View style={styles.emptyBox}>
-              <Ionicons name="film-outline" size={26} color={COLORS.placeholder} />
+              <Ionicons name="film-outline" size={26} color={cores.placeholder} />
               <Text style={styles.emptyText}>
                 {busca ? 'Nenhum filme encontrado para essa busca' : 'Nenhum filme registrado ainda'}
               </Text>

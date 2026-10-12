@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   getCatalogMovie,
+  getPopularMovies,
   getLibraryEntry,
   getMovies,
   getStats,
@@ -15,6 +16,7 @@ const movieRoutes = Router();
 movieRoutes.use(authMiddleware);
 
 movieRoutes.get('/search', searchMovies);
+movieRoutes.get('/popular', getPopularMovies);
 movieRoutes.get('/stats', getStats);
 movieRoutes.get('/catalog/:tmdbId', getCatalogMovie);
 movieRoutes.get('/:tmdbId/library', getLibraryEntry);

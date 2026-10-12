@@ -25,7 +25,7 @@ const criarStyles = (cores: Paleta) =>
       flex: 1,
     },
     title: {
-      color: cores.white,
+      color: cores.text,
       fontSize: 20,
       fontWeight: "700",
     },
@@ -69,7 +69,7 @@ const criarStyles = (cores: Paleta) =>
       marginBottom: 18,
     },
     label: {
-      color: cores.white,
+      color: cores.text,
       fontSize: 13,
       fontWeight: "600",
       marginBottom: 8,
@@ -89,7 +89,7 @@ const criarStyles = (cores: Paleta) =>
     },
     input: {
       flex: 1,
-      color: cores.white,
+      color: cores.text,
       fontSize: 14,
     },
     primaryButton: {
@@ -102,7 +102,7 @@ const criarStyles = (cores: Paleta) =>
       marginBottom: 20,
     },
     primaryButtonText: {
-      color: "#241C00",
+      color: cores.onGold,
       fontSize: 15,
       fontWeight: "700",
     },

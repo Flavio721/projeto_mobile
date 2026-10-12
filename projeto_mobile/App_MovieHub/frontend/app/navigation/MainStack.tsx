@@ -12,6 +12,7 @@ import Configuracoes from "../screens/Configuracoes/Configuracoes";
 import type { Filme } from "../types/Filme";
 import EditarPerfil from "../screens/EditarPerfil/EditarPerfil";
 import AlterarSenha from "../screens/AlterarSenha/AlterarSenha";
+import { useTema } from "../contexts/TemaContext";
 
 export type MainStackParamList = {
   TabsRoot: undefined;
@@ -30,11 +31,12 @@ export type MainStackParamList = {
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
 export default function MainStack() {
+  const { cores } = useTema();
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: "#151327" },
+        contentStyle: { backgroundColor: cores.background },
       }}>
       <Stack.Screen name="TabsRoot" component={MainTabs} />
       <Stack.Screen name="Detalhes" component={Detalhes} />

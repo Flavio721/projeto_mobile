@@ -1,18 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-const COLORS = {
-  background: '#151327',
-  card: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.12)',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-  muted: '#9C97B8',
-};
+import type { Paleta } from '../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
   },
   container: {
     flex: 1,
@@ -28,7 +21,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   title: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -36,7 +29,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: cores.border,
   },
   tabButton: {
     paddingVertical: 10,
@@ -45,18 +38,18 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   tabButtonActive: {
-    borderBottomColor: COLORS.gold,
+    borderBottomColor: cores.gold,
   },
   tabButtonText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 14,
     fontWeight: '600',
   },
   tabButtonTextActive: {
-    color: COLORS.gold,
+    color: cores.gold,
   },
   sectionTitle: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 13,
     fontWeight: '700',
     marginBottom: 12,
@@ -70,12 +63,12 @@ const styles = StyleSheet.create({
     margin: 4,
     borderRadius: 10,
     overflow: 'hidden',
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 2,
     borderColor: 'transparent',
   },
   gridItemSelected: {
-    borderColor: COLORS.gold,
+    borderColor: cores.gold,
   },
   gridImage: {
     width: '100%',
@@ -85,7 +78,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     right: 6,
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
     borderRadius: 10,
     width: 20,
     height: 20,
@@ -102,15 +95,15 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
   },
   cameraText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
     textAlign: 'center',
     marginBottom: 20,
@@ -119,13 +112,13 @@ const styles = StyleSheet.create({
   cameraButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 24,
   },
   cameraButtonText: {
-    color: '#241C00',
+    color: cores.onGold,
     fontSize: 14,
     fontWeight: '700',
     marginLeft: 8,
@@ -135,7 +128,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   emptyText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
     marginTop: 10,
     textAlign: 'center',
@@ -146,7 +139,7 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     flexDirection: 'row',
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
     borderRadius: 12,
     height: 52,
     alignItems: 'center',
@@ -157,7 +150,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   primaryButtonText: {
-    color: '#241C00',
+    color: cores.onGold,
     fontSize: 15,
     fontWeight: '700',
     marginLeft: 8,
@@ -168,14 +161,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
   },
   secondaryButtonText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 15,
     fontWeight: '600',
   },
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

@@ -35,7 +35,7 @@ const criarStyles = (cores: Paleta) =>
       justifyContent: "center",
     },
     title: {
-      color: cores.white,
+      color: cores.text,
       fontSize: 13,
       fontWeight: "600",
       marginTop: 8,

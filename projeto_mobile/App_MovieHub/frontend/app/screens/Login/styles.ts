@@ -1,19 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-const COLORS = {
-  background: '#151327',
-  card: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.12)',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-  muted: '#9C97B8',
-  placeholder: '#6E6A8C',
-};
+import type { Paleta } from '../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
   },
   scrollContent: {
     flexGrow: 1,
@@ -31,20 +23,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   logoText: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 26,
     fontWeight: '700',
     marginLeft: 8,
   },
   subtitle: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 14,
   },
   fieldGroup: {
     marginBottom: 18,
   },
   label: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 13,
     fontWeight: '600',
     marginBottom: 8,
@@ -52,9 +44,9 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 12,
     paddingHorizontal: 14,
     height: 50,
@@ -64,7 +56,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
   },
   optionsRow: {
@@ -78,17 +70,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rememberText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
     marginLeft: 8,
   },
   forgotText: {
-    color: COLORS.gold,
+    color: cores.gold,
     fontSize: 13,
     fontWeight: '600',
   },
   primaryButton: {
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
     borderRadius: 12,
     height: 52,
     alignItems: 'center',
@@ -96,7 +88,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   primaryButtonText: {
-    color: '#241C00',
+    color: cores.onGold,
     fontSize: 15,
     fontWeight: '700',
   },
@@ -105,15 +97,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   footerText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
   },
   footerLink: {
-    color: COLORS.gold,
+    color: cores.gold,
     fontSize: 13,
     fontWeight: '700',
   },
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

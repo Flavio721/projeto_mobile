@@ -1,19 +1,15 @@
+import TextInput from '../components/CampoTextoLocalizado';
+import Text from '../components/TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { View, TextInput as NativeTextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useToast } from "../../contexts/ToastContext";
 import {
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
-import styles, { COLORS } from "./styles";
+import criarStyles from './styles';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -29,6 +25,8 @@ type LoginNavigationProp = NativeStackNavigationProp<
 >;
 
 export default function LoginScreen() {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -82,7 +80,7 @@ export default function LoginScreen() {
             <MaterialCommunityIcons
               name="movie-open-outline"
               size={30}
-              color={COLORS.gold}
+              color={cores.gold}
             />
             <Text style={styles.logoText}>MovieHub</Text>
           </View>
@@ -95,13 +93,13 @@ export default function LoginScreen() {
             <Ionicons
               name="mail-outline"
               size={18}
-              color={COLORS.placeholder}
+              color={cores.placeholder}
               style={styles.inputIcon}
             />
             <TextInput
               style={styles.input}
               placeholder="seu@email.com"
-              placeholderTextColor={COLORS.placeholder}
+              placeholderTextColor={cores.placeholder}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -116,13 +114,13 @@ export default function LoginScreen() {
             <Ionicons
               name="lock-closed-outline"
               size={18}
-              color={COLORS.placeholder}
+              color={cores.placeholder}
               style={styles.inputIcon}
             />
             <TextInput
               style={styles.input}
               placeholder="Digite sua senha"
-              placeholderTextColor={COLORS.placeholder}
+              placeholderTextColor={cores.placeholder}
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -131,7 +129,7 @@ export default function LoginScreen() {
               <Ionicons
                 name={showPassword ? "eye-off-outline" : "eye-outline"}
                 size={18}
-                color={COLORS.placeholder}
+                color={cores.placeholder}
               />
             </TouchableOpacity>
           </View>
@@ -144,7 +142,7 @@ export default function LoginScreen() {
             <MaterialIcons
               name={rememberMe ? "check-box" : "check-box-outline-blank"}
               size={18}
-              color={rememberMe ? COLORS.gold : COLORS.placeholder}
+              color={rememberMe ? cores.gold : cores.placeholder}
             />
             <Text style={styles.rememberText}>Manter conectado</Text>
           </TouchableOpacity>

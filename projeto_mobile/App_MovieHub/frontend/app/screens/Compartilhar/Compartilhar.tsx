@@ -1,12 +1,14 @@
+import Text from '../components/TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, Linking, Share, Platform } from 'react-native';
+import { View, Image, TouchableOpacity, ScrollView, Linking, Share, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
-import styles, { COLORS } from './styles';
+import criarStyles from './styles';
 import { useToast } from '../../contexts/ToastContext';
 import type { MainStackParamList } from '../../navigation/MainStack';
 
@@ -14,6 +16,8 @@ type CompartilharNavigationProp = NativeStackNavigationProp<MainStackParamList, 
 type CompartilharRouteProp = RouteProp<MainStackParamList, 'Compartilhar'>;
 
 export default function Compartilhar() {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const navigation = useNavigation<CompartilharNavigationProp>();
   const route = useRoute<CompartilharRouteProp>();
   const { filme } = route.params;
@@ -62,10 +66,10 @@ export default function Compartilhar() {
     { label: 'Instagram', icon: 'logo-instagram' as const, cor: '#E1306C', onPress: handleShareNativo },
     { label: 'Facebook', icon: 'logo-facebook' as const, cor: '#1877F2', onPress: handleShareNativo },
     { label: 'Telegram', icon: 'paper-plane-outline' as const, cor: '#29A9EA', onPress: handleTelegram },
-    { label: 'E-mail', icon: 'mail-outline' as const, cor: COLORS.muted, onPress: handleEmail },
-    { label: 'Copiar link', icon: 'link-outline' as const, cor: COLORS.gold, onPress: handleCopiarLink },
+    { label: 'E-mail', icon: 'mail-outline' as const, cor: cores.muted, onPress: handleEmail },
+    { label: 'Copiar link', icon: 'link-outline' as const, cor: cores.gold, onPress: handleCopiarLink },
     { label: 'Mensagens', icon: 'chatbox-outline' as const, cor: '#4EA1F3', onPress: handleSms },
-    { label: 'Mais opções', icon: 'ellipsis-horizontal-circle-outline' as const, cor: COLORS.white, onPress: handleShareNativo },
+    { label: 'Mais opções', icon: 'ellipsis-horizontal-circle-outline' as const, cor: cores.text, onPress: handleShareNativo },
   ];
 
   return (
@@ -73,7 +77,7 @@ export default function Compartilhar() {
       <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 20 }}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <Ionicons name="arrow-back" size={22} color={COLORS.white} />
+            <Ionicons name="arrow-back" size={22} color={cores.text} />
           </TouchableOpacity>
           <Text style={styles.title}>Compartilhar Filme</Text>
         </View>
@@ -83,14 +87,14 @@ export default function Compartilhar() {
             <Image source={{ uri: filme.posterUri }} style={styles.poster} />
           ) : (
             <View style={[styles.poster, styles.posterFallback]}>
-              <Ionicons name="film-outline" size={24} color={COLORS.white} />
+              <Ionicons name="film-outline" size={24} color={cores.text} />
             </View>
           )}
           <View style={styles.filmeInfo}>
             <Text style={styles.filmeTitulo} numberOfLines={1}>{filme.titulo}</Text>
             <Text style={styles.filmeMeta}>{filme.ano} • {filme.genero}</Text>
             <View style={styles.ratingRow}>
-              <Ionicons name="star" size={14} color={COLORS.gold} />
+              <Ionicons name="star" size={14} color={cores.gold} />
               <Text style={styles.ratingText}>{filme.nota.toFixed(1)}/5</Text>
               <View style={styles.statusBadge}>
                 <Text style={styles.statusBadgeText}>

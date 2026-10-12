@@ -1,20 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-const COLORS = {
-  background: '#151327',
-  card: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.12)',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-  muted: '#9C97B8',
-  placeholder: '#6E6A8C',
-  danger: '#E5484D',
-};
+import type { Paleta } from '../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
   },
   container: {
     flex: 1,
@@ -32,7 +23,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 20,
     fontWeight: '700',
     marginLeft: 8,
@@ -41,7 +32,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   subtitle: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
     marginBottom: 16,
   },
@@ -61,12 +52,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
   },
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

@@ -1,20 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-const COLORS = {
-  background: '#151327',
-  card: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.12)',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-  muted: '#9C97B8',
-  danger: '#E5484D',
-  avatarBg: '#3B3566',
-};
+import type { Paleta } from '../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -28,7 +19,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -36,9 +27,9 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -53,11 +44,11 @@ const styles = StyleSheet.create({
     width: 84,
     height: 84,
     borderRadius: 42,
-    backgroundColor: COLORS.avatarBg,
+    backgroundColor: cores.posterFallback,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: COLORS.gold,
+    borderColor: cores.gold,
     overflow: 'hidden',
   },
   avatarImage: {
@@ -71,19 +62,19 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: COLORS.background,
+    borderColor: cores.background,
   },
   nome: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 18,
     fontWeight: '700',
   },
   email: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
     marginTop: 2,
   },
@@ -93,7 +84,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   membroText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     marginLeft: 6,
   },
@@ -105,9 +96,9 @@ const styles = StyleSheet.create({
   statBox: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 14,
     paddingVertical: 14,
     marginRight: 8,
@@ -124,20 +115,20 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   statValue: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 17,
     fontWeight: '700',
   },
   statLabel: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 10,
     marginTop: 2,
     textAlign: 'center',
   },
   menuCard: {
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 14,
     marginBottom: 20,
     overflow: 'hidden',
@@ -150,7 +141,7 @@ const styles = StyleSheet.create({
   },
   menuRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: cores.border,
   },
   menuIcon: {
     width: 22,
@@ -158,7 +149,7 @@ const styles = StyleSheet.create({
   },
   menuLabel: {
     flex: 1,
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 12,
@@ -168,17 +159,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: COLORS.danger,
+    borderColor: cores.danger,
     borderRadius: 14,
     paddingVertical: 14,
   },
   logoutText: {
-    color: COLORS.danger,
+    color: cores.danger,
     fontSize: 14,
     fontWeight: '700',
     marginLeft: 8,
   },
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

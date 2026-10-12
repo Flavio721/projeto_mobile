@@ -1,11 +1,13 @@
+import Text from '../components/TextoLocalizado';
+import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import styles, { COLORS } from './styles';
+import criarStyles from './styles';
 import { useToast } from '../../contexts/ToastContext';
 import type { MainStackParamList } from '../../navigation/MainStack';
 import { buscarItem } from '../../lib/storage';
@@ -31,6 +33,8 @@ const STATS_VAZIO: DashboardStats = {
 type EstatisticasNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export default function Estatisticas() {
+  const styles = useStyles(criarStyles);
+  const { cores } = useTema();
   const navigation = useNavigation<EstatisticasNavigationProp>();
   const { showError } = useToast();
   const [ carregando, setCarregando ] = useState(false);
@@ -99,7 +103,7 @@ export default function Estatisticas() {
         <View style={styles.topBar}>
           <View style={styles.topBarLeft}>
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={22} color={COLORS.white} />
+              <Ionicons name="arrow-back" size={22} color={cores.text} />
             </TouchableOpacity>
             <Text style={styles.title}>Estatísticas</Text>
           </View>
@@ -107,7 +111,7 @@ export default function Estatisticas() {
             style={styles.iconButton}
             onPress={() => showError('Compartilhar ainda não foi implementado.')}
           >
-            <Ionicons name="share-outline" size={20} color={COLORS.white} />
+            <Ionicons name="share-outline" size={20} color={cores.text} />
           </TouchableOpacity>
         </View>
 
@@ -115,20 +119,20 @@ export default function Estatisticas() {
           <View>
             <Text style={styles.summaryCardTitle}>Resumo geral</Text>
             {carregando && (
-            <ActivityIndicator size="small" color={COLORS.gold} />
+            <ActivityIndicator size="small" color={cores.gold} />
           )}
             <Text style={styles.summaryCardSubtitle}>Todos os dados da sua coleção de filmes</Text>
           </View>
           <View style={styles.summaryIconBox}>
-            <Ionicons name="bar-chart-outline" size={20} color={COLORS.gold} />
+            <Ionicons name="bar-chart-outline" size={20} color={cores.gold} />
           </View>
         </View>
 
         <View style={styles.statsGrid}>
           <View style={styles.statBox}>
             <View style={styles.statBoxInner}>
-              <View style={[styles.statIconCircle, { backgroundColor: 'rgba(78,161,243,0.15)' }]}>
-                <Ionicons name="film-outline" size={16} color="#4EA1F3" />
+              <View style={[styles.statIconCircle, { backgroundColor: cores.card }]}>
+                <Ionicons name="film-outline" size={16} color={cores.info} />
               </View>
               <Text style={styles.statValue}>{stats.total}</Text>
               <Text style={styles.statLabel}>Total de filmes</Text>
@@ -136,8 +140,8 @@ export default function Estatisticas() {
           </View>
           <View style={styles.statBox}>
             <View style={styles.statBoxInner}>
-              <View style={[styles.statIconCircle, { backgroundColor: 'rgba(61,220,151,0.15)' }]}>
-                <Ionicons name="checkmark-circle-outline" size={16} color="#3DDC97" />
+              <View style={[styles.statIconCircle, { backgroundColor: cores.card }]}>
+                <Ionicons name="checkmark-circle-outline" size={16} color={cores.success} />
               </View>
               <Text style={styles.statValue}>{stats.assistidos}</Text>
               <Text style={styles.statLabel}>Assistidos</Text>
@@ -145,8 +149,8 @@ export default function Estatisticas() {
           </View>
           <View style={styles.statBox}>
             <View style={styles.statBoxInner}>
-              <View style={[styles.statIconCircle, { backgroundColor: 'rgba(229,72,77,0.15)' }]}>
-                <Ionicons name="bookmark-outline" size={16} color="#E5484D" />
+              <View style={[styles.statIconCircle, { backgroundColor: cores.card }]}>
+                <Ionicons name="bookmark-outline" size={16} color={cores.danger} />
               </View>
               <Text style={styles.statValue}>{stats.queroAssistir}</Text>
               <Text style={styles.statLabel}>Quero assistir</Text>
@@ -154,8 +158,8 @@ export default function Estatisticas() {
           </View>
           <View style={styles.statBox}>
             <View style={styles.statBoxInner}>
-              <View style={[styles.statIconCircle, { backgroundColor: 'rgba(244,180,0,0.15)' }]}>
-                <Ionicons name="heart" size={16} color={COLORS.gold} />
+              <View style={[styles.statIconCircle, { backgroundColor: cores.card }]}>
+                <Ionicons name="heart" size={16} color={cores.gold} />
               </View>
               <Text style={styles.statValue}>{stats.favoritos}</Text>
               <Text style={styles.statLabel}>Favoritos</Text>
@@ -171,7 +175,7 @@ export default function Estatisticas() {
                     key={star}
                     name={star <= Math.round(notaMedia) ? 'star' : 'star-outline'}
                     size={12}
-                    color={COLORS.gold}
+                    color={cores.gold}
                     style={{ marginRight: 2 }}
                   />
                 ))}

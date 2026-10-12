@@ -1,19 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-const COLORS = {
-  background: '#151327',
-  card: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.12)',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-  muted: '#9C97B8',
-  placeholder: '#6E6A8C',
-};
+import type { Paleta } from '../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
   },
   container: {
     flex: 1,
@@ -34,7 +26,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   title: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 18,
     fontWeight: '700',
   },
@@ -42,7 +34,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   subtitle: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
     marginBottom: 16,
   },
@@ -52,9 +44,9 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 14,
     paddingVertical: 14,
     paddingHorizontal: 14,
@@ -64,7 +56,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(244,180,0,0.12)',
+    backgroundColor: cores.card,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
@@ -76,12 +68,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   rowLabel: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 15,
     fontWeight: '700',
   },
   rowCount: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     marginTop: 2,
   },
@@ -90,12 +82,12 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   emptyText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 13,
     marginTop: 10,
     textAlign: 'center',
   },
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

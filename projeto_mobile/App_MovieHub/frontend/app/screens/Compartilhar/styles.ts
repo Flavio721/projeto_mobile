@@ -1,19 +1,11 @@
 import { StyleSheet } from 'react-native';
 
-const COLORS = {
-  background: '#151327',
-  card: 'rgba(255,255,255,0.06)',
-  border: 'rgba(255,255,255,0.12)',
-  gold: '#F4B400',
-  white: '#FFFFFF',
-  muted: '#9C97B8',
-  posterFallback: '#3B3566',
-};
+import type { Paleta } from '../../theme/paletas';
 
-const styles = StyleSheet.create({
+const criarStyles = (cores: Paleta) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: cores.background,
   },
   container: {
     flex: 1,
@@ -29,15 +21,15 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   title: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 18,
     fontWeight: '700',
   },
   filmeCard: {
     flexDirection: 'row',
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     borderRadius: 16,
     padding: 14,
     marginBottom: 24,
@@ -46,7 +38,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 112,
     borderRadius: 10,
-    backgroundColor: COLORS.posterFallback,
+    backgroundColor: cores.posterFallback,
   },
   posterFallback: {
     alignItems: 'center',
@@ -57,12 +49,12 @@ const styles = StyleSheet.create({
     marginLeft: 14,
   },
   filmeTitulo: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 16,
     fontWeight: '700',
   },
   filmeMeta: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     marginTop: 2,
   },
@@ -72,31 +64,31 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   ratingText: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 13,
     fontWeight: '700',
     marginLeft: 4,
   },
   statusBadge: {
-    backgroundColor: COLORS.gold,
+    backgroundColor: cores.gold,
     borderRadius: 12,
     paddingHorizontal: 8,
     paddingVertical: 2,
     marginLeft: 8,
   },
   statusBadgeText: {
-    color: '#241C00',
+    color: cores.onGold,
     fontSize: 10,
     fontWeight: '700',
   },
   filmeDescricao: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 12,
     marginTop: 8,
     lineHeight: 17,
   },
   sectionTitle: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 14,
     fontWeight: '700',
     marginBottom: 14,
@@ -117,15 +109,15 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 16,
-    backgroundColor: COLORS.card,
+    backgroundColor: cores.card,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
   },
   gridLabel: {
-    color: COLORS.white,
+    color: cores.text,
     fontSize: 12,
     fontWeight: '600',
     textAlign: 'center',
@@ -136,15 +128,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: cores.border,
     marginBottom: 24,
   },
   cancelButtonText: {
-    color: COLORS.muted,
+    color: cores.muted,
     fontSize: 15,
     fontWeight: '600',
   },
 });
 
-export { COLORS };
-export default styles;
+
+export default criarStyles;

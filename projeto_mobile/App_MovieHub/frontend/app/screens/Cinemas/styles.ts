@@ -34,53 +34,37 @@ const criarStyles = (cores: Paleta) => StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 12,
   },
-  locationLeft: {
-    flexDirection: 'row',
+  refreshButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
-    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: cores.card,
+    borderWidth: 1,
+    borderColor: cores.border,
   },
   locationText: {
     color: cores.text,
     fontSize: 13,
     fontWeight: '600',
     marginLeft: 6,
-  },
-  mapWrapper: {
-    height: 260,
-    marginHorizontal: 20,
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginBottom: 16,
-    backgroundColor: cores.card,
-  },
-  map: {
     flex: 1,
   },
-  mapPlaceholder: {
-    flex: 1,
+  radiusText: {
+    color: cores.muted,
+    fontSize: 11,
+    marginLeft: 8,
+  },
+  resultsHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
+    marginBottom: 12,
   },
-  mapPlaceholderText: {
+  resultCount: {
     color: cores.muted,
     fontSize: 12,
-    textAlign: 'center',
-    marginTop: 10,
-    lineHeight: 17,
-  },
-  recenterButton: {
-    position: 'absolute',
-    bottom: 12,
-    right: 12,
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: cores.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: cores.border,
+    marginLeft: 8,
   },
   listContainer: {
     flex: 1,
@@ -90,7 +74,7 @@ const criarStyles = (cores: Paleta) => StyleSheet.create({
     color: cores.text,
     fontSize: 14,
     fontWeight: '700',
-    marginBottom: 12,
+    marginBottom: 0,
   },
   cinemaRow: {
     flexDirection: 'row',
@@ -110,24 +94,20 @@ const criarStyles = (cores: Paleta) => StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  cinemaLogoText: {
-    color: cores.text,
-    fontSize: 9,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
   cinemaInfo: {
     flex: 1,
   },
   cinemaNomeRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
+    gap: 8,
   },
   cinemaNome: {
     color: cores.text,
     fontSize: 14,
     fontWeight: '700',
+    flex: 1,
   },
   cinemaDistancia: {
     color: cores.gold,
@@ -138,6 +118,20 @@ const criarStyles = (cores: Paleta) => StyleSheet.create({
     color: cores.muted,
     fontSize: 12,
     marginTop: 3,
+    lineHeight: 17,
+  },
+  routeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginTop: 9,
+    paddingVertical: 5,
+  },
+  routeLabel: {
+    color: cores.gold,
+    fontSize: 12,
+    fontWeight: '700',
+    marginLeft: 5,
   },
   emptyBox: {
     alignItems: 'center',
@@ -149,12 +143,38 @@ const criarStyles = (cores: Paleta) => StyleSheet.create({
     marginTop: 10,
     textAlign: 'center',
   },
-  mockNotice: {
+  emptyTitle: {
+    color: cores.text,
+    fontSize: 15,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginTop: 14,
+  },
+  emptyListContent: {
+    flexGrow: 1,
+  },
+  listContent: {
+    paddingBottom: 18,
+  },
+  retryButton: {
+    backgroundColor: cores.gold,
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginTop: 16,
+  },
+  retryLabel: {
+    color: cores.onGold,
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  sourceNotice: {
     color: cores.muted,
     fontSize: 11,
     textAlign: 'center',
-    marginVertical: 12,
-    fontStyle: 'italic',
+    marginTop: 12,
+    marginBottom: 18,
+    lineHeight: 16,
   },
 });
 

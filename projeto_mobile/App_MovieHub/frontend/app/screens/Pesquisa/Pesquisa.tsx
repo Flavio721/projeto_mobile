@@ -1,11 +1,11 @@
 import TextInput from '../components/CampoTextoLocalizado';
 import Text from '../components/TextoLocalizado';
 import { useStyles, useTema } from '../../contexts/TemaContext';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, TextInput as NativeTextInput, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import criarStyles from './styles';
 import { buscarItem, salvarItem } from '../../lib/storage';
@@ -35,9 +35,12 @@ export default function Pesquisa() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     buscarItem(RECENT_SEARCHES_KEY).then((saved) => {
-      if (!saved) return;
+      if (!saved) {
+        setRecentSearches([]);
+        return;
+      }
       try {
         const parsed: unknown = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.every((item) => typeof item === 'string')) setRecentSearches(parsed);
@@ -45,7 +48,7 @@ export default function Pesquisa() {
         setRecentSearches([]);
       }
     });
-  }, []);
+  }, []));
 
   const saveRecent = useCallback(async (term: string) => {
     const updated = [term, ...recentSearches.filter((item) => item.toLowerCase() !== term.toLowerCase())].slice(0, MAX_RECENT_SEARCHES);

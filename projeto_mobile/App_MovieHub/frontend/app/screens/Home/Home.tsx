@@ -6,6 +6,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import FilmeCard from "../components/FilmeCards/FilmeCard";
+import AppMenu, { type AppMenuRoute } from '../components/AppMenu';
+import ActionMenu from '../components/ActionMenu/ActionMenu';
 import criarStyles from "./styles";
 import { buscarItem } from "../../lib/storage";
 import { mapMovieToFilme } from "../../utils/movieMapper";
@@ -42,6 +44,9 @@ export default function HomeScreen() {
   const [userName, setUserName] = useState("");
   const [stats, setStats] = useState<DashboardStats>(STATS_VAZIO);
   const [carregando, setCarregando] = useState(true);
+  const [menuVisivel, setMenuVisivel] = useState(false);
+  const [notificacoesVisiveis, setNotificacoesVisiveis] = useState(false);
+  const [preferencias, setPreferencias] = useState({ lembretes: true, novidades: true });
 
   const favoritos = filmes.filter((f) => f.favorito);
 
@@ -99,8 +104,24 @@ export default function HomeScreen() {
     useCallback(() => {
       carregarDados();
       buscarItem("userName").then((nome) => setUserName(nome ?? ""));
+      buscarItem('configuracoes').then((salvo) => {
+        if (!salvo) return;
+        try {
+          const preferenciasSalvas = JSON.parse(salvo);
+          setPreferencias({ lembretes: preferenciasSalvas.lembretes !== false, novidades: preferenciasSalvas.novidades !== false });
+        } catch {
+          setPreferencias({ lembretes: true, novidades: true });
+        }
+      });
     }, [carregarDados, idioma]),
   );
+
+  const selecionarMenu = (route: AppMenuRoute) => {
+    setMenuVisivel(false);
+    const abas = ['Home', 'Filmes', 'Favoritos', 'Perfil'];
+    if (abas.includes(route)) (navigation as any).navigate(route);
+    else (navigation as any).getParent()?.navigate(route);
+  };
 
   // Um timer de debounce por filme, pra suportar cliques repetidos sem
   // disparar uma requisição a cada clique — só a última intenção é enviada,
@@ -159,14 +180,18 @@ export default function HomeScreen() {
         <View style={styles.topBar}>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => alert("Menu em desenvolvimento")}
+            onPress={() => setMenuVisivel(true)}
+            accessibilityRole="button"
+            accessibilityLabel={t('navigation')}
           >
             <Ionicons name="menu-outline" size={26} color={cores.text} />
           </TouchableOpacity>
           <Text style={styles.topBarTitle}>MovieHub</Text>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => alert("Notificações em desenvolvimento")}
+            onPress={() => setNotificacoesVisiveis(true)}
+            accessibilityRole="button"
+            accessibilityLabel={t('quickActions')}
           >
             <Ionicons
               name="notifications-outline"
@@ -180,6 +205,18 @@ export default function HomeScreen() {
           {t('hello')}{userName ? `, ${userName}` : ""}!
         </Text>
         <Text style={styles.subtitle}>{t('subtitle')}</Text>
+
+        {preferencias.lembretes && stats.queroAssistir > 0 && (
+          <TouchableOpacity
+            onPress={() => selecionarMenu('Filmes')}
+            style={{ flexDirection: 'row', alignItems: 'center', padding: 13, borderRadius: 14, backgroundColor: cores.card, borderColor: cores.border, borderWidth: 1, marginBottom: 16 }}
+            accessibilityRole="button"
+          >
+            <Ionicons name="notifications-outline" size={19} color={cores.gold} />
+            <Text style={{ color: cores.text, fontSize: 13, fontWeight: '600', flex: 1, marginHorizontal: 10 }}>{t('watchlist')}: {stats.queroAssistir} · {t('watchlistReminder')}</Text>
+            <Ionicons name="chevron-forward" size={16} color={cores.muted} />
+          </TouchableOpacity>
+        )}
 
         {/* Não é mais um TextInput funcional — é um botão que abre a tela
             de Pesquisa de verdade. Por isso "editable" nem existe aqui;
@@ -245,7 +282,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={styles.section}>
+        {preferencias.novidades && <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
             <View>
               <Text style={styles.sectionTitle}>{t('popular')}</Text>
@@ -264,13 +301,13 @@ export default function HomeScreen() {
               ))}
             </ScrollView>
           ) : !carregando ? <Text style={styles.emptySectionText}>{t('emptyPopular')}</Text> : null}
-        </View>
+        </View>}
 
         {!carregando && filmes.length === 0 ? (
           <View style={styles.emptyGeneralBox}>
             <Text style={styles.emptyGeneralEmoji}>🎬</Text>
             <Text style={styles.emptyGeneralText}>
-              {t('search')}
+              {t('emptyCollection')}
             </Text>
           </View>
         ) : (
@@ -278,7 +315,7 @@ export default function HomeScreen() {
             <View style={styles.section}>
               <View style={styles.sectionHeaderRow}>
                 <Text style={styles.sectionTitle}>{t('recent')}</Text>
-                <TouchableOpacity onPress={() => navigation.navigate("TabsRoot")}>
+                <TouchableOpacity onPress={() => selecionarMenu('Filmes')}>
                   <Text style={styles.seeAllText}>{t('seeAll')}</Text>
                 </TouchableOpacity>
               </View>
@@ -298,7 +335,7 @@ export default function HomeScreen() {
             <View style={styles.section}>
               <View style={styles.sectionHeaderRow}>
                 <Text style={styles.sectionTitle}>{t('favorites')}</Text>
-                <TouchableOpacity onPress={() => navigation.navigate("TabsRoot")}>
+                <TouchableOpacity onPress={() => selecionarMenu('Favoritos')}>
                   <Text style={styles.seeAllText}>{t('seeAll')}</Text>
                 </TouchableOpacity>
               </View>
@@ -329,6 +366,16 @@ export default function HomeScreen() {
           </>
         )}
       </ScrollView>
+      <AppMenu visible={menuVisivel} onClose={() => setMenuVisivel(false)} onSelect={selecionarMenu} />
+      <ActionMenu
+        visible={notificacoesVisiveis}
+        onClose={() => setNotificacoesVisiveis(false)}
+        options={[
+          { label: `${t('watchlist')}: ${stats.queroAssistir}`, icon: 'bookmark-outline', onPress: () => selecionarMenu('Filmes') },
+          { label: t('searchTitle'), icon: 'search-outline', onPress: () => selecionarMenu('Pesquisa') },
+          { label: t('settings'), icon: 'settings-outline', onPress: () => selecionarMenu('Configuracoes') },
+        ]}
+      />
     </SafeAreaView>
   );
 }

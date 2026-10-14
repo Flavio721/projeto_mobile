@@ -1,13 +1,14 @@
 import Text from '../components/TextoLocalizado';
 import React, { useEffect, useState } from "react";
-import { View, TouchableOpacity, ScrollView, Switch, Alert, Modal, Pressable, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, ScrollView, Switch, Alert, Modal, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import criarStyles from "./styles";
 import { useToast } from "../../contexts/ToastContext";
-import { buscarItem, salvarItem } from "../../lib/storage";
+import { buscarItem, salvarItem, removerItem } from "../../lib/storage";
+import { sincronizarConta } from '../../lib/sincronizarConta';
 import type { MainStackParamList } from "../../navigation/MainStack";
 import { useStyles, useTema } from "../../contexts/TemaContext";
 import { useIdioma, type Idioma } from "../../contexts/IdiomaContext";
@@ -16,25 +17,12 @@ import TemaModal from "../components/TemaModal/TemaModal";
 const CHAVE_CONFIGURACOES = "configuracoes";
 
 interface ConfiguracoesState {
-  corDestaque: boolean;
   lembretes: boolean;
   novidades: boolean;
-  sincronizarNuvem: boolean;
-  atualizarAoAbrir: boolean;
 }
-
-// TEMPORÁRIO — essas preferências só ficam salvas no aparelho (junto do
-// token, via o mesmo storage.ts). Notificações/Sincronização ainda não têm
-// efeito real: exigiriam um serviço de push e um endpoint
-//   de sync no backend, nenhum dos dois existe.
-// - Limpar cache: o app não guarda nenhum cache de verdade pra limpar; o
-//   "12,4 MB" é um valor de exemplo, fixo.
 const PADRAO: ConfiguracoesState = {
-  corDestaque: true,
   lembretes: true,
   novidades: true,
-  sincronizarNuvem: true,
-  atualizarAoAbrir: true,
 };
 
 type ConfiguracoesNavigationProp =
@@ -42,13 +30,14 @@ type ConfiguracoesNavigationProp =
 
 export default function Configuracoes() {
   const navigation = useNavigation<ConfiguracoesNavigationProp>();
-  const { showSuccess } = useToast();
+  const { showSuccess, showError } = useToast();
   const styles = useStyles(criarStyles);
   const { cores } = useTema();
   const { idioma, definirIdioma, t, traduzir } = useIdioma();
   const [config, setConfig] = useState<ConfiguracoesState>(PADRAO);
   const [temaVisivel, setTemaVisivel] = useState(false);
   const [idiomaVisivel, setIdiomaVisivel] = useState(false);
+  const [sincronizando, setSincronizando] = useState(false);
   const { nomeTema } = useTema();
 
   useEffect(() => {
@@ -56,7 +45,8 @@ export default function Configuracoes() {
       const salvo = await buscarItem(CHAVE_CONFIGURACOES);
       if (salvo) {
         try {
-          setConfig({ ...PADRAO, ...JSON.parse(salvo) });
+          const salvoJson = JSON.parse(salvo);
+          setConfig({ lembretes: salvoJson.lembretes !== false, novidades: salvoJson.novidades !== false });
         } catch {
           setConfig(PADRAO);
         }
@@ -73,13 +63,28 @@ export default function Configuracoes() {
   };
 
   const handleLimparCache = () => {
-    Alert.alert(traduzir("Limpar cache"), traduzir("Isso vai liberar 12,4 MB de espaço."), [
-      { text: traduzir("Cancelar"), style: "cancel" },
+    Alert.alert(traduzir('Limpar buscas recentes'), traduzir('Isso vai apagar o histórico de pesquisas salvo neste aparelho.'), [
+      { text: traduzir('Cancelar'), style: 'cancel' },
       {
-        text: traduzir("Limpar"),
-        onPress: () => showSuccess("Cache limpo com sucesso!"),
+        text: traduzir('Limpar'),
+        onPress: async () => {
+          await removerItem('recentSearches');
+          showSuccess('Buscas recentes removidas.');
+        },
       },
     ]);
+  };
+
+  const handleSincronizar = async () => {
+    setSincronizando(true);
+    try {
+      await sincronizarConta();
+      showSuccess('Dados atualizados.');
+    } catch {
+      showError('Não foi possível atualizar seus dados.');
+    } finally {
+      setSincronizando(false);
+    }
   };
 
   const handleSobre = () => {
@@ -112,25 +117,9 @@ export default function Configuracoes() {
            <Text style={styles.rowValue}>{nomeTema === 'escuro' ? t('dark') : t('light')}</Text>
             <Ionicons name="chevron-forward" size={16} color={cores.muted} />
           </TouchableOpacity>
-          <View style={styles.row}>
-            <View style={styles.rowIcon}>
-              <Ionicons
-                name="color-palette-outline"
-                size={18}
-                color={cores.text}
-              />
-            </View>
-            <Text style={styles.rowLabel}>{t('accent')}</Text>
-            <Switch
-              value={config.corDestaque}
-              onValueChange={(v) => atualizar("corDestaque", v)}
-              trackColor={{ false: cores.border, true: cores.gold }}
-              thumbColor={cores.surface}
-            />
-          </View>
         </View>
 
-        <Text style={styles.sectionLabel}>{t('notifications')}</Text>
+        <Text style={styles.sectionLabel}>{t('homePreferences')}</Text>
         <View style={styles.sectionCard}>
           <View style={[styles.row, styles.rowBorder]}>
             <View style={styles.rowIcon}>
@@ -152,7 +141,7 @@ export default function Configuracoes() {
             <View style={styles.rowIcon}>
               <Ionicons name="star-outline" size={18} color={cores.text} />
             </View>
-            <Text style={styles.rowLabel}>{t('releases')}</Text>
+            <Text style={styles.rowLabel}>{t('recommendations')}</Text>
             <Switch
               value={config.novidades}
               onValueChange={(v) => atualizar("novidades", v)}
@@ -161,37 +150,18 @@ export default function Configuracoes() {
             />
           </View>
         </View>
+        <Text style={{ color: cores.muted, fontSize: 11, lineHeight: 16, marginTop: 7, paddingHorizontal: 4 }}>{traduzir('Mostra na Home um lembrete sobre os filmes da sua watchlist.')}</Text>
+        <Text style={{ color: cores.muted, fontSize: 11, lineHeight: 16, marginTop: 5, paddingHorizontal: 4 }}>{traduzir('Mostra recomendações populares na Home.')}</Text>
 
         <Text style={styles.sectionLabel}>{t('sync')}</Text>
         <View style={styles.sectionCard}>
-          <View style={[styles.row, styles.rowBorder]}>
+          <TouchableOpacity style={styles.row} onPress={() => void handleSincronizar()} disabled={sincronizando} accessibilityRole="button">
             <View style={styles.rowIcon}>
-              <Ionicons
-                name="cloud-upload-outline"
-                size={18}
-                color={cores.text}
-              />
+              <Ionicons name="cloud-upload-outline" size={18} color={cores.text} />
             </View>
-            <Text style={styles.rowLabel}>{t('cloud')}</Text>
-            <Switch
-              value={config.sincronizarNuvem}
-              onValueChange={(v) => atualizar("sincronizarNuvem", v)}
-              trackColor={{ false: cores.border, true: cores.gold }}
-              thumbColor={cores.surface}
-            />
-          </View>
-          <View style={styles.row}>
-            <View style={styles.rowIcon}>
-              <Ionicons name="refresh-outline" size={18} color={cores.text} />
-            </View>
-            <Text style={styles.rowLabel}>{t('refresh')}</Text>
-            <Switch
-              value={config.atualizarAoAbrir}
-              onValueChange={(v) => atualizar("atualizarAoAbrir", v)}
-              trackColor={{ false: cores.border, true: cores.gold }}
-              thumbColor={cores.surface}
-            />
-          </View>
+            <Text style={styles.rowLabel}>{t('syncNow')}</Text>
+            {sincronizando ? <ActivityIndicator color={cores.gold} /> : <Ionicons name="refresh-outline" size={18} color={cores.gold} />}
+          </TouchableOpacity>
         </View>
 
         <Text style={styles.sectionLabel}>{t('other')}</Text>
@@ -212,8 +182,7 @@ export default function Configuracoes() {
             <View style={styles.rowIcon}>
               <Ionicons name="trash-outline" size={18} color={cores.text} />
             </View>
-            <Text style={styles.rowLabel}>{t('clearCache')}</Text>
-            <Text style={styles.rowValue}>12,4 MB</Text>
+            <Text style={styles.rowLabel}>{t('clearRecentSearches')}</Text>
             <Ionicons name="chevron-forward" size={16} color={cores.muted} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.row} onPress={handleSobre}>

@@ -4,6 +4,7 @@ import userRoutes from './routes/userRoutes.js';
 import movieRoutes from './routes/movieRoutes.js';
 import path from 'path';
 import uploadRoutes from './routes/uploadRoutes.js';
+import cinemaRoutes from './routes/cinemaRoutes.js';
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/upload', uploadRoutes);
 
 app.use('/users', userRoutes);
 app.use('/movies', movieRoutes);
+app.use('/cinemas', cinemaRoutes);
 
 app.use((error: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
   if (res.headersSent) return next(error);

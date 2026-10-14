@@ -122,6 +122,11 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
             }
         }
 
+        if (avatarUrl !== undefined && avatarUrl !== null
+            && (typeof avatarUrl !== 'string' || avatarUrl.length > 2048)) {
+            return res.status(400).json({ error: "A URL da foto é inválida" });
+        }
+
         // E-mail não entra aqui de propósito: trocar e-mail é o identificador
         // de login, exige confirmação por e-mail pra não perder a conta.
         const usuarioAtualizado = await prisma.user.update({

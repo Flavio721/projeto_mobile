@@ -2,7 +2,7 @@ import Text from '../components/TextoLocalizado';
 import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, ScrollView, ActivityIndicator, Share } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -13,6 +13,7 @@ import type { MainStackParamList } from '../../navigation/MainStack';
 import { buscarItem } from '../../lib/storage';
 import { mapMovieToFilme } from '../../utils/movieMapper';
 import type { Filme } from '../../types/Filme';
+import { useIdioma } from '../../contexts/IdiomaContext';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -37,6 +38,7 @@ export default function Estatisticas() {
   const { cores } = useTema();
   const navigation = useNavigation<EstatisticasNavigationProp>();
   const { showError } = useToast();
+  const { t, traduzir } = useIdioma();
   const [ carregando, setCarregando ] = useState(false);
   const [stats, setStats] = useState<DashboardStats>(STATS_VAZIO);
   const [filmes, setFilmes] = useState<Filme[]>([]);
@@ -97,6 +99,17 @@ export default function Estatisticas() {
       }, [carregarDados]),
     );
 
+  const compartilharEstatisticas = async () => {
+    try {
+      await Share.share({
+        title: traduzir('Meu resumo no MovieHub'),
+        message: `${traduzir('Meu resumo no MovieHub')}\n${t('totalMovies')}: ${stats.total}\n${t('watched')}: ${stats.assistidos}\n${t('favorites')}: ${stats.favoritos}\n${traduzir('Nota média')}: ${notaMedia.toFixed(1)}/5`,
+      });
+    } catch {
+      showError('Não foi possível compartilhar suas estatísticas.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -109,7 +122,9 @@ export default function Estatisticas() {
           </View>
           <TouchableOpacity
             style={styles.iconButton}
-            onPress={() => showError('Compartilhar ainda não foi implementado.')}
+            onPress={() => void compartilharEstatisticas()}
+            accessibilityRole="button"
+            accessibilityLabel={traduzir('Compartilhar estatísticas')}
           >
             <Ionicons name="share-outline" size={20} color={cores.text} />
           </TouchableOpacity>

@@ -27,7 +27,21 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "O MovieHub usa sua localização apenas para encontrar cinemas próximos."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O MovieHub acessa suas fotos para permitir a escolha de uma imagem de perfil.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
     ]
   }
 }

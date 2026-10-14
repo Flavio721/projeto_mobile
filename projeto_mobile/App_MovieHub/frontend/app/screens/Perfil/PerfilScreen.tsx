@@ -1,7 +1,7 @@
 import Text from '../components/TextoLocalizado';
 import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useCallback, useState } from 'react';
-import { View, TouchableOpacity, ScrollView, Image, Alert } from 'react-native';
+import { View, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -11,7 +11,8 @@ import LoadingOverlay from '../components/LoadingOverlay';
 import { useToast } from '../../contexts/ToastContext';
 import { buscarItem, removerItem } from '../../lib/storage';
 import type { MainStackParamList } from '../../navigation/MainStack';
-import { uploadImagem } from '../../lib/uploadImagem';
+import { sincronizarConta } from '../../lib/sincronizarConta';
+import { useIdioma } from '../../contexts/IdiomaContext';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -20,7 +21,7 @@ interface Usuario {
   name: string;
   email: string;
   createdAt: string;
-  avatarUrl?: string; // TODO: campo ainda não existe no schema — ver aviso abaixo
+  avatarUrl?: string | null;
 }
 
 interface Stats {
@@ -45,12 +46,13 @@ export default function Perfil() {
   const styles = useStyles(criarStyles);
   const { cores } = useTema();
   const navigation = useNavigation<PerfilNavigationProp>();
-  const { showError } = useToast();
+  const { showError, showSuccess } = useToast();
+  const { traduzir } = useIdioma();
 
   const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const [avatarLocal, setAvatarLocal] = useState<string | null>(null);
   const [stats, setStats] = useState<Stats>(STATS_VAZIO);
   const [carregando, setCarregando] = useState(true);
+  const [sincronizando, setSincronizando] = useState(false);
 
   const carregarPerfil = useCallback(async () => {
     setCarregando(true);
@@ -84,49 +86,44 @@ export default function Perfil() {
     }, [carregarPerfil]),
   );
 
-  // A foto do banco (usuario.avatarUrl) tem prioridade; se o usuário acabou
-  // de escolher uma foto nesta sessão mas ela ainda não foi salva no banco
-  // (ver aviso sobre o campo faltando no schema), mostra a prévia local.
-  const fotoParaExibir = usuario?.avatarUrl ?? avatarLocal;
+  const fotoParaExibir = usuario?.avatarUrl ?? null;
 
-  const handleAlterarFoto = () => {
+  const handleAlterarFoto = () => navigation.navigate('EditarPerfil');
 
-    
-    navigation.navigate('Galeria', {
-      onSelecionar: (uri) => {
-        setAvatarLocal(uri);
-        showError('Foto selecionada, mas ainda não é salva na conta — falta endpoint no backend.');
-      },
-    });
+  const handleSincronizar = async () => {
+    setSincronizando(true);
+    try {
+      await sincronizarConta();
+      await carregarPerfil();
+      showSuccess('Dados atualizados.');
+    } catch {
+      showError('Não foi possível atualizar seus dados.');
+    } finally {
+      setSincronizando(false);
+    }
   };
 
-  const handleLogout = async () => {
-  console.log("ENTROU NA FUNÇÃO");
-
-  await removerItem("token");
-  console.log("TOKEN REMOVIDO");
-
-  await removerItem("userName");
-  console.log("USERNAME REMOVIDO");
-
-  const parent = (navigation as any).getParent("RootStack");
-
-  console.log("PARENT:", parent);
-
-  parent?.reset({
-    index: 0,
-    routes: [{ name: "Login" }],
-  });
-
-  console.log("RESET EXECUTADO");
-  (navigation as any).getParent('RootStack')?.reset({
-            index: 0,
-            routes: [{ name: 'Login' }],
-          });
-
-};
-
-  const itemEmDesenvolvimento = (nome: string) => showError(`${nome} ainda não foi implementado.`);
+  const handleLogout = () => {
+    Alert.alert(traduzir('Sair da conta'), traduzir('Deseja realmente sair da sua conta?'), [
+      { text: traduzir('Cancelar'), style: 'cancel' },
+      {
+        text: traduzir('Sair da conta'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await removerItem('token');
+            await removerItem('userName');
+            (navigation as any).getParent('RootStack')?.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            });
+          } catch {
+            showError(traduzir('Não foi possível sair da conta. Tente novamente.'));
+          }
+        },
+      },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -228,7 +225,7 @@ export default function Perfil() {
 
           <TouchableOpacity
             style={[styles.menuRow, styles.menuRowBorder]}
-            onPress={() => itemEmDesenvolvimento('Preferências')}
+            onPress={() => navigation.navigate('Configuracoes')}
           >
             <View style={styles.menuIcon}>
               <Ionicons name="options-outline" size={18} color={cores.text} />
@@ -237,12 +234,12 @@ export default function Perfil() {
             <Ionicons name="chevron-forward" size={16} color={cores.muted} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuRow} onPress={() => itemEmDesenvolvimento('Sincronizar dados')}>
+          <TouchableOpacity style={styles.menuRow} onPress={() => void handleSincronizar()} disabled={sincronizando}>
             <View style={styles.menuIcon}>
               <Ionicons name="cloud-outline" size={18} color={cores.text} />
             </View>
-            <Text style={styles.menuLabel}>Sincronizar dados</Text>
-            <Ionicons name="chevron-forward" size={16} color={cores.muted} />
+            <Text style={styles.menuLabel}>{sincronizando ? 'Sincronizando...' : 'Sincronizar dados agora'}</Text>
+            {sincronizando ? <ActivityIndicator size="small" color={cores.gold} /> : <Ionicons name="refresh-outline" size={16} color={cores.muted} />}
           </TouchableOpacity>
         </View>
 

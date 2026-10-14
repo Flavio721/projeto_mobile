@@ -172,6 +172,12 @@ Todas as rotas abaixo (exceto cadastro e login) exigem o header `Authorization: 
 | DELETE | `/movies/:tmdbId/library` | Remove o filme da lista pessoal, sem remover o catálogo |
 | PATCH | `/movies/:tmdbId/favorite` | Define se o filme da lista é favorito (`{ "isFavorite": boolean }`) |
 
+### Cinemas (`/cinemas`)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/cinemas/nearby?lat=...&lng=...&radius=10000` | Busca cinemas mapeados no OpenStreetMap dentro de um raio de até 25 km; requer autenticação |
+
 ### Upload (`/upload`)
 
 | Método | Rota | Descrição |
@@ -211,11 +217,15 @@ O catálogo é consultado no TMDB e seus metadados são guardados localmente qua
 - Compartilhamento de filmes via WhatsApp, Telegram, e-mail, SMS ou folha de compartilhamento do sistema
 - Edição de perfil (nome, foto, senha)
 - Tema claro/escuro e idioma (português, inglês ou espanhol), com preferências salvas no dispositivo
+- Menu lateral com atalhos para as abas, busca, estatísticas, cinemas e configurações
+- Busca de cinemas próximos via OpenStreetMap, com distância e link para abrir a rota no Maps
+- Compartilhamento das estatísticas pessoais pelo menu nativo do celular
+- Lembrete na Home para filmes na watchlist e controle das recomendações populares
 
 ## Limitações conhecidas
 
 - **Idioma:** textos da interface, placeholders e recomendações/consultas TMDB acompanham o idioma selecionado. Mensagens futuras adicionadas sem tradução cadastrada aparecem no idioma de origem até receberem uma tradução.
-- **Cinemas Próximos:** a localização do usuário é real (GPS do dispositivo), mas a lista de cinemas exibida é ilustrativa — integrar uma API de lugares (ex.: Google Places) exigiria uma chave paga e um proxy no backend.
+- **Cinemas Próximos:** a tela consulta cinemas cadastrados no OpenStreetMap pelo backend e envia as coordenadas do dispositivo à instância pública do Overpass para a busca. A cobertura depende dos dados mapeados na região; a rota é aberta no Google Maps. O endpoint armazena resultados em memória por cinco minutos.
 - **react-native-maps não funciona no modo web** (`expo start --web`); a tela de Cinemas possui uma versão alternativa para esse ambiente, sem mapa.
 - **Build de produção (APK):** o projeto ainda não define `android.package` nem os plugins de permissão (câmera, localização, galeria) no `app.json`, necessários para gerar um instalável fora do Expo Go.
 - **Backend sem deploy público:** a API roda localmente, na rede do desenvolvedor — um APK instalado fora dessa rede não consegue se conectar até o backend ser hospedado publicamente.

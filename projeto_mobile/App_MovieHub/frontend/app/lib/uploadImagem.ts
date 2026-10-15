@@ -3,15 +3,29 @@ import { buscarItem } from './storage';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
+/** Upgrade legacy Render avatar URLs saved with http:// to the configured HTTPS origin. */
+export function normalizarUrlImagem(url: string): string {
+  try {
+    const apiUrl = new URL(API_BASE_URL ?? '');
+    const imageUrl = new URL(url);
+    if (apiUrl.protocol === 'https:' && imageUrl.hostname === apiUrl.hostname && imageUrl.protocol === 'http:') {
+      imageUrl.protocol = 'https:';
+    }
+    return imageUrl.toString();
+  } catch {
+    return url;
+  }
+}
+
 /**
  * Recebe uma URI local (file://, blob:, content://) e devolve a URL pública
  * de verdade do backend. Se a URI já for uma URL http(s) (ex.: o usuário
  * está editando um filme e não trocou a capa), devolve ela mesma sem
  * reenviar nada.
  */
-export async function uploadImagem(uriLocal: string): Promise<string> {
+export async function uploadImagem(uriLocal: string): Promise<{ url: string; publicId: string | null }> {
   if (uriLocal.startsWith('http://') || uriLocal.startsWith('https://')) {
-    return uriLocal;
+    return { url: normalizarUrlImagem(uriLocal), publicId: null };
   }
 
   const token = await buscarItem('token');
@@ -56,5 +70,5 @@ export async function uploadImagem(uriLocal: string): Promise<string> {
   }
 
   const data = await response.json();
-  return data.url;
+  return { url: data.url, publicId: data.publicId };
 }

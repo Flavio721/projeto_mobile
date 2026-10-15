@@ -11,6 +11,7 @@ import { useIdioma } from '../../contexts/IdiomaContext';
 import { useToast } from '../../contexts/ToastContext';
 import { buscarItem } from '../../lib/storage';
 import criarStyles from './styles';
+import { normalizarUrlImagem } from '../../lib/uploadImagem';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -49,6 +50,7 @@ export default function AmigosScreen() {
   const [searching, setSearching] = useState(false);
   const [sending, setSending] = useState(false);
   const [updatingPrivacy, setUpdatingPrivacy] = useState(false);
+  const [avatarErrors, setAvatarErrors] = useState<Record<string, boolean>>({});
 
   const request = useCallback(async (path: string, init?: RequestInit) => {
     const token = await buscarItem('token');
@@ -167,7 +169,7 @@ export default function AmigosScreen() {
         disabled={kind !== 'friend'}
         onPress={() => navigation.navigate('AmigoAtividade', { userId: row.user.id, name: row.user.name, username: row.user.username })}
       >
-        {row.user.avatarUrl ? <Image source={{ uri: row.user.avatarUrl }} style={styles.avatar} /> : (
+        {row.user.avatarUrl && !avatarErrors[row.user.id] ? <Image source={{ uri: normalizarUrlImagem(row.user.avatarUrl) }} style={styles.avatar} onError={() => setAvatarErrors((state) => ({ ...state, [row.user.id]: true }))} /> : (
           <View style={[styles.avatar, styles.avatarFallback, { backgroundColor: cores.posterFallback }]}>
             <Ionicons name="person" size={18} color={cores.muted} />
           </View>
@@ -236,7 +238,7 @@ export default function AmigosScreen() {
             {searching ? <ActivityIndicator color={cores.onGold} /> : <Text style={[styles.primaryButtonText, { color: cores.onGold }]}>{traduzir('Pesquisar usuário')}</Text>}
           </TouchableOpacity>
           {searchResult ? <View style={[styles.searchResult, { borderTopColor: cores.border }]}>
-            {searchResult.user.avatarUrl ? <Image source={{ uri: searchResult.user.avatarUrl }} style={styles.avatar} /> : <View style={[styles.avatar, styles.avatarFallback, { backgroundColor: cores.posterFallback }]}><Ionicons name="person" size={18} color={cores.muted} /></View>}
+            {searchResult.user.avatarUrl && !avatarErrors[searchResult.user.id] ? <Image source={{ uri: normalizarUrlImagem(searchResult.user.avatarUrl) }} style={styles.avatar} onError={() => setAvatarErrors((state) => ({ ...state, [searchResult.user.id]: true }))} /> : <View style={[styles.avatar, styles.avatarFallback, { backgroundColor: cores.posterFallback }]}><Ionicons name="person" size={18} color={cores.muted} /></View>}
             <View style={styles.personText}>
               <Text style={[styles.personName, { color: cores.text }]}>{searchResult.user.name}</Text>
               <Text style={[styles.personEmail, { color: cores.muted }]}>@{searchResult.user.username}</Text>

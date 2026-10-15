@@ -13,6 +13,7 @@ import { buscarItem } from '../../lib/storage';
 import { mapMovieToFilme } from '../../utils/movieMapper';
 import type { Filme } from '../../types/Filme';
 import type { MainStackParamList } from '../../navigation/MainStack';
+import { useToast } from '../../contexts/ToastContext';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -21,6 +22,7 @@ type FavoritosNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 export default function FavoritosScreen() {
   const styles = useStyles(criarStyles);
   const { cores } = useTema();
+  const { showError } = useToast();
   const navigation = useNavigation<FavoritosNavigationProp>();
   const [favoritos, setFavoritos] = useState<Filme[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -65,12 +67,13 @@ export default function FavoritosScreen() {
   const handleToggleFavorito = async (id: string) => {
     // Nesta tela, desfavoritar remove o item da lista na hora (é o
     // comportamento esperado de uma tela de "Favoritos").
+    const anteriores = favoritos;
     setFavoritos((prev) => prev.filter((f) => f.id !== id));
 
     try {
       const token = await buscarItem('token');
-      if (!token) return;
-      await fetch(`${API_BASE_URL}/movies/${id}/favorite`, {
+      if (!token) throw new Error('Sua sessão expirou. Entre novamente.');
+      const response = await fetch(`${API_BASE_URL}/movies/${id}/favorite`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -78,10 +81,14 @@ export default function FavoritosScreen() {
         },
         body: JSON.stringify({ isFavorite: false }),
       });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error ?? 'Não foi possível remover dos favoritos.');
+      }
     } catch (error) {
       console.error('Erro ao desfavoritar:', error);
-      // Não recoloca o item de volta automaticamente — na próxima vez que
-      // a tela focar, carregarFavoritos() corrige o estado com o servidor.
+      setFavoritos(anteriores);
+      showError(error instanceof Error ? error.message : 'Não foi possível remover dos favoritos.');
     }
   };
 

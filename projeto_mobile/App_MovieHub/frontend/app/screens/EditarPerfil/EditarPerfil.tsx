@@ -12,7 +12,7 @@ import { useStyles, useTema } from '../../contexts/TemaContext';
 import { useToast } from '../../contexts/ToastContext';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { buscarItem, salvarItem } from '../../lib/storage';
-import { uploadImagem } from '../../lib/uploadImagem';
+import { normalizarUrlImagem, uploadImagem } from '../../lib/uploadImagem';
 import type { MainStackParamList } from '../../navigation/MainStack';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
@@ -28,6 +28,7 @@ export default function EditarPerfil() {
   const [nome, setNome] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [avatarPublicId, setAvatarPublicId] = useState<string | null>(null);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -56,7 +57,8 @@ export default function EditarPerfil() {
       setNome(usuario.name ?? '');
       setUsername(usuario.username ?? '');
       setEmail(usuario.email ?? '');
-      setAvatarUri(usuario.avatarUrl ?? null);
+      setAvatarUri(usuario.avatarUrl ? normalizarUrlImagem(usuario.avatarUrl) : null);
+      setAvatarPublicId(usuario.avatarPublicId ?? null);
     } catch (error) {
       console.error('Erro ao carregar perfil:', error);
       showError('Falha de conexão com o servidor.');
@@ -110,9 +112,12 @@ export default function EditarPerfil() {
       // Se a foto continua sendo a mesma URL do servidor, uploadImagem()
       // devolve ela mesma sem reenviar nada.
       let avatarFinal: string | null = null;
+      let avatarPublicIdFinal: string | null = null;
       if (avatarUri) {
         try {
-          avatarFinal = await uploadImagem(avatarUri);
+          const uploaded = await uploadImagem(avatarUri);
+          avatarFinal = uploaded.url;
+          avatarPublicIdFinal = uploaded.publicId ?? avatarPublicId;
         } catch (error: any) {
           showError(error.message ?? 'Falha ao enviar a foto.');
           return;
@@ -125,7 +130,7 @@ export default function EditarPerfil() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name: nome.trim(), username: username.trim().replace(/^@/, '').toLowerCase(), avatarUrl: avatarFinal }),
+        body: JSON.stringify({ name: nome.trim(), username: username.trim().replace(/^@/, '').toLowerCase(), avatarUrl: avatarFinal, avatarPublicId: avatarPublicIdFinal }),
       });
 
       const data = await response.json();

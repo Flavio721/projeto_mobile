@@ -1,6 +1,6 @@
 import Text from '../components/TextoLocalizado';
 import React, { useCallback, useState } from 'react';
-import { ActivityIndicator, FlatList, Linking, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, Linking, Platform, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
@@ -39,11 +39,15 @@ export default function CinemasBase() {
   const [localizacaoNegada, setLocalizacaoNegada] = useState(false);
   const [erro, setErro] = useState('');
 
-  const buscarCinemas = useCallback(async () => {
+  const buscarCinemas = useCallback(async (forcarAtualizacao = false) => {
     setCarregando(true);
     setErro('');
     setLocalizacaoNegada(false);
     try {
+      if (Platform.OS === 'web' && typeof window !== 'undefined' && !window.isSecureContext) {
+        setErro(traduzir('A localização no navegador exige HTTPS ou localhost.'));
+        return;
+      }
       const permissao = await Location.requestForegroundPermissionsAsync();
       if (permissao.status !== 'granted') {
         setLocalizacaoNegada(true);
@@ -51,7 +55,8 @@ export default function CinemasBase() {
         return;
       }
 
-      const posicao = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const ultimaPosicao = await Location.getLastKnownPositionAsync({ maxAge: 2 * 60 * 1000, requiredAccuracy: 2000 }).catch(() => null);
+      const posicao = ultimaPosicao ?? await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       const { latitude, longitude } = posicao.coords;
       try {
         const [endereco] = await Location.reverseGeocodeAsync({ latitude, longitude });
@@ -64,6 +69,7 @@ export default function CinemasBase() {
       const token = await buscarItem('token');
       if (!token) throw new Error(traduzir('Sua sessão expirou. Entre novamente.'));
       const params = new URLSearchParams({ lat: String(latitude), lng: String(longitude), radius: String(RAIO_METROS) });
+      if (forcarAtualizacao) params.set('refresh', 'true');
       const response = await fetch(`${API_BASE_URL}/cinemas/nearby?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -100,7 +106,7 @@ export default function CinemasBase() {
           </TouchableOpacity>
           <Text style={styles.title}>Cinemas Próximos</Text>
         </View>
-        <TouchableOpacity onPress={() => void buscarCinemas()} disabled={carregando} accessibilityRole="button" accessibilityLabel={traduzir('Atualizar cinemas')} style={styles.refreshButton}>
+        <TouchableOpacity onPress={() => void buscarCinemas(true)} disabled={carregando} accessibilityRole="button" accessibilityLabel={traduzir('Atualizar cinemas')} style={styles.refreshButton}>
           <Ionicons name="refresh-outline" size={20} color={cores.gold} />
         </TouchableOpacity>
       </View>
@@ -121,7 +127,7 @@ export default function CinemasBase() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={cinemas.length ? styles.listContent : styles.emptyListContent}
           refreshing={carregando}
-          onRefresh={() => void buscarCinemas()}
+          onRefresh={() => void buscarCinemas(true)}
           renderItem={({ item }) => (
             <View style={styles.cinemaRow}>
               <View style={[styles.cinemaLogoBox, { backgroundColor: cores.gold }]}>
@@ -145,7 +151,7 @@ export default function CinemasBase() {
               {carregando ? <ActivityIndicator color={cores.gold} size="large" /> : <Ionicons name={localizacaoNegada ? 'location-outline' : 'film-outline'} size={32} color={cores.muted} />}
               <Text style={styles.emptyTitle}>{carregando ? 'Buscando cinemas...' : localizacaoNegada ? 'Localização necessária' : erro ? 'Não foi possível buscar cinemas' : 'Nenhum cinema encontrado por perto'}</Text>
               <Text style={styles.emptyText}>{carregando ? 'Consultando locais próximos à sua posição.' : erro || 'Tente novamente mais tarde ou consulte outra região.'}</Text>
-              {!carregando && <TouchableOpacity style={styles.retryButton} onPress={() => void buscarCinemas()}><Text style={styles.retryLabel}>{localizacaoNegada ? 'Permitir localização' : 'Tentar novamente'}</Text></TouchableOpacity>}
+              {!carregando && <TouchableOpacity style={styles.retryButton} onPress={() => void buscarCinemas(true)}><Text style={styles.retryLabel}>{localizacaoNegada ? 'Permitir localização' : 'Tentar novamente'}</Text></TouchableOpacity>}
             </View>
           )}
           ListFooterComponent={<Text style={styles.sourceNotice}>© OpenStreetMap contributors. A distância é aproximada em linha reta; a cobertura varia conforme o mapa da região.</Text>}

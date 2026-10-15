@@ -1,6 +1,9 @@
 import type { Request, Response } from 'express';
 
-const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
+const OVERPASS_URLS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
+];
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const cache = new Map<string, { expiresAt: number; cinemas: Cinema[] }>();
 
@@ -54,24 +57,36 @@ export async function getNearbyCinemas(req: Request, res: Response) {
   }
 
   const cacheKey = `${latitude.toFixed(3)}:${longitude.toFixed(3)}:${radius}`;
+  const forceRefresh = req.query.refresh === 'true';
   const cached = cache.get(cacheKey);
-  if (cached && cached.expiresAt > Date.now()) return res.json({ results: cached.cinemas, source: 'OpenStreetMap' });
+  if (!forceRefresh && cached && cached.expiresAt > Date.now()) return res.json({ results: cached.cinemas, source: 'OpenStreetMap' });
 
   const query = `[out:json][timeout:20];(node[amenity=cinema](around:${radius},${latitude},${longitude});way[amenity=cinema](around:${radius},${latitude},${longitude});relation[amenity=cinema](around:${radius},${latitude},${longitude}););out center tags;`;
 
   try {
-    const response = await fetch(OVERPASS_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-        'User-Agent': 'MovieHub/1.0 (nearby cinema lookup)',
-      },
-      body: new URLSearchParams({ data: query }),
-      signal: AbortSignal.timeout(25000),
-    });
-    if (!response.ok) throw new Error(`Overpass respondeu ${response.status}`);
+    let data: { elements?: OverpassElement[] } | null = null;
+    let lastError: unknown;
+    for (const endpoint of OVERPASS_URLS) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+            'User-Agent': 'MovieHub/1.0 (https://github.com/Flavio721/projeto_mobile)',
+          },
+          body: new URLSearchParams({ data: query }),
+          signal: AbortSignal.timeout(15000),
+        });
+        if (!response.ok) throw new Error(`Overpass respondeu ${response.status}`);
+        data = await response.json() as { elements?: OverpassElement[] };
+        break;
+      } catch (error) {
+        lastError = error;
+        console.warn(`Instância Overpass indisponível (${new URL(endpoint).host}):`, error);
+      }
+    }
+    if (!data) throw lastError ?? new Error('Nenhuma instância Overpass respondeu.');
 
-    const data = await response.json() as { elements?: OverpassElement[] };
     const cinemas = (data.elements ?? []).flatMap((element): Cinema[] => {
       const tags = element.tags ?? {};
       const name = tags.name?.trim();

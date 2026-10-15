@@ -1,6 +1,6 @@
 import Text from '../components/TextoLocalizado';
 import { useStyles, useTema } from '../../contexts/TemaContext';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,6 +13,7 @@ import { buscarItem, removerItem } from '../../lib/storage';
 import type { MainStackParamList } from '../../navigation/MainStack';
 import { sincronizarConta } from '../../lib/sincronizarConta';
 import { useIdioma } from '../../contexts/IdiomaContext';
+import { normalizarUrlImagem } from '../../lib/uploadImagem';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -53,6 +54,7 @@ export default function Perfil() {
   const [stats, setStats] = useState<Stats>(STATS_VAZIO);
   const [carregando, setCarregando] = useState(true);
   const [sincronizando, setSincronizando] = useState(false);
+  const [fotoComErro, setFotoComErro] = useState(false);
 
   const carregarPerfil = useCallback(async () => {
     setCarregando(true);
@@ -87,6 +89,7 @@ export default function Perfil() {
   );
 
   const fotoParaExibir = usuario?.avatarUrl ?? null;
+  useEffect(() => setFotoComErro(false), [fotoParaExibir]);
 
   const handleAlterarFoto = () => navigation.navigate('EditarPerfil');
 
@@ -156,8 +159,8 @@ export default function Perfil() {
         <View style={styles.headerCard}>
           <TouchableOpacity style={styles.avatarWrapper} onPress={handleAlterarFoto} activeOpacity={0.85}>
             <View style={styles.avatarCircle}>
-              {fotoParaExibir ? (
-                <Image source={{ uri: fotoParaExibir }} style={styles.avatarImage} />
+              {fotoParaExibir && !fotoComErro ? (
+                <Image source={{ uri: normalizarUrlImagem(fotoParaExibir) }} style={styles.avatarImage} onError={() => setFotoComErro(true)} />
               ) : (
                 <Ionicons name="person" size={38} color={cores.muted} />
               )}

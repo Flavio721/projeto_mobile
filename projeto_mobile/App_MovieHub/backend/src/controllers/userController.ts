@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import { AuthRequest } from "../middlewares/authMiddleware.js";
 import { randomBytes } from 'node:crypto';
+import { avatarCloudinaryUrlValida, deleteAvatar } from '../lib/cloudinary.js';
 
 const googleOAuthClient = new OAuth2Client();
 
@@ -21,6 +22,7 @@ interface UpdateProfileBody {
     name?: string;
     username?: string;
     avatarUrl?: string | null;
+    avatarPublicId?: string | null;
 }
 
 function normalizarUsername(value: unknown): string {
@@ -228,7 +230,7 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
             return res.status(401).json({ error: "Erro de autenticação" });
         }
 
-        const { name, avatarUrl } = req.body as UpdateProfileBody;
+        const { name, avatarUrl, avatarPublicId } = req.body as UpdateProfileBody;
         const username = req.body?.username === undefined ? undefined : normalizarUsername(req.body.username);
 
         // Nome só é validado se veio na requisição — assim dá pra trocar só a
@@ -247,9 +249,15 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
             && (typeof avatarUrl !== 'string' || avatarUrl.length > 2048)) {
             return res.status(400).json({ error: "A URL da foto é inválida" });
         }
+        if (avatarPublicId !== undefined && avatarPublicId !== null
+            && (typeof avatarPublicId !== 'string' || typeof avatarUrl !== 'string' || !avatarCloudinaryUrlValida(avatarUrl, avatarPublicId))) {
+            return res.status(400).json({ error: 'A imagem enviada não corresponde a um upload válido.' });
+        }
 
         // E-mail não entra aqui de propósito: trocar e-mail é o identificador
         // de login, exige confirmação por e-mail pra não perder a conta.
+        const usuarioAnterior = await prisma.user.findUnique({ where: { id: userId }, select: { avatarPublicId: true } });
+        if (!usuarioAnterior) return res.status(404).json({ error: 'Usuário não encontrado.' });
         const usuarioAtualizado = await prisma.user.update({
             where: { id: userId },
             data: {
@@ -257,8 +265,19 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
                 username,
                 // null explícito = remover a foto; undefined = não mexer.
                 avatarUrl: avatarUrl === undefined ? undefined : avatarUrl,
+                avatarPublicId: avatarUrl === null ? null : avatarPublicId === undefined ? undefined : avatarPublicId,
             },
         });
+
+        if (usuarioAnterior.avatarPublicId && usuarioAnterior.avatarPublicId !== usuarioAtualizado.avatarPublicId) {
+            try {
+                await deleteAvatar(usuarioAnterior.avatarPublicId);
+            } catch (error) {
+                // The profile now points to the new asset. Keep the update
+                // successful and report cleanup failures for later inspection.
+                console.error('Não foi possível remover o avatar anterior do Cloudinary:', error);
+            }
+        }
 
         const usuarioSemSenha = usuarioPublico(usuarioAtualizado);
         return res.status(200).json(usuarioSemSenha);

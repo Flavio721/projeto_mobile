@@ -763,6 +763,7 @@ export const UserScalarFieldEnum = {
   password: 'password',
   googleSub: 'googleSub',
   avatarUrl: 'avatarUrl',
+  avatarPublicId: 'avatarPublicId',
   shareWatched: 'shareWatched',
   shareWatchlist: 'shareWatchlist',
   shareFavorites: 'shareFavorites',

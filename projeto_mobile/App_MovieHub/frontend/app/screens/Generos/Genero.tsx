@@ -1,6 +1,6 @@
 import Text from '../components/TextoLocalizado';
 import { useStyles, useTema } from '../../contexts/TemaContext';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,8 +9,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import criarStyles from './styles';
 import LoadingOverlay from '../components/LoadingOverlay';
 import { buscarItem } from '../../lib/storage';
-import { mapMovieToFilme } from '../../utils/movieMapper';
 import type { MainStackParamList } from '../../navigation/MainStack';
+import { useToast } from '../../contexts/ToastContext';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -40,6 +40,7 @@ type GenerosNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 export default function Generos() {
   const styles = useStyles(criarStyles);
   const { cores } = useTema();
+  const { showError } = useToast();
   const navigation = useNavigation<GenerosNavigationProp>();
   const [generos, setGeneros] = useState<GeneroContagem[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -53,39 +54,25 @@ export default function Generos() {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/movies`, {
+      const response = await fetch(`${API_BASE_URL}/movies/genres`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!response.ok) {
-        setGeneros([]);
-        return;
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result.error ?? 'Não foi possível carregar os gêneros da sua lista.');
       }
 
-      const data = await response.json();
-      const filmes = data.map(mapMovieToFilme);
-
-      const contagem: Record<string, number> = {};
-      filmes.forEach((filme: { genero: string }) => {
-        filme.genero.split(',').forEach((nomeCru: string) => {
-          const nome = nomeCru.trim();
-          if (!nome || nome === '—') return;
-          contagem[nome] = (contagem[nome] ?? 0) + 1;
-        });
-      });
-
-      const lista = Object.entries(contagem)
-        .map(([nome, quantidade]) => ({ nome, quantidade }))
-        .sort((a, b) => b.quantidade - a.quantidade);
-
-      setGeneros(lista);
+      const data = await response.json() as { results?: { name: string; count: number }[] };
+      setGeneros((data.results ?? []).map(({ name, count }) => ({ nome: name, quantidade: count })));
     } catch (error) {
       console.error('Erro ao carregar gêneros:', error);
       setGeneros([]);
+      showError(error instanceof Error ? error.message : 'Não foi possível carregar os gêneros da sua lista.');
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [showError]);
 
   useFocusEffect(
     useCallback(() => {
@@ -136,7 +123,7 @@ export default function Generos() {
             !carregando ? (
               <View style={styles.emptyBox}>
                 <Ionicons name="film-outline" size={24} color={cores.placeholder} />
-                <Text style={styles.emptyText}>Nenhum gênero ainda — cadastre um filme primeiro</Text>
+                <Text style={styles.emptyText}>Adicione filmes à sua lista para ver as contagens por gênero.</Text>
               </View>
             ) : null
           }

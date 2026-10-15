@@ -233,6 +233,29 @@ export async function getMovies(req: AuthRequest, res: Response) {
   return res.json(entries.map(serializeEntry));
 }
 
+export async function getGenreCounts(req: AuthRequest, res: Response) {
+  try {
+    const entries = await prisma.userMovie.findMany({
+      where: { userId: req.userId! },
+      select: { movie: { select: { genres: true } } },
+    });
+    const counts = new Map<string, number>();
+    for (const { movie } of entries) {
+      // A movie contributes once to each genre, even if metadata contains a duplicate.
+      for (const genre of new Set(movie.genres.map((name) => name.trim()).filter(Boolean))) {
+        counts.set(genre, (counts.get(genre) ?? 0) + 1);
+      }
+    }
+    const results = [...counts.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    return res.json({ results });
+  } catch (error) {
+    console.error('Erro ao contar gêneros da biblioteca:', error);
+    return res.status(500).json({ error: 'Não foi possível carregar os gêneros da sua lista.' });
+  }
+}
+
 export async function getStats(req: AuthRequest, res: Response) {
   const userId = req.userId!;
   const [total, assistidos, queroAssistir, favoritos] = await Promise.all([
@@ -304,8 +327,8 @@ export async function setFavorite(req: AuthRequest, res: Response) {
 export async function removeLibraryEntry(req: AuthRequest, res: Response) {
   const tmdbId = tmdbIdFromRequest(req.params.tmdbId);
   if (!tmdbId) return res.status(400).json({ error: 'Id TMDB inválido.' });
-  const entry = await prisma.userMovie.findFirst({ where: { userId: req.userId!, movie: { tmdbId } } });
-  if (!entry) return res.status(404).json({ error: 'Este filme não está na sua lista.' });
-  await prisma.userMovie.delete({ where: { id: entry.id } });
+  // DELETE is idempotent: retrying after a timeout or a double tap still
+  // results in the movie being absent from this user's collection.
+  await prisma.userMovie.deleteMany({ where: { userId: req.userId!, movie: { tmdbId } } });
   return res.status(204).send();
 }

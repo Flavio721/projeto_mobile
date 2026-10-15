@@ -2,7 +2,7 @@ import TextInput from '../components/CampoTextoLocalizado';
 import Text from '../components/TextoLocalizado';
 import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useCallback, useState } from 'react';
-import { View, Image, TouchableOpacity, ScrollView, TextInput as NativeTextInput, ActivityIndicator, Alert } from 'react-native';
+import { View, Image, TouchableOpacity, ScrollView, TextInput as NativeTextInput, ActivityIndicator, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
@@ -43,6 +43,7 @@ export default function Detalhes() {
   const [favorito, setFavorito] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [removendo, setRemovendo] = useState(false);
 
   const carregarFilme = useCallback(async () => {
     setCarregando(true);
@@ -110,33 +111,45 @@ export default function Detalhes() {
 
   const alternarFavorito = () => setFavorito((value) => !value);
 
+  const executarRemocao = async () => {
+    if (removendo) return;
+    setRemovendo(true);
+    try {
+      const token = await buscarItem('token');
+      if (!token) throw new Error('Sua sessão expirou. Entre novamente.');
+      const response = await fetch(`${API_BASE_URL}/movies/${filmeId}/library`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error ?? 'Não foi possível remover o filme.');
+      }
+      setNaLista(false);
+      setFavorito(false);
+      setStatus('WATCHLIST');
+      setNota(0);
+      setComentario('');
+      setAssistidoEm(hoje());
+      showSuccess('Filme removido da sua lista.');
+      navigation.goBack();
+    } catch (error) {
+      showError(error instanceof Error ? error.message : 'Falha de conexão com o servidor.');
+    } finally {
+      setRemovendo(false);
+    }
+  };
+
   const removerDaLista = () => {
-    Alert.alert(traduzir('Remover filme'), `${traduzir('Remover')} “${filme?.titulo}” ${traduzir('da sua lista?')}`, [
+    const titulo = traduzir('Remover filme');
+    const mensagem = `${traduzir('Remover')} “${filme?.titulo}” ${traduzir('da sua lista?')}`;
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.confirm(`${titulo}\n\n${mensagem}`)) void executarRemocao();
+      return;
+    }
+    Alert.alert(titulo, mensagem, [
       { text: traduzir('Cancelar'), style: 'cancel' },
-      {
-        text: traduzir('Remover'),
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            const token = await buscarItem('token');
-            if (!token) throw new Error('Sua sessão expirou. Entre novamente.');
-            const response = await fetch(`${API_BASE_URL}/movies/${filmeId}/library`, {
-              method: 'DELETE',
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            if (!response.ok && response.status !== 204) throw new Error('Não foi possível remover o filme.');
-            setNaLista(false);
-            setFavorito(false);
-            setStatus('WATCHLIST');
-            setNota(0);
-            setComentario('');
-            setAssistidoEm(hoje());
-            showSuccess('Filme removido da sua lista.');
-          } catch (error) {
-            showError(error instanceof Error ? error.message : 'Falha de conexão com o servidor.');
-          }
-        },
-      },
+      { text: traduzir('Remover'), style: 'destructive', onPress: () => void executarRemocao() },
     ]);
   };
 
@@ -202,7 +215,7 @@ export default function Detalhes() {
         <TouchableOpacity style={[styles.primaryButton, salvando && { opacity: 0.65 }]} onPress={salvar} disabled={salvando}>
           {salvando ? <ActivityIndicator color={cores.onGold} /> : <Text style={styles.primaryButtonText}>{naLista ? 'Salvar alterações' : status === 'WATCHED' ? 'Registrar como assistido' : 'Adicionar à watchlist'}</Text>}
         </TouchableOpacity>
-        {naLista && <TouchableOpacity style={{ padding: 16, alignItems: 'center' }} onPress={removerDaLista}><Text style={{ color: cores.danger, fontWeight: '700' }}>Remover da minha lista</Text></TouchableOpacity>}
+        {naLista && <TouchableOpacity style={{ padding: 16, alignItems: 'center', opacity: removendo ? 0.55 : 1 }} onPress={removerDaLista} disabled={removendo}><Text style={{ color: cores.danger, fontWeight: '700' }}>{removendo ? 'Removendo...' : 'Remover da minha lista'}</Text></TouchableOpacity>}
       </ScrollView>
     </SafeAreaView>
   );

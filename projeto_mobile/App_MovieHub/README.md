@@ -42,7 +42,7 @@ Projeto acadêmico desenvolvido para a disciplina de Programação para Aplicati
 | ORM | Prisma 7, com driver adapter `@prisma/adapter-pg` |
 | Banco de dados | PostgreSQL (hospedado no Neon) |
 | Autenticação | JWT (`jsonwebtoken`) + hash de senha (`bcrypt`) |
-| Upload de arquivos | `multer` (armazenamento em disco local, pasta `uploads/`) |
+| Upload de arquivos | `multer` + Cloudinary (armazenamento permanente de avatares) |
 
 ## Estrutura do projeto
 
@@ -52,7 +52,7 @@ App_MovieHub/
 │   ├── prisma/
 │   │   └── schema.prisma
 │   ├── prisma.config.ts        # configuração do Prisma 7 (datasource, caminho das migrations)
-│   ├── uploads/                # imagens enviadas pelos usuários (capas de filme, avatares)
+│   ├── uploads/                # diretório local padrão para imagens (produção usa disco persistente)
 │   └── src/
 │       ├── app.ts              # configuração do Express (middlewares e rotas)
 │       ├── server.ts           # ponto de entrada — sobe o servidor na porta 3000
@@ -95,6 +95,9 @@ Crie um arquivo `.env` dentro de `backend/` com:
 DATABASE_URL=postgresql://usuario:senha@host/banco?sslmode=require
 JWT_SECRET=uma_string_longa_e_aleatoria
 TMDB_READ_ACCESS_TOKEN=token_de_leitura_da_api_do_tmdb
+CLOUDINARY_CLOUD_NAME=nome-do-cloud
+CLOUDINARY_API_KEY=chave-da-api
+CLOUDINARY_API_SECRET=segredo-da-api
 ```
 
 Instale as dependências e aplique as migrations:
@@ -108,11 +111,7 @@ npx prisma generate
 
 `TMDB_READ_ACCESS_TOKEN` é o API Read Access Token criado nas configurações da conta TMDB. Ele fica somente no backend; não coloque essa credencial em variáveis `EXPO_PUBLIC_*` nem no app mobile. A migration `20261012120000_tmdb_personal_movie_log` remove os filmes e gêneros antigos cadastrados por usuário, preservando as contas e perfis, conforme decisão do projeto.
 
-Crie a pasta de uploads (o `multer` não cria sozinha):
-
-```bash
-mkdir uploads
-```
+Crie uma conta Cloudinary e copie os valores **Cloud name**, **API Key** e **API Secret** do Dashboard para o `.env` do backend e para as variáveis privadas do Render. O API Secret nunca deve ir ao frontend. A migration `20261015143000_cloudinary_avatar_public_id` adiciona o identificador necessário para remover fotos substituídas; `prisma migrate dev` aplica todas as migrations locais.
 
 ### Frontend
 
@@ -171,7 +170,11 @@ Configuração do serviço Web:
 | Build Command | `npm ci && npm run build` |
 | Start Command | `npm start` (`node dist/src/server.js`) |
 
-Cadastre no painel do Render as variáveis `DATABASE_URL`, `JWT_SECRET`, `TMDB_READ_ACCESS_TOKEN` e `GOOGLE_OAUTH_CLIENT_IDS` (este último é detalhado na seção de Google abaixo). O Render fornece `PORT` automaticamente. O endpoint `GET /` retorna o status da API; teste também login, banco e busca TMDB para validar o serviço completo.
+Cadastre no painel do Render as variáveis `DATABASE_URL`, `JWT_SECRET`, `TMDB_READ_ACCESS_TOKEN`, `GOOGLE_OAUTH_CLIENT_IDS`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` e `CLOUDINARY_API_SECRET`. O Render fornece `PORT` automaticamente. O endpoint `GET /` retorna o status da API; teste também login, banco e busca TMDB para validar o serviço completo.
+
+#### Fotos de perfil
+
+As fotos novas são enviadas pelo backend ao Cloudinary e o app salva no perfil a URL HTTPS e o identificador da imagem. Ao trocar ou remover uma foto, o backend atualiza o perfil e depois exclui do Cloudinary o arquivo anterior; fotos externas, como avatares do Google, não são apagadas. Isso evita acumular arquivos substituídos. O limite gratuito do Cloudinary é compartilhado entre armazenamento, tráfego e transformações, portanto visualizações também consomem créditos. Fotos que já desapareceram do disco temporário do Render precisam ser selecionadas e enviadas novamente.
 
 ### Login com Google
 
@@ -271,6 +274,7 @@ Todas as rotas abaixo (exceto cadastro e login) exigem o header `Authorization: 
 | GET | `/movies/popular?language=pt-BR` | Recomenda filmes bem avaliados que o usuário ainda não marcou como assistidos |
 | GET | `/movies/catalog/:tmdbId` | Busca os detalhes TMDB e o registro pessoal, se houver |
 | GET | `/movies` | Lista os registros pessoais do usuário autenticado |
+| GET | `/movies/genres` | Conta por gênero somente os filmes registrados pelo usuário autenticado |
 | GET | `/movies/stats` | Retorna estatísticas da coleção (total, assistidos, quero assistir, favoritos) |
 | GET | `/movies/:tmdbId/library` | Obtém a lista pessoal para um filme |
 | PUT | `/movies/:tmdbId/library` | Adiciona ou atualiza status, favorito, nota, comentário e data assistida |
@@ -287,13 +291,13 @@ Todas as rotas abaixo (exceto cadastro e login) exigem o header `Authorization: 
 
 | Método | Rota | Descrição |
 |---|---|---|
-| POST | `/upload` | Recebe uma imagem (`multipart/form-data`, campo `imagem`) e retorna a URL pública salva |
+| POST | `/upload` | Recebe uma imagem (`multipart/form-data`, campo `imagem`) e retorna `{ "url": "...", "publicId": "..." }` do Cloudinary |
 
 ## Modelo de dados
 
 ```
 User
-├── id, name (apelido), username (único), email (único e privado), password (hash), avatarUrl?
+├── id, name (apelido), username (único), email (único e privado), password (hash), avatarUrl?, avatarPublicId?
 └── movies: UserMovie[]
 
 Movie
@@ -317,7 +321,7 @@ O catálogo é consultado no TMDB e seus metadados são guardados localmente qua
 - Logout com remoção local do token e confirmação compatível com Android/iOS e Expo Web
 - Pesquisa de títulos no catálogo do TMDB
 - Recomendações de filmes bem avaliados na Home, excluindo títulos já assistidos
-- Organização por status (assistido / quero assistir) e favoritos
+- Organização por status (assistido / quero assistir) e favoritos; a tela de gêneros conta apenas registros pessoais por gênero
 - Registro de nota de 1 a 5 estrelas, comentário e data em que assistiu
 - Busca e filtros (gênero, status, ano, nota mínima, apenas favoritos) e ordenação (título, data, nota, ano)
 - Estatísticas da coleção pessoal
@@ -333,9 +337,9 @@ O catálogo é consultado no TMDB e seus metadados são guardados localmente qua
 ## Limitações conhecidas
 
 - **Idioma:** textos da interface, placeholders e recomendações/consultas TMDB acompanham o idioma selecionado. Mensagens futuras adicionadas sem tradução cadastrada aparecem no idioma de origem até receberem uma tradução.
-- **Cinemas Próximos:** a tela consulta cinemas cadastrados no OpenStreetMap pelo backend e envia as coordenadas do dispositivo à instância pública do Overpass. A cobertura depende dos dados mapeados na região; a rota abre no Google Maps. O endpoint armazena resultados em memória por cinco minutos. No Expo Web, localização depende das permissões do navegador e de HTTPS.
+- **Cinemas Próximos:** a tela consulta cinemas cadastrados no OpenStreetMap pelo backend e tenta uma instância alternativa do Overpass se a principal falhar. A cobertura depende dos dados mapeados na região; a rota abre no Google Maps. Os resultados ficam em cache por cinco minutos, mas o botão Atualizar ignora o cache. No Expo Web, localização depende da permissão do navegador e de HTTPS ou localhost.
 - **Hospedagem gratuita:** serviços gratuitos podem dormir após inatividade e demorar para responder à primeira solicitação. Verifique os limites atuais do Render e do Neon antes de usar o app com mais usuários.
-- **Fotos de perfil:** o backend grava uploads em `backend/uploads`. O disco padrão do Render é temporário; imagens podem sumir após reinício ou novo deploy. Para retenção permanente, configure um disco persistente ou migre os uploads para armazenamento de objetos (por exemplo, S3/Cloudinary).
+- **Fotos de perfil:** os uploads novos usam Cloudinary. Configure as três variáveis do serviço no backend e aplique a migration que adiciona `avatarPublicId`; avatares que já desapareceram do disco efêmero precisam ser reenviados.
 - **APK e lojas:** `android.package`, `ios.bundleIdentifier` e perfis EAS estão configurados. O Google Login ainda depende da configuração manual dos clientes OAuth e dos respectivos certificados/origens. Para instalar diretamente no Android, use o perfil `preview` (APK); para Google Play, gere `.aab`.
 - **TMDB:** antes de publicar, adicionar o logo oficial aprovado e manter em uma área Sobre/Créditos o aviso “Este produto usa a API do TMDB, mas não é endossado nem certificado pelo TMDB.”. A chave privada deve permanecer no backend. Consulte também os termos atuais do TMDB para a publicação planejada.
 - **Migration dos filmes:** a migration nova apaga os registros antigos de filmes e gêneros e conserva as contas. Revise a migration e faça backup do banco antes de aplicá-la em qualquer banco com dados que precisem ser preservados.

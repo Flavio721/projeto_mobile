@@ -32,6 +32,7 @@ export type UserMinAggregateOutputType = {
   password: string | null
   googleSub: string | null
   avatarUrl: string | null
+  avatarPublicId: string | null
   shareWatched: boolean | null
   shareWatchlist: boolean | null
   shareFavorites: boolean | null
@@ -49,6 +50,7 @@ export type UserMaxAggregateOutputType = {
   password: string | null
   googleSub: string | null
   avatarUrl: string | null
+  avatarPublicId: string | null
   shareWatched: boolean | null
   shareWatchlist: boolean | null
   shareFavorites: boolean | null
@@ -66,6 +68,7 @@ export type UserCountAggregateOutputType = {
   password: number
   googleSub: number
   avatarUrl: number
+  avatarPublicId: number
   shareWatched: number
   shareWatchlist: number
   shareFavorites: number
@@ -85,6 +88,7 @@ export type UserMinAggregateInputType = {
   password?: true
   googleSub?: true
   avatarUrl?: true
+  avatarPublicId?: true
   shareWatched?: true
   shareWatchlist?: true
   shareFavorites?: true
@@ -102,6 +106,7 @@ export type UserMaxAggregateInputType = {
   password?: true
   googleSub?: true
   avatarUrl?: true
+  avatarPublicId?: true
   shareWatched?: true
   shareWatchlist?: true
   shareFavorites?: true
@@ -119,6 +124,7 @@ export type UserCountAggregateInputType = {
   password?: true
   googleSub?: true
   avatarUrl?: true
+  avatarPublicId?: true
   shareWatched?: true
   shareWatchlist?: true
   shareFavorites?: true
@@ -209,6 +215,7 @@ export type UserGroupByOutputType = {
   password: string | null
   googleSub: string | null
   avatarUrl: string | null
+  avatarPublicId: string | null
   shareWatched: boolean
   shareWatchlist: boolean
   shareFavorites: boolean
@@ -247,6 +254,7 @@ export type UserWhereInput = {
   password?: Prisma.StringNullableFilter<"User"> | string | null
   googleSub?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  avatarPublicId?: Prisma.StringNullableFilter<"User"> | string | null
   shareWatched?: Prisma.BoolFilter<"User"> | boolean
   shareWatchlist?: Prisma.BoolFilter<"User"> | boolean
   shareFavorites?: Prisma.BoolFilter<"User"> | boolean
@@ -267,6 +275,7 @@ export type UserOrderByWithRelationInput = {
   password?: Prisma.SortOrderInput | Prisma.SortOrder
   googleSub?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  avatarPublicId?: Prisma.SortOrderInput | Prisma.SortOrder
   shareWatched?: Prisma.SortOrder
   shareWatchlist?: Prisma.SortOrder
   shareFavorites?: Prisma.SortOrder
@@ -290,6 +299,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"User"> | string
   password?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  avatarPublicId?: Prisma.StringNullableFilter<"User"> | string | null
   shareWatched?: Prisma.BoolFilter<"User"> | boolean
   shareWatchlist?: Prisma.BoolFilter<"User"> | boolean
   shareFavorites?: Prisma.BoolFilter<"User"> | boolean
@@ -310,6 +320,7 @@ export type UserOrderByWithAggregationInput = {
   password?: Prisma.SortOrderInput | Prisma.SortOrder
   googleSub?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  avatarPublicId?: Prisma.SortOrderInput | Prisma.SortOrder
   shareWatched?: Prisma.SortOrder
   shareWatchlist?: Prisma.SortOrder
   shareFavorites?: Prisma.SortOrder
@@ -333,6 +344,7 @@ export type UserScalarWhereWithAggregatesInput = {
   password?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   googleSub?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  avatarPublicId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   shareWatched?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   shareWatchlist?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   shareFavorites?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
@@ -350,6 +362,7 @@ export type UserCreateInput = {
   password?: string | null
   googleSub?: string | null
   avatarUrl?: string | null
+  avatarPublicId?: string | null
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -370,6 +383,7 @@ export type UserUncheckedCreateInput = {
   password?: string | null
   googleSub?: string | null
   avatarUrl?: string | null
+  avatarPublicId?: string | null
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -390,6 +404,7 @@ export type UserUpdateInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -410,6 +425,7 @@ export type UserUncheckedUpdateInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -430,6 +446,7 @@ export type UserCreateManyInput = {
   password?: string | null
   googleSub?: string | null
   avatarUrl?: string | null
+  avatarPublicId?: string | null
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -447,6 +464,7 @@ export type UserUpdateManyMutationInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -464,6 +482,7 @@ export type UserUncheckedUpdateManyInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -481,6 +500,7 @@ export type UserCountOrderByAggregateInput = {
   password?: Prisma.SortOrder
   googleSub?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  avatarPublicId?: Prisma.SortOrder
   shareWatched?: Prisma.SortOrder
   shareWatchlist?: Prisma.SortOrder
   shareFavorites?: Prisma.SortOrder
@@ -498,6 +518,7 @@ export type UserMaxOrderByAggregateInput = {
   password?: Prisma.SortOrder
   googleSub?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  avatarPublicId?: Prisma.SortOrder
   shareWatched?: Prisma.SortOrder
   shareWatchlist?: Prisma.SortOrder
   shareFavorites?: Prisma.SortOrder
@@ -515,6 +536,7 @@ export type UserMinOrderByAggregateInput = {
   password?: Prisma.SortOrder
   googleSub?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  avatarPublicId?: Prisma.SortOrder
   shareWatched?: Prisma.SortOrder
   shareWatchlist?: Prisma.SortOrder
   shareFavorites?: Prisma.SortOrder
@@ -595,6 +617,7 @@ export type UserCreateWithoutSentFriendshipsInput = {
   password?: string | null
   googleSub?: string | null
   avatarUrl?: string | null
+  avatarPublicId?: string | null
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -614,6 +637,7 @@ export type UserUncheckedCreateWithoutSentFriendshipsInput = {
   password?: string | null
   googleSub?: string | null
   avatarUrl?: string | null
+  avatarPublicId?: string | null
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -638,6 +662,7 @@ export type UserCreateWithoutReceivedFriendshipsInput = {
   password?: string | null
   googleSub?: string | null
   avatarUrl?: string | null
+  avatarPublicId?: string | null
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -657,6 +682,7 @@ export type UserUncheckedCreateWithoutReceivedFriendshipsInput = {
   password?: string | null
   googleSub?: string | null
   avatarUrl?: string | null
+  avatarPublicId?: string | null
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -692,6 +718,7 @@ export type UserUpdateWithoutSentFriendshipsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -711,6 +738,7 @@ export type UserUncheckedUpdateWithoutSentFriendshipsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -741,6 +769,7 @@ export type UserUpdateWithoutReceivedFriendshipsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -760,6 +789,7 @@ export type UserUncheckedUpdateWithoutReceivedFriendshipsInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -779,6 +809,7 @@ export type UserCreateWithoutMoviesInput = {
   password?: string | null
   googleSub?: string | null
   avatarUrl?: string | null
+  avatarPublicId?: string | null
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -798,6 +829,7 @@ export type UserUncheckedCreateWithoutMoviesInput = {
   password?: string | null
   googleSub?: string | null
   avatarUrl?: string | null
+  avatarPublicId?: string | null
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -833,6 +865,7 @@ export type UserUpdateWithoutMoviesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -852,6 +885,7 @@ export type UserUncheckedUpdateWithoutMoviesInput = {
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -920,6 +954,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   password?: boolean
   googleSub?: boolean
   avatarUrl?: boolean
+  avatarPublicId?: boolean
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -941,6 +976,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   password?: boolean
   googleSub?: boolean
   avatarUrl?: boolean
+  avatarPublicId?: boolean
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -958,6 +994,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   password?: boolean
   googleSub?: boolean
   avatarUrl?: boolean
+  avatarPublicId?: boolean
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -975,6 +1012,7 @@ export type UserSelectScalar = {
   password?: boolean
   googleSub?: boolean
   avatarUrl?: boolean
+  avatarPublicId?: boolean
   shareWatched?: boolean
   shareWatchlist?: boolean
   shareFavorites?: boolean
@@ -984,7 +1022,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "username" | "email" | "password" | "googleSub" | "avatarUrl" | "shareWatched" | "shareWatchlist" | "shareFavorites" | "shareReviews" | "shareRecent" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "username" | "email" | "password" | "googleSub" | "avatarUrl" | "avatarPublicId" | "shareWatched" | "shareWatchlist" | "shareFavorites" | "shareReviews" | "shareRecent" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   movies?: boolean | Prisma.User$moviesArgs<ExtArgs>
   sentFriendships?: boolean | Prisma.User$sentFriendshipsArgs<ExtArgs>
@@ -1009,6 +1047,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     password: string | null
     googleSub: string | null
     avatarUrl: string | null
+    avatarPublicId: string | null
     shareWatched: boolean
     shareWatchlist: boolean
     shareFavorites: boolean
@@ -1449,6 +1488,7 @@ export interface UserFieldRefs {
   readonly password: Prisma.FieldRef<"User", 'String'>
   readonly googleSub: Prisma.FieldRef<"User", 'String'>
   readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
+  readonly avatarPublicId: Prisma.FieldRef<"User", 'String'>
   readonly shareWatched: Prisma.FieldRef<"User", 'Boolean'>
   readonly shareWatchlist: Prisma.FieldRef<"User", 'Boolean'>
   readonly shareFavorites: Prisma.FieldRef<"User", 'Boolean'>

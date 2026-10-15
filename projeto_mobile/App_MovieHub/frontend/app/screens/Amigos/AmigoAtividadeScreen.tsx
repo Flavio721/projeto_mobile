@@ -13,6 +13,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { buscarItem } from '../../lib/storage';
 import type { MainStackParamList } from '../../navigation/MainStack';
 import criarStyles from './styles';
+import { normalizarUrlImagem } from '../../lib/uploadImagem';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const IMAGE_BASE = 'https://image.tmdb.org/t/p/w185';
@@ -60,6 +61,7 @@ export default function AmigoAtividadeScreen() {
   const route = useRoute<RouteProp<MainStackParamList, 'AmigoAtividade'>>();
   const [data, setData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [avatarComErro, setAvatarComErro] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -114,7 +116,7 @@ export default function AmigoAtividadeScreen() {
       </View>
       {loading ? <ActivityIndicator style={styles.loader} color={cores.gold} /> : data ? <>
         <View style={styles.publicProfileHeader}>
-          {data.user.avatarUrl ? <Image source={{ uri: data.user.avatarUrl }} style={styles.publicAvatar} /> : (
+          {data.user.avatarUrl && !avatarComErro ? <Image source={{ uri: normalizarUrlImagem(data.user.avatarUrl) }} style={styles.publicAvatar} onError={() => setAvatarComErro(true)} /> : (
             <View style={[styles.publicAvatar, styles.avatarFallback, { backgroundColor: cores.posterFallback }]}><Ionicons name="person" size={28} color={cores.muted} /></View>
           )}
           <Text style={[styles.publicName, { color: cores.text }]}>{data.user.name}</Text>

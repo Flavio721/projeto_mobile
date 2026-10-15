@@ -25,6 +25,7 @@ model User {
   password  String?
   googleSub String?     @unique
   avatarUrl String?
+  avatarPublicId String?
   shareWatched   Boolean @default(true)
   shareWatchlist Boolean @default(true)
   shareFavorites Boolean @default(true)

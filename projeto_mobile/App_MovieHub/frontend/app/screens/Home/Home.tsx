@@ -31,6 +31,7 @@ const STATS_VAZIO: DashboardStats = {
   queroAssistir: 0,
   favoritos: 0,
 };
+type MenuUser = { name: string; email: string; avatarUrl?: string | null };
 
 type HomeNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
@@ -42,6 +43,7 @@ export default function HomeScreen() {
   const [filmes, setFilmes] = useState<Filme[]>([]);
   const [populares, setPopulares] = useState<Filme[]>([]);
   const [userName, setUserName] = useState("");
+  const [menuUser, setMenuUser] = useState<MenuUser | null>(null);
   const [stats, setStats] = useState<DashboardStats>(STATS_VAZIO);
   const [carregando, setCarregando] = useState(true);
   const [menuVisivel, setMenuVisivel] = useState(false);
@@ -58,15 +60,17 @@ export default function HomeScreen() {
         setFilmes([]);
         setStats(STATS_VAZIO);
         setPopulares([]);
+        setMenuUser(null);
         return;
       }
 
       const headers = { Authorization: `Bearer ${token}` };
 
-      const [filmesResponse, statsResponse, popularesResponse] = await Promise.all([
+      const [filmesResponse, statsResponse, popularesResponse, perfilResponse] = await Promise.all([
         fetch(`${API_BASE_URL}/movies`, { headers }),
         fetch(`${API_BASE_URL}/movies/stats`, { headers }),
         fetch(`${API_BASE_URL}/movies/popular?language=${idiomaTmdb}`, { headers }),
+        fetch(`${API_BASE_URL}/users/me`, { headers }),
       ]);
 
       if (filmesResponse.ok) {
@@ -90,11 +94,16 @@ export default function HomeScreen() {
       } else {
         setPopulares([]);
       }
+      if (perfilResponse.ok) {
+        const perfil = await perfilResponse.json();
+        setMenuUser({ name: perfil.name ?? '', email: perfil.email ?? '', avatarUrl: perfil.avatarUrl ?? null });
+      }
     } catch (error) {
       console.error("Falha de conexão ao carregar Home:", error);
       setFilmes([]);
       setStats(STATS_VAZIO);
       setPopulares([]);
+      setMenuUser(null);
     } finally {
       setCarregando(false);
     }
@@ -366,7 +375,7 @@ export default function HomeScreen() {
           </>
         )}
       </ScrollView>
-      <AppMenu visible={menuVisivel} onClose={() => setMenuVisivel(false)} onSelect={selecionarMenu} />
+      <AppMenu visible={menuVisivel} onClose={() => setMenuVisivel(false)} onSelect={selecionarMenu} user={menuUser} />
       <ActionMenu
         visible={notificacoesVisiveis}
         onClose={() => setNotificacoesVisiveis(false)}

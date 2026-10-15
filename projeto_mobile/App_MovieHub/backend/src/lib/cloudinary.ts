@@ -20,7 +20,10 @@ function assinar(params: Record<string, string>, apiSecret: string) {
 }
 
 export function avatarPublicIdValido(publicId: string): boolean {
-  return /^[a-f0-9-]{36}$/.test(publicId);
+  // Cloudinary prepends `folder` to public_id on fixed-folder accounts and
+  // may do so on dynamic-folder accounts too. Persist the identifier exactly
+  // as returned by Cloudinary so destroy() can address the same asset.
+  return /^(?:moviehub\/avatars\/)?[a-f0-9-]{36}$/.test(publicId);
 }
 
 export function avatarCloudinaryUrlValida(url: string, publicId: string): boolean {
@@ -68,10 +71,10 @@ export async function uploadAvatar(buffer: Buffer, mimeType: string) {
     body: form,
   });
   const payload = await response.json() as { secure_url?: string; public_id?: string; error?: { message?: string } };
-  if (!response.ok || !payload.secure_url || payload.public_id !== publicId) {
+  if (!response.ok || !payload.secure_url || !payload.public_id || !avatarPublicIdValido(payload.public_id)) {
     throw new Error(payload.error?.message || 'Cloudinary não conseguiu salvar a imagem.');
   }
-  return { url: payload.secure_url, publicId };
+  return { url: payload.secure_url, publicId: payload.public_id };
 }
 
 export async function deleteAvatar(publicId: string): Promise<void> {

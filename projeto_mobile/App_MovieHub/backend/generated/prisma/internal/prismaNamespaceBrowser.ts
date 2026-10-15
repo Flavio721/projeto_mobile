@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  Friendship: 'Friendship',
   Movie: 'Movie',
   UserMovie: 'UserMovie'
 } as const
@@ -77,12 +78,30 @@ export const UserScalarFieldEnum = {
   name: 'name',
   email: 'email',
   password: 'password',
+  googleSub: 'googleSub',
   avatarUrl: 'avatarUrl',
+  shareWatched: 'shareWatched',
+  shareWatchlist: 'shareWatchlist',
+  shareFavorites: 'shareFavorites',
+  shareReviews: 'shareReviews',
+  shareRecent: 'shareRecent',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const FriendshipScalarFieldEnum = {
+  id: 'id',
+  requesterId: 'requesterId',
+  addresseeId: 'addresseeId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FriendshipScalarFieldEnum = (typeof FriendshipScalarFieldEnum)[keyof typeof FriendshipScalarFieldEnum]
 
 
 export const MovieScalarFieldEnum = {

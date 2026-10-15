@@ -1,0 +1,12 @@
+# The Expo app is in frontend; the backend is deployed separately to Render.
+/backend/
+
+# Local agent tooling can contain symlinks that Windows cannot archive for EAS.
+**/.agents/
+**/.claude/
+**/.windsurf/
+
+# Dependencies and local build output are installed/generated on the build runner.
+**/node_modules/
+**/dist/
+**/.expo/

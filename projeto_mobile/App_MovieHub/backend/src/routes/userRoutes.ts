@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Cadastro, Login, getMe, updateProfile, changePassword } from '../controllers/userController.js';
+import { Cadastro, Login, LoginGoogle, getMe, updateProfile, changePassword } from '../controllers/userController.js';
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 
 
@@ -7,6 +7,7 @@ const userRoutes = Router();
 
 userRoutes.post("/cadastro", Cadastro);
 userRoutes.post("/login", Login);
+userRoutes.post("/google", LoginGoogle);
 userRoutes.get('/me', authMiddleware, getMe);
 userRoutes.put('/me', authMiddleware, updateProfile);
 userRoutes.patch('/me/password', authMiddleware, changePassword);

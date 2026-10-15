@@ -92,6 +92,20 @@ const criarStyles = (cores: Paleta) => StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: -8,
+    marginBottom: 16,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+  },
+  dividerText: {
+    fontSize: 12,
+    marginHorizontal: 12,
+  },
   footerRow: {
     flexDirection: 'row',
     justifyContent: 'center',

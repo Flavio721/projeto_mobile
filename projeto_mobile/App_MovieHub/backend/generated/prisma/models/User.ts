@@ -29,7 +29,13 @@ export type UserMinAggregateOutputType = {
   name: string | null
   email: string | null
   password: string | null
+  googleSub: string | null
   avatarUrl: string | null
+  shareWatched: boolean | null
+  shareWatchlist: boolean | null
+  shareFavorites: boolean | null
+  shareReviews: boolean | null
+  shareRecent: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -39,7 +45,13 @@ export type UserMaxAggregateOutputType = {
   name: string | null
   email: string | null
   password: string | null
+  googleSub: string | null
   avatarUrl: string | null
+  shareWatched: boolean | null
+  shareWatchlist: boolean | null
+  shareFavorites: boolean | null
+  shareReviews: boolean | null
+  shareRecent: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -49,7 +61,13 @@ export type UserCountAggregateOutputType = {
   name: number
   email: number
   password: number
+  googleSub: number
   avatarUrl: number
+  shareWatched: number
+  shareWatchlist: number
+  shareFavorites: number
+  shareReviews: number
+  shareRecent: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -61,7 +79,13 @@ export type UserMinAggregateInputType = {
   name?: true
   email?: true
   password?: true
+  googleSub?: true
   avatarUrl?: true
+  shareWatched?: true
+  shareWatchlist?: true
+  shareFavorites?: true
+  shareReviews?: true
+  shareRecent?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -71,7 +95,13 @@ export type UserMaxAggregateInputType = {
   name?: true
   email?: true
   password?: true
+  googleSub?: true
   avatarUrl?: true
+  shareWatched?: true
+  shareWatchlist?: true
+  shareFavorites?: true
+  shareReviews?: true
+  shareRecent?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -81,7 +111,13 @@ export type UserCountAggregateInputType = {
   name?: true
   email?: true
   password?: true
+  googleSub?: true
   avatarUrl?: true
+  shareWatched?: true
+  shareWatchlist?: true
+  shareFavorites?: true
+  shareReviews?: true
+  shareRecent?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -163,8 +199,14 @@ export type UserGroupByOutputType = {
   id: string
   name: string
   email: string
-  password: string
+  password: string | null
+  googleSub: string | null
   avatarUrl: string | null
+  shareWatched: boolean
+  shareWatchlist: boolean
+  shareFavorites: boolean
+  shareReviews: boolean
+  shareRecent: boolean
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -194,44 +236,74 @@ export type UserWhereInput = {
   id?: Prisma.StringFilter<"User"> | string
   name?: Prisma.StringFilter<"User"> | string
   email?: Prisma.StringFilter<"User"> | string
-  password?: Prisma.StringFilter<"User"> | string
+  password?: Prisma.StringNullableFilter<"User"> | string | null
+  googleSub?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  shareWatched?: Prisma.BoolFilter<"User"> | boolean
+  shareWatchlist?: Prisma.BoolFilter<"User"> | boolean
+  shareFavorites?: Prisma.BoolFilter<"User"> | boolean
+  shareReviews?: Prisma.BoolFilter<"User"> | boolean
+  shareRecent?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   movies?: Prisma.UserMovieListRelationFilter
+  sentFriendships?: Prisma.FriendshipListRelationFilter
+  receivedFriendships?: Prisma.FriendshipListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  password?: Prisma.SortOrder
+  password?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleSub?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  shareWatched?: Prisma.SortOrder
+  shareWatchlist?: Prisma.SortOrder
+  shareFavorites?: Prisma.SortOrder
+  shareReviews?: Prisma.SortOrder
+  shareRecent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   movies?: Prisma.UserMovieOrderByRelationAggregateInput
+  sentFriendships?: Prisma.FriendshipOrderByRelationAggregateInput
+  receivedFriendships?: Prisma.FriendshipOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   email?: string
+  googleSub?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   name?: Prisma.StringFilter<"User"> | string
-  password?: Prisma.StringFilter<"User"> | string
+  password?: Prisma.StringNullableFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  shareWatched?: Prisma.BoolFilter<"User"> | boolean
+  shareWatchlist?: Prisma.BoolFilter<"User"> | boolean
+  shareFavorites?: Prisma.BoolFilter<"User"> | boolean
+  shareReviews?: Prisma.BoolFilter<"User"> | boolean
+  shareRecent?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   movies?: Prisma.UserMovieListRelationFilter
-}, "id" | "email">
+  sentFriendships?: Prisma.FriendshipListRelationFilter
+  receivedFriendships?: Prisma.FriendshipListRelationFilter
+}, "id" | "email" | "googleSub">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  password?: Prisma.SortOrder
+  password?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleSub?: Prisma.SortOrderInput | Prisma.SortOrder
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  shareWatched?: Prisma.SortOrder
+  shareWatchlist?: Prisma.SortOrder
+  shareFavorites?: Prisma.SortOrder
+  shareReviews?: Prisma.SortOrder
+  shareRecent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -246,8 +318,14 @@ export type UserScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"User"> | string
   name?: Prisma.StringWithAggregatesFilter<"User"> | string
   email?: Prisma.StringWithAggregatesFilter<"User"> | string
-  password?: Prisma.StringWithAggregatesFilter<"User"> | string
+  password?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  googleSub?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  shareWatched?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  shareWatchlist?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  shareFavorites?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  shareReviews?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  shareRecent?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -256,52 +334,90 @@ export type UserCreateInput = {
   id?: string
   name: string
   email: string
-  password: string
+  password?: string | null
+  googleSub?: string | null
   avatarUrl?: string | null
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieCreateNestedManyWithoutUserInput
+  sentFriendships?: Prisma.FriendshipCreateNestedManyWithoutRequesterInput
+  receivedFriendships?: Prisma.FriendshipCreateNestedManyWithoutAddresseeInput
 }
 
 export type UserUncheckedCreateInput = {
   id?: string
   name: string
   email: string
-  password: string
+  password?: string | null
+  googleSub?: string | null
   avatarUrl?: string | null
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieUncheckedCreateNestedManyWithoutUserInput
+  sentFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutRequesterInput
+  receivedFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutAddresseeInput
 }
 
 export type UserUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUpdateManyWithoutUserNestedInput
+  sentFriendships?: Prisma.FriendshipUpdateManyWithoutRequesterNestedInput
+  receivedFriendships?: Prisma.FriendshipUpdateManyWithoutAddresseeNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUncheckedUpdateManyWithoutUserNestedInput
+  sentFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutRequesterNestedInput
+  receivedFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutAddresseeNestedInput
 }
 
 export type UserCreateManyInput = {
   id?: string
   name: string
   email: string
-  password: string
+  password?: string | null
+  googleSub?: string | null
   avatarUrl?: string | null
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -310,8 +426,14 @@ export type UserUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -320,8 +442,14 @@ export type UserUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -331,7 +459,13 @@ export type UserCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  googleSub?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  shareWatched?: Prisma.SortOrder
+  shareWatchlist?: Prisma.SortOrder
+  shareFavorites?: Prisma.SortOrder
+  shareReviews?: Prisma.SortOrder
+  shareRecent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -341,7 +475,13 @@ export type UserMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  googleSub?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  shareWatched?: Prisma.SortOrder
+  shareWatchlist?: Prisma.SortOrder
+  shareFavorites?: Prisma.SortOrder
+  shareReviews?: Prisma.SortOrder
+  shareRecent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -351,7 +491,13 @@ export type UserMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
+  googleSub?: Prisma.SortOrder
   avatarUrl?: Prisma.SortOrder
+  shareWatched?: Prisma.SortOrder
+  shareWatchlist?: Prisma.SortOrder
+  shareFavorites?: Prisma.SortOrder
+  shareReviews?: Prisma.SortOrder
+  shareRecent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -369,8 +515,40 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
+}
+
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type UserCreateNestedOneWithoutSentFriendshipsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentFriendshipsInput, Prisma.UserUncheckedCreateWithoutSentFriendshipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentFriendshipsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutReceivedFriendshipsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReceivedFriendshipsInput, Prisma.UserUncheckedCreateWithoutReceivedFriendshipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReceivedFriendshipsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutSentFriendshipsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSentFriendshipsInput, Prisma.UserUncheckedCreateWithoutSentFriendshipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSentFriendshipsInput
+  upsert?: Prisma.UserUpsertWithoutSentFriendshipsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSentFriendshipsInput, Prisma.UserUpdateWithoutSentFriendshipsInput>, Prisma.UserUncheckedUpdateWithoutSentFriendshipsInput>
+}
+
+export type UserUpdateOneRequiredWithoutReceivedFriendshipsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReceivedFriendshipsInput, Prisma.UserUncheckedCreateWithoutReceivedFriendshipsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReceivedFriendshipsInput
+  upsert?: Prisma.UserUpsertWithoutReceivedFriendshipsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReceivedFriendshipsInput, Prisma.UserUpdateWithoutReceivedFriendshipsInput>, Prisma.UserUncheckedUpdateWithoutReceivedFriendshipsInput>
 }
 
 export type UserCreateNestedOneWithoutMoviesInput = {
@@ -387,24 +565,216 @@ export type UserUpdateOneRequiredWithoutMoviesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMoviesInput, Prisma.UserUpdateWithoutMoviesInput>, Prisma.UserUncheckedUpdateWithoutMoviesInput>
 }
 
+export type UserCreateWithoutSentFriendshipsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  googleSub?: string | null
+  avatarUrl?: string | null
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  movies?: Prisma.UserMovieCreateNestedManyWithoutUserInput
+  receivedFriendships?: Prisma.FriendshipCreateNestedManyWithoutAddresseeInput
+}
+
+export type UserUncheckedCreateWithoutSentFriendshipsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  googleSub?: string | null
+  avatarUrl?: string | null
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  movies?: Prisma.UserMovieUncheckedCreateNestedManyWithoutUserInput
+  receivedFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutAddresseeInput
+}
+
+export type UserCreateOrConnectWithoutSentFriendshipsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentFriendshipsInput, Prisma.UserUncheckedCreateWithoutSentFriendshipsInput>
+}
+
+export type UserCreateWithoutReceivedFriendshipsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  googleSub?: string | null
+  avatarUrl?: string | null
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  movies?: Prisma.UserMovieCreateNestedManyWithoutUserInput
+  sentFriendships?: Prisma.FriendshipCreateNestedManyWithoutRequesterInput
+}
+
+export type UserUncheckedCreateWithoutReceivedFriendshipsInput = {
+  id?: string
+  name: string
+  email: string
+  password?: string | null
+  googleSub?: string | null
+  avatarUrl?: string | null
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  movies?: Prisma.UserMovieUncheckedCreateNestedManyWithoutUserInput
+  sentFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutRequesterInput
+}
+
+export type UserCreateOrConnectWithoutReceivedFriendshipsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutReceivedFriendshipsInput, Prisma.UserUncheckedCreateWithoutReceivedFriendshipsInput>
+}
+
+export type UserUpsertWithoutSentFriendshipsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSentFriendshipsInput, Prisma.UserUncheckedUpdateWithoutSentFriendshipsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSentFriendshipsInput, Prisma.UserUncheckedCreateWithoutSentFriendshipsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSentFriendshipsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSentFriendshipsInput, Prisma.UserUncheckedUpdateWithoutSentFriendshipsInput>
+}
+
+export type UserUpdateWithoutSentFriendshipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  movies?: Prisma.UserMovieUpdateManyWithoutUserNestedInput
+  receivedFriendships?: Prisma.FriendshipUpdateManyWithoutAddresseeNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSentFriendshipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  movies?: Prisma.UserMovieUncheckedUpdateManyWithoutUserNestedInput
+  receivedFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutAddresseeNestedInput
+}
+
+export type UserUpsertWithoutReceivedFriendshipsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutReceivedFriendshipsInput, Prisma.UserUncheckedUpdateWithoutReceivedFriendshipsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutReceivedFriendshipsInput, Prisma.UserUncheckedCreateWithoutReceivedFriendshipsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutReceivedFriendshipsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutReceivedFriendshipsInput, Prisma.UserUncheckedUpdateWithoutReceivedFriendshipsInput>
+}
+
+export type UserUpdateWithoutReceivedFriendshipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  movies?: Prisma.UserMovieUpdateManyWithoutUserNestedInput
+  sentFriendships?: Prisma.FriendshipUpdateManyWithoutRequesterNestedInput
+}
+
+export type UserUncheckedUpdateWithoutReceivedFriendshipsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  movies?: Prisma.UserMovieUncheckedUpdateManyWithoutUserNestedInput
+  sentFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutRequesterNestedInput
+}
+
 export type UserCreateWithoutMoviesInput = {
   id?: string
   name: string
   email: string
-  password: string
+  password?: string | null
+  googleSub?: string | null
   avatarUrl?: string | null
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  sentFriendships?: Prisma.FriendshipCreateNestedManyWithoutRequesterInput
+  receivedFriendships?: Prisma.FriendshipCreateNestedManyWithoutAddresseeInput
 }
 
 export type UserUncheckedCreateWithoutMoviesInput = {
   id?: string
   name: string
   email: string
-  password: string
+  password?: string | null
+  googleSub?: string | null
   avatarUrl?: string | null
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  sentFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutRequesterInput
+  receivedFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutAddresseeInput
 }
 
 export type UserCreateOrConnectWithoutMoviesInput = {
@@ -427,20 +797,36 @@ export type UserUpdateWithoutMoviesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sentFriendships?: Prisma.FriendshipUpdateManyWithoutRequesterNestedInput
+  receivedFriendships?: Prisma.FriendshipUpdateManyWithoutAddresseeNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMoviesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sentFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutRequesterNestedInput
+  receivedFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutAddresseeNestedInput
 }
 
 
@@ -450,10 +836,14 @@ export type UserUncheckedUpdateWithoutMoviesInput = {
 
 export type UserCountOutputType = {
   movies: number
+  sentFriendships: number
+  receivedFriendships: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   movies?: boolean | UserCountOutputTypeCountMoviesArgs
+  sentFriendships?: boolean | UserCountOutputTypeCountSentFriendshipsArgs
+  receivedFriendships?: boolean | UserCountOutputTypeCountReceivedFriendshipsArgs
 }
 
 /**
@@ -473,16 +863,38 @@ export type UserCountOutputTypeCountMoviesArgs<ExtArgs extends runtime.Types.Ext
   where?: Prisma.UserMovieWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSentFriendshipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FriendshipWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountReceivedFriendshipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FriendshipWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   email?: boolean
   password?: boolean
+  googleSub?: boolean
   avatarUrl?: boolean
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   movies?: boolean | Prisma.User$moviesArgs<ExtArgs>
+  sentFriendships?: boolean | Prisma.User$sentFriendshipsArgs<ExtArgs>
+  receivedFriendships?: boolean | Prisma.User$receivedFriendshipsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -491,7 +903,13 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   name?: boolean
   email?: boolean
   password?: boolean
+  googleSub?: boolean
   avatarUrl?: boolean
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -501,7 +919,13 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   name?: boolean
   email?: boolean
   password?: boolean
+  googleSub?: boolean
   avatarUrl?: boolean
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -511,14 +935,22 @@ export type UserSelectScalar = {
   name?: boolean
   email?: boolean
   password?: boolean
+  googleSub?: boolean
   avatarUrl?: boolean
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "avatarUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "password" | "googleSub" | "avatarUrl" | "shareWatched" | "shareWatchlist" | "shareFavorites" | "shareReviews" | "shareRecent" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   movies?: boolean | Prisma.User$moviesArgs<ExtArgs>
+  sentFriendships?: boolean | Prisma.User$sentFriendshipsArgs<ExtArgs>
+  receivedFriendships?: boolean | Prisma.User$receivedFriendshipsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -528,13 +960,21 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     movies: Prisma.$UserMoviePayload<ExtArgs>[]
+    sentFriendships: Prisma.$FriendshipPayload<ExtArgs>[]
+    receivedFriendships: Prisma.$FriendshipPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     email: string
-    password: string
+    password: string | null
+    googleSub: string | null
     avatarUrl: string | null
+    shareWatched: boolean
+    shareWatchlist: boolean
+    shareFavorites: boolean
+    shareReviews: boolean
+    shareRecent: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -932,6 +1372,8 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   movies<T extends Prisma.User$moviesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$moviesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserMoviePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sentFriendships<T extends Prisma.User$sentFriendshipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentFriendshipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FriendshipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  receivedFriendships<T extends Prisma.User$receivedFriendshipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$receivedFriendshipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FriendshipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -965,7 +1407,13 @@ export interface UserFieldRefs {
   readonly name: Prisma.FieldRef<"User", 'String'>
   readonly email: Prisma.FieldRef<"User", 'String'>
   readonly password: Prisma.FieldRef<"User", 'String'>
+  readonly googleSub: Prisma.FieldRef<"User", 'String'>
   readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
+  readonly shareWatched: Prisma.FieldRef<"User", 'Boolean'>
+  readonly shareWatchlist: Prisma.FieldRef<"User", 'Boolean'>
+  readonly shareFavorites: Prisma.FieldRef<"User", 'Boolean'>
+  readonly shareReviews: Prisma.FieldRef<"User", 'Boolean'>
+  readonly shareRecent: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
@@ -1382,6 +1830,54 @@ export type User$moviesArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.UserMovieScalarFieldEnum | Prisma.UserMovieScalarFieldEnum[]
+}
+
+/**
+ * User.sentFriendships
+ */
+export type User$sentFriendshipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Friendship
+   */
+  select?: Prisma.FriendshipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Friendship
+   */
+  omit?: Prisma.FriendshipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FriendshipInclude<ExtArgs> | null
+  where?: Prisma.FriendshipWhereInput
+  orderBy?: Prisma.FriendshipOrderByWithRelationInput | Prisma.FriendshipOrderByWithRelationInput[]
+  cursor?: Prisma.FriendshipWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FriendshipScalarFieldEnum | Prisma.FriendshipScalarFieldEnum[]
+}
+
+/**
+ * User.receivedFriendships
+ */
+export type User$receivedFriendshipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Friendship
+   */
+  select?: Prisma.FriendshipSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Friendship
+   */
+  omit?: Prisma.FriendshipOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FriendshipInclude<ExtArgs> | null
+  where?: Prisma.FriendshipWhereInput
+  orderBy?: Prisma.FriendshipOrderByWithRelationInput | Prisma.FriendshipOrderByWithRelationInput[]
+  cursor?: Prisma.FriendshipWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FriendshipScalarFieldEnum | Prisma.FriendshipScalarFieldEnum[]
 }
 
 /**

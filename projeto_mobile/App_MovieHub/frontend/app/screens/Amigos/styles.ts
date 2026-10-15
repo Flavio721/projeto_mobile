@@ -1,0 +1,32 @@
+import { StyleSheet } from 'react-native';
+import type { Paleta } from '../../theme/paletas';
+
+export default (cores: Paleta) => StyleSheet.create({
+  safeArea: { flex: 1 }, content: { padding: 18, paddingBottom: 36 },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  backButton: { width: 38, height: 38, justifyContent: 'center' }, headerSpacer: { width: 38 },
+  title: { flex: 1, textAlign: 'center', fontSize: 21, fontWeight: '700' },
+  intro: { fontSize: 14, lineHeight: 20, marginBottom: 16 },
+  addCard: { borderWidth: 1, borderRadius: 14, padding: 14, marginBottom: 14 },
+  listCard: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 14, paddingTop: 14, marginBottom: 14 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', marginBottom: 10 },
+  input: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 11, marginBottom: 10 },
+  primaryButton: { minHeight: 44, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  primaryButtonText: { fontSize: 14, fontWeight: '700' }, loader: { marginVertical: 32 },
+  personRow: { minHeight: 68, flexDirection: 'row', alignItems: 'center', borderBottomWidth: StyleSheet.hairlineWidth },
+  personMain: { flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', paddingVertical: 9 },
+  avatar: { width: 40, height: 40, borderRadius: 20 }, avatarFallback: { alignItems: 'center', justifyContent: 'center' },
+  personText: { flex: 1, marginLeft: 10 }, personName: { fontSize: 14, fontWeight: '600' }, personEmail: { fontSize: 12, marginTop: 3 },
+  actionGroup: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  smallButton: { minHeight: 34, paddingHorizontal: 10, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  smallButtonText: { fontSize: 12, fontWeight: '600' }, iconAction: { width: 34, height: 34, borderWidth: 1, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
+  empty: { fontSize: 13, paddingBottom: 14 }, privacyHeader: { flexDirection: 'row', alignItems: 'center' },
+  privacyTitleBlock: { flex: 1 }, privacyHint: { fontSize: 12, marginTop: -5, marginBottom: 10 },
+  privacyRow: { minHeight: 66, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 9 },
+  privacyTextBlock: { flex: 1 }, privacyLabel: { fontSize: 14, fontWeight: '600' }, privacyDescription: { fontSize: 12, lineHeight: 17, marginTop: 3 },
+  activityRow: { flexDirection: 'row', paddingVertical: 12, borderBottomWidth: StyleSheet.hairlineWidth },
+  poster: { width: 66, height: 96, borderRadius: 8 }, posterFallback: { alignItems: 'center', justifyContent: 'center' },
+  activityInfo: { flex: 1, marginLeft: 12 }, movieTitle: { fontSize: 15, fontWeight: '700', marginBottom: 5 },
+  detail: { fontSize: 12, marginBottom: 4 }, comment: { fontSize: 13, lineHeight: 18, marginTop: 5 },
+  badge: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 7, marginTop: 4 }, badgeText: { fontSize: 11, fontWeight: '600' },
+});

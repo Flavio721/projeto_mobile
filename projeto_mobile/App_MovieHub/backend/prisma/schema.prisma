@@ -12,15 +12,43 @@ enum MovieStatus {
   WATCHED
 }
 
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+}
+
 model User {
   id        String      @id @default(cuid())
   name      String
   email     String      @unique
-  password  String
+  password  String?
+  googleSub String?     @unique
   avatarUrl String?
+  shareWatched   Boolean @default(true)
+  shareWatchlist Boolean @default(true)
+  shareFavorites Boolean @default(true)
+  shareReviews   Boolean @default(true)
+  shareRecent    Boolean @default(true)
   movies    UserMovie[]
+  sentFriendships     Friendship[] @relation("FriendshipRequester")
+  receivedFriendships Friendship[] @relation("FriendshipAddressee")
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
+}
+
+model Friendship {
+  id          Int              @id @default(autoincrement())
+  requesterId String
+  addresseeId String
+  status      FriendshipStatus @default(PENDING)
+  requester   User             @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee   User             @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+  @@index([requesterId, status])
 }
 
 // Metadata is fetched from TMDB and cached only when a user adds a movie.

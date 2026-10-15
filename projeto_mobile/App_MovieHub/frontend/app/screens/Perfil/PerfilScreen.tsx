@@ -1,10 +1,10 @@
 import Text from '../components/TextoLocalizado';
 import { useStyles, useTema } from '../../contexts/TemaContext';
 import React, { useCallback, useState } from 'react';
-import { View, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert } from 'react-native';
+import { View, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { CommonActions, useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import criarStyles from './styles';
 import LoadingOverlay from '../components/LoadingOverlay';
@@ -103,24 +103,41 @@ export default function Perfil() {
     }
   };
 
+  const executarLogout = async () => {
+    try {
+      await Promise.all([removerItem('token'), removerItem('userName')]);
+      const rootNavigation = navigation.getParent()?.getParent();
+      if (!rootNavigation) throw new Error('Navegador raiz não encontrado.');
+
+      rootNavigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        }),
+      );
+    } catch {
+      showError(traduzir('Não foi possível sair da conta. Tente novamente.'));
+    }
+  };
+
   const handleLogout = () => {
-    Alert.alert(traduzir('Sair da conta'), traduzir('Deseja realmente sair da sua conta?'), [
+    const titulo = traduzir('Sair da conta');
+    const mensagem = traduzir('Deseja realmente sair da sua conta?');
+
+    // Alert.alert não apresenta a confirmação no React Native Web.
+    if (Platform.OS === 'web') {
+      if (typeof window !== 'undefined' && window.confirm(`${titulo}\n\n${mensagem}`)) {
+        void executarLogout();
+      }
+      return;
+    }
+
+    Alert.alert(titulo, mensagem, [
       { text: traduzir('Cancelar'), style: 'cancel' },
       {
         text: traduzir('Sair da conta'),
         style: 'destructive',
-        onPress: async () => {
-          try {
-            await removerItem('token');
-            await removerItem('userName');
-            (navigation as any).getParent('RootStack')?.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            });
-          } catch {
-            showError(traduzir('Não foi possível sair da conta. Tente novamente.'));
-          }
-        },
+        onPress: () => void executarLogout(),
       },
     ]);
   };
@@ -231,6 +248,14 @@ export default function Perfil() {
               <Ionicons name="options-outline" size={18} color={cores.text} />
             </View>
             <Text style={styles.menuLabel}>Preferências</Text>
+            <Ionicons name="chevron-forward" size={16} color={cores.muted} />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.menuRow, styles.menuRowBorder]} onPress={() => navigation.navigate('Amigos')}>
+            <View style={styles.menuIcon}>
+              <Ionicons name="people-outline" size={18} color={cores.text} />
+            </View>
+            <Text style={styles.menuLabel}>Amigos</Text>
             <Ionicons name="chevron-forward" size={16} color={cores.muted} />
           </TouchableOpacity>
 

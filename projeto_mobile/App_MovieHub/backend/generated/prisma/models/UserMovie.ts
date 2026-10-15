@@ -576,10 +576,6 @@ export type EnumMovieStatusFieldUpdateOperationsInput = {
   set?: $Enums.MovieStatus
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }

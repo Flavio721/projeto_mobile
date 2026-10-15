@@ -2,7 +2,19 @@ import { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 import { AuthRequest } from "../middlewares/authMiddleware.js";
+
+const googleOAuthClient = new OAuth2Client();
+
+function emitirToken(userId: string): string {
+  return jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: "7d" });
+}
+
+function usuarioPublico<T extends { password: string | null; googleSub: string | null }>(usuario: T) {
+  const { password: _password, googleSub: _googleSub, ...dados } = usuario;
+  return dados;
+}
 
 interface UpdateProfileBody {
     name?: string;
@@ -17,8 +29,9 @@ const Cadastro = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Campos obrigatórios vazios!" });
     }
 
+    const emailNormalizado = String(email).trim().toLowerCase();
     const existingEmail = await prisma.user.findUnique({
-      where: { email },
+      where: { email: emailNormalizado },
     });
 
     if (existingEmail) {
@@ -30,12 +43,12 @@ const Cadastro = async (req: Request, res: Response) => {
     const newUser = await prisma.user.create({
       data: {
         name,
-        email,
+        email: emailNormalizado,
         password: hashedPassword,
       },
     });
 
-    const { password: _, ...userSemSenha } = newUser;
+    const userSemSenha = usuarioPublico(newUser);
     return res.status(201).json(userSemSenha);
   } catch (error) {
     console.error("Erro: ", error);
@@ -51,12 +64,13 @@ const Login = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Campos obrigatórios vazios!" });
     }
 
+    const emailNormalizado = typeof email === 'string' ? email.trim().toLowerCase() : '';
     const existingUser = await prisma.user.findUnique({
-      where: { email: email },
+      where: { email: emailNormalizado },
     });
 
-    if (!existingUser) {
-      return res.status(404).json({ error: "Email ou senha incorreta" });
+    if (!existingUser?.password) {
+      return res.status(401).json({ error: "Conta ou senha incorreta. Se você criou a conta com Google, use essa opção para entrar." });
     }
 
     const comparePassword = await bcrypt.compare(
@@ -67,17 +81,82 @@ const Login = async (req: Request, res: Response) => {
     if (!comparePassword) {
       return res.status(400).json({ error: "Email ou senha incorreta" });
     }
-    const token = jwt.sign(
-      { userId: existingUser.id },
-      process.env.JWT_SECRET!,
-      { expiresIn: "7d" },
-    );
+    const token = emitirToken(existingUser.id);
 
-    const { password: _, ...userSemSenha } = existingUser;
+    const userSemSenha = usuarioPublico(existingUser);
     return res.status(200).json({ user: userSemSenha, token });
   } catch (error) {
     console.error("Erro: ", error);
     return res.status(500).json({ error: "Erro. Tente novamente mais tarde" });
+  }
+};
+
+const LoginGoogle = async (req: Request, res: Response) => {
+  try {
+    const idToken = req.body?.idToken;
+    if (typeof idToken !== 'string' || idToken.length < 100 || idToken.length > 12000) {
+      return res.status(400).json({ error: 'Credencial Google inválida.' });
+    }
+
+    const audiences = (process.env.GOOGLE_OAUTH_CLIENT_IDS ?? '')
+      .split(',')
+      .map((clientId) => clientId.trim())
+      .filter(Boolean);
+    if (audiences.length === 0) {
+      return res.status(503).json({ error: 'Login Google ainda não foi configurado no servidor.' });
+    }
+
+    let payload: { sub?: string; email?: string; email_verified?: boolean; name?: string; picture?: string } | undefined;
+    try {
+      const ticket = await googleOAuthClient.verifyIdToken({ idToken, audience: audiences });
+      payload = ticket.getPayload();
+    } catch (error) {
+      console.warn('Token Google inválido:', error);
+      return res.status(401).json({ error: 'Não foi possível autenticar com Google.' });
+    }
+    if (!payload?.sub || !payload.email || payload.email_verified !== true) {
+      return res.status(401).json({ error: 'Não foi possível validar a conta Google.' });
+    }
+
+    const email = payload.email.trim().toLowerCase();
+    let usuario = await prisma.user.findUnique({ where: { googleSub: payload.sub } });
+
+    if (usuario) {
+      if (usuario.email !== email) {
+        const contaComEmail = await prisma.user.findUnique({ where: { email } });
+        if (contaComEmail && contaComEmail.id !== usuario.id) {
+          return res.status(409).json({ error: 'Este e-mail já está associado a outra conta MovieHub.' });
+        }
+        usuario = await prisma.user.update({ where: { id: usuario.id }, data: { email } });
+      }
+    } else {
+      const contaExistente = await prisma.user.findUnique({ where: { email } });
+      if (contaExistente?.googleSub && contaExistente.googleSub !== payload.sub) {
+        return res.status(409).json({ error: 'Este e-mail já está associado a outra conta Google.' });
+      }
+
+      // A Google account proves control of this verified email, so it can be
+      // linked to an existing password account without replacing its data.
+      usuario = contaExistente
+        ? await prisma.user.update({
+            where: { id: contaExistente.id },
+            data: { googleSub: payload.sub },
+          })
+        : await prisma.user.create({
+            data: {
+              email,
+              name: payload.name?.trim() || email.split('@')[0],
+              password: null,
+              googleSub: payload.sub,
+              avatarUrl: payload.picture ?? null,
+            },
+          });
+    }
+
+    return res.status(200).json({ user: usuarioPublico(usuario), token: emitirToken(usuario.id) });
+  } catch (error) {
+    console.error('Erro no login Google:', error);
+    return res.status(500).json({ error: 'Erro interno durante o login com Google.' });
   }
 };
 
@@ -96,7 +175,7 @@ const getMe = async (req: AuthRequest, res: Response) => {
       return res.status(401).json({ error: "Usuário não encontrado" });
     }
 
-    const { password: _, ...usuarioSemSenha } = usuario;
+    const usuarioSemSenha = usuarioPublico(usuario);
     return res.status(200).json(usuarioSemSenha);
   } catch (error) {
     console.error("Erro: ", error);
@@ -138,7 +217,7 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
             },
         });
 
-        const { password: _, ...usuarioSemSenha } = usuarioAtualizado;
+        const usuarioSemSenha = usuarioPublico(usuarioAtualizado);
         return res.status(200).json(usuarioSemSenha);
     } catch (error) {
         console.error("Erro: ", error);
@@ -176,6 +255,10 @@ const changePassword = async (req: AuthRequest, res: Response) => {
 
         // Exigir a senha atual é o que impede alguém com o celular destravado
         // (ou um token roubado) de simplesmente trocar a senha e tomar a conta.
+        if (!usuario.password) {
+            return res.status(400).json({ error: "Esta conta não possui senha local configurada." });
+        }
+
         const senhaConfere = await bcrypt.compare(currentPassword, usuario.password);
 
         if (!senhaConfere) {
@@ -196,4 +279,4 @@ const changePassword = async (req: AuthRequest, res: Response) => {
     }
 };
 
-export { Cadastro, Login, getMe, updateProfile, changePassword };
+export { Cadastro, Login, LoginGoogle, getMe, updateProfile, changePassword };

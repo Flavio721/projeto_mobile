@@ -15,3 +15,11 @@ export const MovieStatus = {
 } as const
 
 export type MovieStatus = (typeof MovieStatus)[keyof typeof MovieStatus]
+
+
+export const FriendshipStatus = {
+  PENDING: 'PENDING',
+  ACCEPTED: 'ACCEPTED'
+} as const
+
+export type FriendshipStatus = (typeof FriendshipStatus)[keyof typeof FriendshipStatus]

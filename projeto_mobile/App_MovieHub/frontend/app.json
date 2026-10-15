@@ -2,6 +2,7 @@
   "expo": {
     "name": "App_MovieHub",
     "slug": "App_MovieHub",
+    "scheme": "moviehub",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,14 +14,20 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
+      "bundleIdentifier": "com.flavio721.moviehub",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.flavio721.moviehub",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -41,7 +48,13 @@
           "cameraPermission": false,
           "microphonePermission": false
         }
-      ]
-    ]
+      ],
+      "expo-web-browser"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "ceb3a960-0c87-4778-b20a-71e4c9fcc985"
+      }
+    }
   }
 }

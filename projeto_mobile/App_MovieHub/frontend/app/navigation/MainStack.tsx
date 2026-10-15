@@ -12,6 +12,8 @@ import Configuracoes from "../screens/Configuracoes/Configuracoes";
 import type { Filme } from "../types/Filme";
 import EditarPerfil from "../screens/EditarPerfil/EditarPerfil";
 import AlterarSenha from "../screens/AlterarSenha/AlterarSenha";
+import AmigosScreen from "../screens/Amigos/AmigosScreen";
+import AmigoAtividadeScreen from "../screens/Amigos/AmigoAtividadeScreen";
 import { useTema } from "../contexts/TemaContext";
 
 export type MainStackParamList = {
@@ -26,6 +28,8 @@ export type MainStackParamList = {
   Configuracoes: undefined;
   EditarPerfil: undefined;
   AlterarSenha: undefined;
+  Amigos: undefined;
+  AmigoAtividade: { userId: string; name: string };
 };
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -57,6 +61,8 @@ export default function MainStack() {
       <Stack.Screen name="Configuracoes" component={Configuracoes} />
       <Stack.Screen name="EditarPerfil" component={EditarPerfil} />
       <Stack.Screen name="AlterarSenha" component={AlterarSenha} />
+      <Stack.Screen name="Amigos" component={AmigosScreen} />
+      <Stack.Screen name="AmigoAtividade" component={AmigoAtividadeScreen} />
     </Stack.Navigator>
   );
 }

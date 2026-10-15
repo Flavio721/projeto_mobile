@@ -1,7 +1,7 @@
 import TextInput from '../components/CampoTextoLocalizado';
 import Text from '../components/TextoLocalizado';
 import { useStyles, useTema } from '../../contexts/TemaContext';
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, TextInput as NativeTextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useToast } from "../../contexts/ToastContext";
 import {
@@ -15,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RootStackParamList } from "../../navigation/RootStack";
 import { salvarItem } from "../../lib/storage";
+import GoogleLoginButton from './GoogleLoginButton';
 
 // const API_BASE_URL = "http://IP_DA_MAQUINA:3000";
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
@@ -31,17 +32,22 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigation = useNavigation<LoginNavigationProp>();
 
   const { showSuccess, showError } = useToast();
 
+  const entrarNaConta = async (data: { token: string; user: { name: string } }) => {
+    await salvarItem('token', data.token);
+    await salvarItem('userName', data.user.name);
+    navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
+  };
+
   const handleLogin = async () => {
-    console.log("Entrou na função");
     if (!email || !password) return;
-    console.log("Passou do if");
+    setIsSubmitting(true);
 
     try {
-      console.log("Entrou no try");
       const response = await fetch(`${API_BASE_URL}/users/login`, {
         method: "POST",
         headers: {
@@ -60,15 +66,40 @@ export default function LoginScreen() {
         return;
       }
 
+      await entrarNaConta(data);
       showSuccess("Login efetuado com sucesso!");
-      await salvarItem("token", data.token);
-      await salvarItem("userName", data.user.name);
-      navigation.reset({ index: 0, routes: [{ name: "Main" }] });
     } catch (error) {
-      console.error("Erro: ", error);
-      showError("Erro ao fazer login");
+      console.error("Erro ao fazer login: ", error);
+      showError("Erro ao fazer login.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const handleGoogleToken = useCallback(async (idToken: string) => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        showError(data.error ?? 'Não foi possível entrar com Google.');
+        return;
+      }
+      await entrarNaConta(data);
+      showSuccess('Login efetuado com sucesso!');
+    } catch (error) {
+      console.error('Erro no login Google:', error);
+      showError('Falha de conexão ao entrar com Google.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [API_BASE_URL, navigation, showError, showSuccess]);
+
+  const handleGoogleError = useCallback((message: string) => showError(message), [showError]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -151,9 +182,16 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
-          <Text style={styles.primaryButtonText}>Entrar</Text>
+        <TouchableOpacity style={[styles.primaryButton, isSubmitting && { opacity: 0.6 }]} onPress={() => void handleLogin()} disabled={isSubmitting}>
+          <Text style={styles.primaryButtonText}>{isSubmitting ? 'Entrando...' : 'Entrar'}</Text>
         </TouchableOpacity>
+
+        <View style={styles.dividerRow}>
+          <View style={[styles.dividerLine, { backgroundColor: cores.border }]} />
+          <Text style={[styles.dividerText, { color: cores.muted }]}>ou</Text>
+          <View style={[styles.dividerLine, { backgroundColor: cores.border }]} />
+        </View>
+        <GoogleLoginButton onToken={handleGoogleToken} onError={handleGoogleError} disabled={isSubmitting} loading={isSubmitting} />
 
         <View style={styles.footerRow}>
           <Text style={styles.footerText}>Não tem uma conta? </Text>

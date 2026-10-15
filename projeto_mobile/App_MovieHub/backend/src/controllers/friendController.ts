@@ -3,7 +3,7 @@ import { FriendshipStatus, MovieStatus } from '../../generated/prisma/enums.js';
 import { prisma } from '../lib/prisma.js';
 import type { AuthRequest } from '../middlewares/authMiddleware.js';
 
-const contactSelect = { id: true, name: true, email: true, avatarUrl: true } as const;
+const contactSelect = { id: true, name: true, username: true, avatarUrl: true } as const;
 const privacyKeys = ['shareWatched', 'shareWatchlist', 'shareFavorites', 'shareReviews', 'shareRecent'] as const;
 
 function currentUserId(req: AuthRequest, res: Response): string | null {
@@ -51,18 +51,45 @@ const getFriends = async (req: AuthRequest, res: Response) => {
   }
 };
 
+const searchUser = async (req: AuthRequest, res: Response) => {
+  const userId = currentUserId(req, res);
+  if (!userId) return;
+  const rawUsername = typeof req.query.username === 'string' ? req.query.username.trim().replace(/^@/, '') : '';
+  const username = rawUsername.toLowerCase();
+  if (!/^[a-z0-9_]{3,24}$/.test(username)) {
+    return res.status(400).json({ error: 'Digite um username válido (3 a 24 letras, números ou _).' });
+  }
+
+  try {
+    const target = await prisma.user.findUnique({ where: { username }, select: contactSelect });
+    if (!target || target.id === userId) return res.status(404).json({ error: 'Não encontramos esse usuário.' });
+    const relation = await prisma.friendship.findFirst({
+      where: { OR: [{ requesterId: userId, addresseeId: target.id }, { requesterId: target.id, addresseeId: userId }] },
+      select: { id: true, status: true, requesterId: true },
+    });
+    return res.json({
+      user: target,
+      relationship: !relation ? 'NONE' : relation.status === FriendshipStatus.ACCEPTED ? 'FRIENDS'
+        : relation.requesterId === userId ? 'OUTGOING_PENDING' : 'INCOMING_PENDING',
+    });
+  } catch (error) {
+    console.error('Erro ao pesquisar usuário para amizade:', error);
+    return res.status(500).json({ error: 'Não foi possível pesquisar esse usuário.' });
+  }
+};
+
 const sendFriendRequest = async (req: AuthRequest, res: Response) => {
   const userId = currentUserId(req, res);
   if (!userId) return;
 
-  const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
-  if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return res.status(400).json({ error: 'Informe um e-mail válido.' });
+  const username = typeof req.body?.username === 'string' ? req.body.username.trim().replace(/^@/, '').toLowerCase() : '';
+  if (!/^[a-z0-9_]{3,24}$/.test(username)) {
+    return res.status(400).json({ error: 'Digite um username válido (3 a 24 letras, números ou _).' });
   }
 
   try {
-    const target = await prisma.user.findUnique({ where: { email }, select: contactSelect });
-    if (!target) return res.status(404).json({ error: 'Não encontramos uma conta com esse e-mail.' });
+    const target = await prisma.user.findUnique({ where: { username }, select: contactSelect });
+    if (!target) return res.status(404).json({ error: 'Não encontramos esse usuário.' });
     if (target.id === userId) return res.status(400).json({ error: 'Você não pode adicionar a si mesmo.' });
 
     const existing = await prisma.friendship.findFirst({
@@ -181,7 +208,7 @@ const updatePrivacy = async (req: AuthRequest, res: Response) => {
   }
 };
 
-const getFriendActivity = async (req: AuthRequest, res: Response) => {
+const getFriendProfile = async (req: AuthRequest, res: Response) => {
   const userId = currentUserId(req, res);
   if (!userId) return;
   const rawFriendId = req.params.userId;
@@ -213,41 +240,47 @@ const getFriendActivity = async (req: AuthRequest, res: Response) => {
     });
     if (!friend) return res.status(404).json({ error: 'Amigo não encontrado.' });
 
-    const visibleStatuses: MovieStatus[] = [];
-    if (friend.shareWatched) visibleStatuses.push(MovieStatus.WATCHED);
-    if (friend.shareWatchlist) visibleStatuses.push(MovieStatus.WATCHLIST);
-    const entries = visibleStatuses.length
-      ? await prisma.userMovie.findMany({
-          where: { userId: friendId, status: { in: visibleStatuses } },
-          include: { movie: true },
-          orderBy: friend.shareRecent ? [{ updatedAt: 'desc' }, { id: 'desc' }] : [{ id: 'asc' }],
-        })
-      : null;
+    const [watchedEntries, favoriteEntries] = await Promise.all([
+      friend.shareWatched && friend.shareRecent
+        ? prisma.userMovie.findMany({
+            where: { userId: friendId, status: MovieStatus.WATCHED },
+            include: { movie: true },
+            orderBy: [{ watchedAt: 'desc' }, { id: 'desc' }],
+            take: 10,
+          })
+        : Promise.resolve([]),
+      friend.shareFavorites
+        ? prisma.userMovie.findMany({
+            where: { userId: friendId, isFavorite: true },
+            include: { movie: true },
+            orderBy: friend.shareRecent ? [{ updatedAt: 'desc' }, { id: 'desc' }] : [{ id: 'asc' }],
+            take: 30,
+          })
+        : Promise.resolve([]),
+    ]);
 
-    const activities = (entries ?? []).map((entry) => ({
+    const serializeProfileMovie = (entry: (typeof watchedEntries)[number]) => ({
       tmdbId: entry.movie.tmdbId,
       title: entry.movie.title,
       posterPath: entry.movie.posterPath,
       releaseDate: entry.movie.releaseDate,
-      status: entry.status,
-      isFavorite: friend.shareFavorites && entry.isFavorite,
+      genres: entry.movie.genres,
+      voteAverage: entry.movie.voteAverage,
       rating: friend.shareReviews ? entry.rating : null,
-      comment: friend.shareReviews ? entry.comment : null,
       watchedAt: friend.shareRecent ? entry.watchedAt : null,
-      updatedAt: friend.shareRecent ? entry.updatedAt : null,
-    }));
+      status: entry.status,
+      isFavorite: false,
+    });
 
     return res.json({
-      user: { id: friend.id, name: friend.name, avatarUrl: friend.avatarUrl },
+      user: { id: friend.id, name: friend.name, username: friend.username, avatarUrl: friend.avatarUrl },
       privacy: {
-        watched: friend.shareWatched,
-        watchlist: friend.shareWatchlist,
+        watched: friend.shareWatched && friend.shareRecent,
         favorites: friend.shareFavorites,
         reviews: friend.shareReviews,
-        recent: friend.shareRecent,
       },
-      movies: activities,
-      recentActivity: friend.shareRecent ? activities.slice(0, 10) : [],
+      latestWatched: watchedEntries.map(serializeProfileMovie),
+      favorites: favoriteEntries.map(serializeProfileMovie),
     });
   } catch (error) {
     console.error('Erro ao carregar atividade do amigo:', error);
@@ -255,4 +288,4 @@ const getFriendActivity = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export { getFriends, sendFriendRequest, acceptFriendRequest, removeFriendship, getPrivacy, updatePrivacy, getFriendActivity };
+export { getFriends, searchUser, sendFriendRequest, acceptFriendRequest, removeFriendship, getPrivacy, updatePrivacy, getFriendProfile };

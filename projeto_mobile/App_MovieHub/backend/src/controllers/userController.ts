@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import { AuthRequest } from "../middlewares/authMiddleware.js";
+import { randomBytes } from 'node:crypto';
 
 const googleOAuthClient = new OAuth2Client();
 
@@ -18,15 +19,43 @@ function usuarioPublico<T extends { password: string | null; googleSub: string |
 
 interface UpdateProfileBody {
     name?: string;
+    username?: string;
     avatarUrl?: string | null;
+}
+
+function normalizarUsername(value: unknown): string {
+    return typeof value === 'string' ? value.trim().replace(/^@/, '').toLowerCase() : '';
+}
+
+function usernameValido(username: string): boolean {
+    return /^[a-z0-9_]{3,24}$/.test(username);
+}
+
+async function gerarUsernameAutomatico(email: string, googleSub: string): Promise<string> {
+    const base = email.split('@')[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9_]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 15) || 'cinefilo';
+    const googleSuffix = googleSub.replace(/[^a-z0-9]/gi, '').slice(-7).toLowerCase() || randomBytes(4).toString('hex');
+    let candidate = `${base}_${googleSuffix}`.slice(0, 24);
+
+    while (await prisma.user.findUnique({ where: { username: candidate }, select: { id: true } })) {
+        candidate = `${base.slice(0, 14)}_${randomBytes(4).toString('hex')}`;
+    }
+    return candidate;
 }
 
 const Cadastro = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
+    const username = normalizarUsername(req.body?.username);
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !username) {
       return res.status(400).json({ error: "Campos obrigatórios vazios!" });
+    }
+    if (!usernameValido(username)) {
+      return res.status(400).json({ error: 'O username deve ter de 3 a 24 caracteres: letras, números ou _.' });
     }
 
     const emailNormalizado = String(email).trim().toLowerCase();
@@ -37,12 +66,16 @@ const Cadastro = async (req: Request, res: Response) => {
     if (existingEmail) {
       return res.status(409).json({ error: "Email já cadastrado" });
     }
+    if (await prisma.user.findUnique({ where: { username }, select: { id: true } })) {
+      return res.status(409).json({ error: 'Esse username já está em uso.' });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.user.create({
       data: {
         name,
+        username,
         email: emailNormalizado,
         password: hashedPassword,
       },
@@ -51,6 +84,9 @@ const Cadastro = async (req: Request, res: Response) => {
     const userSemSenha = usuarioPublico(newUser);
     return res.status(201).json(userSemSenha);
   } catch (error) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+      return res.status(409).json({ error: 'Esse username já está em uso.' });
+    }
     console.error("Erro: ", error);
     return res.status(500).json({ error: "Erro interno ao criar usuário" });
   }
@@ -143,9 +179,10 @@ const LoginGoogle = async (req: Request, res: Response) => {
             data: { googleSub: payload.sub },
           })
         : await prisma.user.create({
-            data: {
+              data: {
               email,
               name: payload.name?.trim() || email.split('@')[0],
+                username: await gerarUsernameAutomatico(email, payload.sub),
               password: null,
               googleSub: payload.sub,
               avatarUrl: payload.picture ?? null,
@@ -192,6 +229,7 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
         }
 
         const { name, avatarUrl } = req.body as UpdateProfileBody;
+        const username = req.body?.username === undefined ? undefined : normalizarUsername(req.body.username);
 
         // Nome só é validado se veio na requisição — assim dá pra trocar só a
         // foto sem precisar reenviar o nome, e vice-versa.
@@ -199,6 +237,10 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
             if (typeof name !== 'string' || name.trim().length < 2) {
                 return res.status(400).json({ error: "Nome precisa ter ao menos 2 caracteres" });
             }
+        }
+
+        if (username !== undefined && !usernameValido(username)) {
+            return res.status(400).json({ error: 'O username deve ter de 3 a 24 caracteres: letras, números ou _.' });
         }
 
         if (avatarUrl !== undefined && avatarUrl !== null
@@ -212,6 +254,7 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
             where: { id: userId },
             data: {
                 name: name?.trim() ?? undefined,
+                username,
                 // null explícito = remover a foto; undefined = não mexer.
                 avatarUrl: avatarUrl === undefined ? undefined : avatarUrl,
             },
@@ -220,6 +263,9 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
         const usuarioSemSenha = usuarioPublico(usuarioAtualizado);
         return res.status(200).json(usuarioSemSenha);
     } catch (error) {
+        if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
+            return res.status(409).json({ error: 'Esse username já está em uso.' });
+        }
         console.error("Erro: ", error);
         return res.status(500).json({ error: "Erro ao atualizar perfil" });
     }

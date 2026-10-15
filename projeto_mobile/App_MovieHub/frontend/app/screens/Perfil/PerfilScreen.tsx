@@ -19,7 +19,7 @@ const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 interface Usuario {
   id: string;
   name: string;
-  email: string;
+  username: string;
   createdAt: string;
   avatarUrl?: string | null;
 }
@@ -168,7 +168,7 @@ export default function Perfil() {
           </TouchableOpacity>
 
           <Text style={styles.nome}>{usuario?.name ?? '—'}</Text>
-          <Text style={styles.email}>{usuario?.email ?? '—'}</Text>
+          <Text style={styles.email}>@{usuario?.username ?? '—'}</Text>
 
           {usuario?.createdAt && (
             <View style={styles.membroRow}>

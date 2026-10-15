@@ -14,8 +14,9 @@ import criarStyles from './styles';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
-type Contact = { id: string; name: string; email: string; avatarUrl?: string | null };
+type Contact = { id: string; name: string; username: string; avatarUrl?: string | null };
 type FriendshipRow = { id: number; user: Contact; createdAt: string };
+type SearchResult = { user: Contact; relationship: 'NONE' | 'FRIENDS' | 'OUTGOING_PENDING' | 'INCOMING_PENDING' };
 type Visibility = {
   shareWatched: boolean;
   shareWatchlist: boolean;
@@ -42,8 +43,10 @@ export default function AmigosScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const [data, setData] = useState(INITIAL_DATA);
   const [visibility, setVisibility] = useState(INITIAL_VISIBILITY);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [sending, setSending] = useState(false);
   const [updatingPrivacy, setUpdatingPrivacy] = useState(false);
 
@@ -82,15 +85,29 @@ export default function AmigosScreen() {
 
   useFocusEffect(useCallback(() => { void load(); }, [load]));
 
-  const sendRequest = async () => {
-    if (!email.trim()) {
-      showError('Informe o e-mail da pessoa que deseja adicionar.');
+  const searchUser = async () => {
+    if (!username.trim()) {
+      showError('Digite o username da pessoa que deseja encontrar.');
       return;
     }
+    setSearching(true);
+    try {
+      const result = await request(`/friends/search?username=${encodeURIComponent(username.trim().replace(/^@/, ''))}`);
+      setSearchResult(result);
+    } catch (error) {
+      setSearchResult(null);
+      showError(error instanceof Error ? error.message : 'Não foi possível pesquisar esse usuário.');
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const sendRequest = async () => {
+    if (!searchResult || searchResult.relationship !== 'NONE') return;
     setSending(true);
     try {
-      await request('/friends/requests', { method: 'POST', body: JSON.stringify({ email }) });
-      setEmail('');
+      await request('/friends/requests', { method: 'POST', body: JSON.stringify({ username: searchResult.user.username }) });
+      setSearchResult({ ...searchResult, relationship: 'OUTGOING_PENDING' });
       showSuccess('Solicitação de amizade enviada.');
       await load();
     } catch (error) {
@@ -148,7 +165,7 @@ export default function AmigosScreen() {
       <TouchableOpacity
         style={styles.personMain}
         disabled={kind !== 'friend'}
-        onPress={() => navigation.navigate('AmigoAtividade', { userId: row.user.id, name: row.user.name })}
+        onPress={() => navigation.navigate('AmigoAtividade', { userId: row.user.id, name: row.user.name, username: row.user.username })}
       >
         {row.user.avatarUrl ? <Image source={{ uri: row.user.avatarUrl }} style={styles.avatar} /> : (
           <View style={[styles.avatar, styles.avatarFallback, { backgroundColor: cores.posterFallback }]}>
@@ -157,7 +174,7 @@ export default function AmigosScreen() {
         )}
         <View style={styles.personText}>
           <Text style={[styles.personName, { color: cores.text }]}>{row.user.name}</Text>
-          <Text style={[styles.personEmail, { color: cores.muted }]}>{row.user.email}</Text>
+          <Text style={[styles.personEmail, { color: cores.muted }]}>@{row.user.username}</Text>
         </View>
       </TouchableOpacity>
       {kind === 'incoming' ? (
@@ -203,22 +220,31 @@ export default function AmigosScreen() {
           <View style={styles.headerSpacer} />
         </View>
 
-        <Text style={[styles.intro, { color: cores.muted }]}>{traduzir('Adicione pessoas pelo e-mail para compartilhar sua atividade de filmes.')}</Text>
+        <Text style={[styles.intro, { color: cores.muted }]}>{traduzir('Encontre pessoas pelo username para compartilhar sua atividade de filmes.')}</Text>
         <View style={[styles.addCard, { backgroundColor: cores.card, borderColor: cores.border }]}>
           <Text style={[styles.sectionTitle, { color: cores.text }]}>{traduzir('Adicionar amigo')}</Text>
           <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder={traduzir('E-mail da pessoa')}
+            value={username}
+            onChangeText={(value) => { setUsername(value); setSearchResult(null); }}
+            placeholder={traduzir('Username (ex.: @cinefilo_123)')}
             placeholderTextColor={cores.placeholder}
-            keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
             style={[styles.input, { color: cores.text, borderColor: cores.border, backgroundColor: cores.background }]}
           />
-          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: cores.gold }]} onPress={() => void sendRequest()} disabled={sending}>
-            {sending ? <ActivityIndicator color={cores.onGold} /> : <Text style={[styles.primaryButtonText, { color: cores.onGold }]}>{traduzir('Enviar solicitação')}</Text>}
+          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: cores.gold }]} onPress={() => void searchUser()} disabled={searching}>
+            {searching ? <ActivityIndicator color={cores.onGold} /> : <Text style={[styles.primaryButtonText, { color: cores.onGold }]}>{traduzir('Pesquisar usuário')}</Text>}
           </TouchableOpacity>
+          {searchResult ? <View style={[styles.searchResult, { borderTopColor: cores.border }]}>
+            {searchResult.user.avatarUrl ? <Image source={{ uri: searchResult.user.avatarUrl }} style={styles.avatar} /> : <View style={[styles.avatar, styles.avatarFallback, { backgroundColor: cores.posterFallback }]}><Ionicons name="person" size={18} color={cores.muted} /></View>}
+            <View style={styles.personText}>
+              <Text style={[styles.personName, { color: cores.text }]}>{searchResult.user.name}</Text>
+              <Text style={[styles.personEmail, { color: cores.muted }]}>@{searchResult.user.username}</Text>
+            </View>
+            {searchResult.relationship === 'NONE' ? <TouchableOpacity style={[styles.smallButton, { backgroundColor: cores.gold }]} onPress={() => void sendRequest()} disabled={sending}>
+              {sending ? <ActivityIndicator size="small" color={cores.onGold} /> : <Text style={[styles.smallButtonText, { color: cores.onGold }]}>{traduzir('Adicionar')}</Text>}
+            </TouchableOpacity> : <Text style={[styles.relationshipLabel, { color: cores.muted }]}>{traduzir(searchResult.relationship === 'FRIENDS' ? 'Já são amigos' : searchResult.relationship === 'OUTGOING_PENDING' ? 'Solicitação enviada' : 'Solicitação recebida')}</Text>}
+          </View> : null}
         </View>
 
         {loading ? <ActivityIndicator style={styles.loader} color={cores.gold} /> : (

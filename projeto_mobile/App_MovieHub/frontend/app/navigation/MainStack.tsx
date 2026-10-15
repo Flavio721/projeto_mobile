@@ -29,7 +29,7 @@ export type MainStackParamList = {
   EditarPerfil: undefined;
   AlterarSenha: undefined;
   Amigos: undefined;
-  AmigoAtividade: { userId: string; name: string };
+  AmigoAtividade: { userId: string; name: string; username: string };
 };
 
 const Stack = createNativeStackNavigator<MainStackParamList>();

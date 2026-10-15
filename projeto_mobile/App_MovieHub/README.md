@@ -189,9 +189,11 @@ O app usa o Google apenas para autenticar. O frontend envia o ID token ao backen
 
 ### Amigos, atividade e privacidade
 
-Na aba Perfil, abra **Amigos** e envie uma solicitação pelo e-mail cadastrado no MovieHub. A outra pessoa precisa aceitar antes que qualquer atividade fique disponível. Cada conta pode ocultar, separadamente, filmes assistidos, watchlist, favoritos, notas/comentários e datas/atividade recente. Por padrão, essas opções ficam ligadas; a atividade nunca é pública e a API verifica a amizade aceita antes de retorná-la.
+Na aba Perfil, abra **Amigos**, pesquise pelo username único (por exemplo, `@cinefilo_123`) e envie uma solicitação. O apelido/nome de exibição pode se repetir; apenas o username precisa ser exclusivo. A outra pessoa precisa aceitar antes que seu perfil social fique disponível. O e-mail é mostrado somente nas configurações da própria conta e não é retornado pelos endpoints de amigos ou perfil social.
 
-Esta funcionalidade adiciona uma migration ao banco. Antes de publicar o código, aplique a migration no PostgreSQL de produção usando o mesmo `DATABASE_URL` do Render, a partir da pasta `backend`:
+O perfil de um amigo aceito exibe somente duas listas: últimos filmes vistos e favoritos. Cada lista respeita os controles de privacidade da conta; notas e datas também são omitidas quando a opção correspondente está desativada. Watchlist e comentários não são exibidos nessa página.
+
+Esta funcionalidade inclui uma migration para adicionar usernames aos usuários existentes e criar a restrição de unicidade. Antes de publicar o código, aplique as migrations no PostgreSQL de produção usando o mesmo `DATABASE_URL` do Render, a partir da pasta `backend`:
 
 ```bash
 npx prisma migrate deploy
@@ -253,12 +255,13 @@ Todas as rotas abaixo (exceto cadastro e login) exigem o header `Authorization: 
 | Método | Rota | Descrição |
 |---|---|---|
 | GET | `/friends` | Lista amizades aceitas e solicitações recebidas/enviadas |
-| POST | `/friends/requests` | Envia solicitação por `{ "email": "..." }` |
+| GET | `/friends/search?username=...` | Pesquisa uma conta pelo username (retorna apenas dados públicos de contato, sem e-mail) |
+| POST | `/friends/requests` | Envia solicitação por `{ "username": "..." }` |
 | POST | `/friends/requests/:id/accept` | Aceita solicitação recebida |
 | DELETE | `/friends/requests/:id` | Recusa/cancela solicitação ou remove amizade |
 | GET | `/friends/privacy` | Consulta preferências de visibilidade |
 | PATCH | `/friends/privacy` | Atualiza uma ou mais preferências booleanas |
-| GET | `/friends/:userId/activity` | Exibe filmes visíveis de um amigo aceito |
+| GET | `/friends/:userId/profile` | Exibe as listas autorizadas de últimos filmes vistos e favoritos de um amigo aceito |
 
 ### Filmes (`/movies`)
 
@@ -290,7 +293,7 @@ Todas as rotas abaixo (exceto cadastro e login) exigem o header `Authorization: 
 
 ```
 User
-├── id, name, email (único), password (hash), avatarUrl?
+├── id, name (apelido), username (único), email (único e privado), password (hash), avatarUrl?
 └── movies: UserMovie[]
 
 Movie
@@ -310,7 +313,7 @@ O catálogo é consultado no TMDB e seus metadados são guardados localmente qua
 
 - Cadastro e login com autenticação JWT
 - Login com Google (OAuth ID token validado pelo backend)
-- Solicitações de amizade, atividade compartilhada e controles de privacidade por categoria
+- Busca de amigos por username único, perfis de amigos com listas recentes/favoritos e controles de privacidade
 - Logout com remoção local do token e confirmação compatível com Android/iOS e Expo Web
 - Pesquisa de títulos no catálogo do TMDB
 - Recomendações de filmes bem avaliados na Home, excluindo títulos já assistidos

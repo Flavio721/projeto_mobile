@@ -11,6 +11,7 @@ interface FilmeCardProps {
   onToggleFavorito: (id: string) => void;
   onPress?: (filme: Filme) => void;
   showRating?: boolean;
+  showFavoriteButton?: boolean;
 }
 
 
@@ -20,6 +21,7 @@ export default function FilmeCard({
   onToggleFavorito,
   onPress,
   showRating = true,
+  showFavoriteButton = true,
 }: FilmeCardProps) {
 
   const styles = useStyles(criarStyles)
@@ -47,7 +49,7 @@ export default function FilmeCard({
           </View>
         )}
 
-        <TouchableOpacity
+        {showFavoriteButton ? <TouchableOpacity
           style={styles.favoriteButton}
           onPress={() => onToggleFavorito(filme.id)}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -57,7 +59,7 @@ export default function FilmeCard({
             size={16}
             color={filme.favorito ? cores.heartOn : cores.heartOff}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> : null}
       </View>
 
       <Text style={styles.title} numberOfLines={1}>

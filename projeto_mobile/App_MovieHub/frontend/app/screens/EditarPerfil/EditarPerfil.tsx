@@ -26,6 +26,7 @@ export default function EditarPerfil() {
   const { showSuccess, showError } = useToast();
 
   const [nome, setNome] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
@@ -53,6 +54,7 @@ export default function EditarPerfil() {
 
       const usuario = await response.json();
       setNome(usuario.name ?? '');
+      setUsername(usuario.username ?? '');
       setEmail(usuario.email ?? '');
       setAvatarUri(usuario.avatarUrl ?? null);
     } catch (error) {
@@ -92,6 +94,10 @@ export default function EditarPerfil() {
       showError('O nome precisa ter ao menos 2 caracteres.');
       return;
     }
+    if (!/^[a-z0-9_]{3,24}$/i.test(username.trim().replace(/^@/, ''))) {
+      showError('Use um username de 3 a 24 caracteres: letras, números ou _.');
+      return;
+    }
 
     setSalvando(true);
     try {
@@ -119,7 +125,7 @@ export default function EditarPerfil() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name: nome.trim(), avatarUrl: avatarFinal }),
+        body: JSON.stringify({ name: nome.trim(), username: username.trim().replace(/^@/, '').toLowerCase(), avatarUrl: avatarFinal }),
       });
 
       const data = await response.json();
@@ -184,7 +190,7 @@ export default function EditarPerfil() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Nome completo</Text>
+          <Text style={styles.label}>Apelido (nome de exibição)</Text>
           <View style={styles.inputWrapper}>
             <Ionicons name="person-outline" size={18} color={cores.placeholder} style={styles.inputIcon} />
             <TextInput
@@ -195,6 +201,24 @@ export default function EditarPerfil() {
               onChangeText={setNome}
             />
           </View>
+        </View>
+
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>Username único</Text>
+          <View style={styles.inputWrapper}>
+            <Ionicons name="at-outline" size={18} color={cores.placeholder} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="ex.: cinefilo_123"
+              placeholderTextColor={cores.placeholder}
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              autoCorrect={false}
+              maxLength={24}
+            />
+          </View>
+          <Text style={styles.hint}>Esse identificador é único e pode ser usado para encontrar você. O apelido pode se repetir.</Text>
         </View>
 
         <View style={styles.fieldGroup}>

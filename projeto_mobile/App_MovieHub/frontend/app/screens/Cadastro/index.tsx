@@ -18,6 +18,7 @@ type CadastroNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Cad
 
 export default function CadastroScreen() {
   const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -29,8 +30,13 @@ export default function CadastroScreen() {
   const styles = useStyles(criarStyles);
   const { cores } = useTema()
   const handleCadastro = async () => {
-    if (!fullName || !email || !password || !confirmPassword) {
+    if (!fullName || !username || !email || !password || !confirmPassword) {
       showError('Preencha todos os campos.');
+      return;
+    }
+
+    if (!/^[a-z0-9_]{3,24}$/i.test(username.trim().replace(/^@/, ''))) {
+      showError('Use um username de 3 a 24 caracteres: letras, números ou _.');
       return;
     }
 
@@ -49,6 +55,7 @@ export default function CadastroScreen() {
         },
         body: JSON.stringify({
           name: fullName,
+          username: username.trim().replace(/^@/, '').toLowerCase(),
           email,
           password,
         }),
@@ -99,7 +106,7 @@ export default function CadastroScreen() {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Nome completo</Text>
+          <Text style={styles.label}>Apelido (nome de exibição)</Text>
           <View style={styles.inputWrapper}>
             <Ionicons
               name="person-outline"
@@ -115,6 +122,24 @@ export default function CadastroScreen() {
               onChangeText={setFullName}
             />
           </View>
+        </View>
+
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>Username único</Text>
+          <View style={styles.inputWrapper}>
+            <Ionicons name="at-outline" size={18} color={cores.placeholder} style={styles.inputIcon} />
+            <TextInput
+              style={styles.input}
+              placeholder="ex.: cinefilo_123"
+              placeholderTextColor={cores.placeholder}
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              autoCorrect={false}
+              maxLength={24}
+            />
+          </View>
+          <Text style={styles.subtitle}>Use 3 a 24 letras, números ou _. Você poderá ser encontrado por ele.</Text>
         </View>
 
         <View style={styles.fieldGroup}>

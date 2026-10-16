@@ -2,7 +2,7 @@ import type { Response } from 'express';
 import { prisma } from '../lib/prisma.js';
 import type { AuthRequest } from '../middlewares/authMiddleware.js';
 import { MovieStatus } from '../../generated/prisma/enums.js';
-import { getPopularTmdbMovies, getTmdbMovie, posterUrl, searchTmdbMovies, type TmdbMovie } from '../services/tmdbService.js';
+import { getLocalizedTmdbMovie, getPopularTmdbMovies, getTmdbMovie, posterUrl, searchTmdbMovies, type TmdbMovie } from '../services/tmdbService.js';
 
 type PersonalFields = {
   status?: MovieStatus;
@@ -71,26 +71,51 @@ function serializeEntry(entry: {
     genres: string[];
     voteAverage: number | null;
   };
-}) {
+}, localizedMovie?: TmdbMovie) {
   const movie = entry.movie;
+  const title = localizedMovie?.title || movie.title;
+  const posterPath = localizedMovie?.poster_path || movie.posterPath;
+  const releaseDate = localizedMovie?.release_date || movie.releaseDate;
+  const description = localizedMovie?.overview ?? movie.overview;
+  const genres = localizedMovie?.genres?.map((genre) => genre.name) ?? movie.genres;
   return {
     id: String(movie.tmdbId),
     tmdbId: movie.tmdbId,
-    title: movie.title,
-    coverUrl: posterUrl(movie.posterPath),
-    releaseYear: movie.releaseDate ? Number(movie.releaseDate.slice(0, 4)) || null : null,
-    duration: movie.runtime,
+    title,
+    coverUrl: posterUrl(posterPath),
+    releaseYear: releaseDate ? Number(releaseDate.slice(0, 4)) || null : null,
+    duration: localizedMovie?.runtime ?? movie.runtime,
     director: undefined,
-    description: movie.overview,
-    tmdbRating: movie.voteAverage,
+    description,
+    tmdbRating: localizedMovie?.vote_average ?? movie.voteAverage,
     rating: entry.rating,
     status: entry.status,
     isFavorite: entry.isFavorite,
-    genres: movie.genres.map((name) => ({ name })),
+    genres: genres.map((name) => ({ name })),
     comment: entry.comment,
     watchedAt: entry.watchedAt?.toISOString() ?? null,
     inLibrary: true,
   };
+}
+
+async function serializeEntriesInLanguage(entries: Parameters<typeof serializeEntry>[0][], language: string) {
+  const results: ReturnType<typeof serializeEntry>[] = new Array(entries.length);
+  let nextIndex = 0;
+  const workerCount = Math.min(4, entries.length);
+  await Promise.all(Array.from({ length: workerCount }, async () => {
+    while (nextIndex < entries.length) {
+      const index = nextIndex++;
+      const entry = entries[index]!;
+      try {
+        const localizedMovie = await getLocalizedTmdbMovie(entry.movie.tmdbId, language);
+        results[index] = serializeEntry(entry, localizedMovie);
+      } catch {
+        // Preserve access to a user's library when TMDB is temporarily down.
+        results[index] = serializeEntry(entry);
+      }
+    }
+  }));
+  return results;
 }
 
 function validatePersonalFields(body: PersonalFields): string | null {
@@ -207,7 +232,7 @@ export async function getCatalogMovie(req: AuthRequest, res: Response) {
       }),
     ]);
     const catalog = serializeTmdb(movie);
-    return res.json(entry ? serializeEntry(entry) : catalog);
+    return res.json(entry ? serializeEntry(entry, movie) : catalog);
   } catch (error) {
     return tmdbError(res, error);
   }
@@ -215,34 +240,59 @@ export async function getCatalogMovie(req: AuthRequest, res: Response) {
 
 export async function getLibraryEntry(req: AuthRequest, res: Response) {
   const tmdbId = tmdbIdFromRequest(req.params.tmdbId);
+  const language = tmdbLanguageFromRequest(req.query.language);
   if (!tmdbId) return res.status(400).json({ error: 'Id TMDB inválido.' });
+  if (!language) return res.status(400).json({ error: 'Idioma inválido.' });
   const entry = await prisma.userMovie.findFirst({
     where: { userId: req.userId!, movie: { tmdbId } },
     include: { movie: true },
   });
   if (!entry) return res.status(404).json({ error: 'Este filme ainda não está na sua lista.' });
-  return res.json(serializeEntry(entry));
+  try {
+    return res.json(serializeEntry(entry, await getLocalizedTmdbMovie(tmdbId, language)));
+  } catch {
+    return res.json(serializeEntry(entry));
+  }
 }
 
 export async function getMovies(req: AuthRequest, res: Response) {
+  const language = tmdbLanguageFromRequest(req.query.language);
+  if (!language) return res.status(400).json({ error: 'Idioma inválido.' });
   const entries = await prisma.userMovie.findMany({
     where: { userId: req.userId! },
     include: { movie: true },
     orderBy: { updatedAt: 'desc' },
   });
-  return res.json(entries.map(serializeEntry));
+  return res.json(await serializeEntriesInLanguage(entries, language));
 }
 
 export async function getGenreCounts(req: AuthRequest, res: Response) {
+  const language = tmdbLanguageFromRequest(req.query.language);
+  if (!language) return res.status(400).json({ error: 'Idioma inválido.' });
   try {
     const entries = await prisma.userMovie.findMany({
       where: { userId: req.userId! },
-      select: { movie: { select: { genres: true } } },
+      select: { movie: { select: { tmdbId: true, genres: true } } },
     });
     const counts = new Map<string, number>();
-    for (const { movie } of entries) {
+    let nextIndex = 0;
+    const localizedGenres: string[][] = new Array(entries.length);
+    const workerCount = Math.min(4, entries.length);
+    await Promise.all(Array.from({ length: workerCount }, async () => {
+      while (nextIndex < entries.length) {
+        const index = nextIndex++;
+        const { movie } = entries[index]!;
+        try {
+          const translated = await getLocalizedTmdbMovie(movie.tmdbId, language);
+          localizedGenres[index] = translated.genres?.map(({ name }) => name) ?? movie.genres;
+        } catch {
+          localizedGenres[index] = movie.genres;
+        }
+      }
+    }));
+    for (const genres of localizedGenres) {
       // A movie contributes once to each genre, even if metadata contains a duplicate.
-      for (const genre of new Set(movie.genres.map((name) => name.trim()).filter(Boolean))) {
+      for (const genre of new Set(genres.map((name) => name.trim()).filter(Boolean))) {
         counts.set(genre, (counts.get(genre) ?? 0) + 1);
       }
     }

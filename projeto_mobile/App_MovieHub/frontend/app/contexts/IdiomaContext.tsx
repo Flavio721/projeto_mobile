@@ -166,6 +166,7 @@ const textos = {
   'Últimos filmes vistos': ['Recently watched', 'Últimas películas vistas'],
   'Árvore de filmes': ['Movie tree', 'Árbol de películas'],
   'A árvore está oculta pelas configurações de privacidade.': ['This tree is hidden by the user’s privacy settings.', 'Este árbol está oculto por la configuración de privacidad.'],
+  'Contagem baseada nos filmes visíveis do perfil; pode ser parcial.': ['Count is based on movies visible on this profile and may be partial.', 'El recuento se basa en las películas visibles del perfil y puede ser parcial.'],
   'Esta lista está oculta pelas configurações de privacidade.': ['This list is hidden by the user’s privacy settings.', 'Esta lista está oculta por la configuración de privacidad.'],
   'Nenhum filme nesta lista ainda.': ['No movies in this list yet.', 'Aún no hay películas en esta lista.'],
   'Não foi possível carregar o perfil deste usuário.': ['Could not load this user’s profile.', 'No se pudo cargar el perfil de este usuario.'],

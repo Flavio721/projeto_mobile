@@ -31,7 +31,8 @@ type ProfileMovie = {
 type ProfileData = {
   user: { name: string; username: string; avatarUrl?: string | null };
   privacy: { watched: boolean; favorites: boolean; reviews: boolean };
-  tree: { visible: boolean; watchedCount: number | null };
+  // The field may be absent while the backend deployment is still on an older version.
+  tree?: { visible: boolean; watchedCount: number | null };
   latestWatched: ProfileMovie[];
   favorites: ProfileMovie[];
 };
@@ -64,10 +65,12 @@ export default function AmigoAtividadeScreen() {
   const route = useRoute<RouteProp<MainStackParamList, 'AmigoAtividade'>>();
   const [data, setData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [avatarComErro, setAvatarComErro] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setLoadError('');
     try {
       const token = await buscarItem('token');
       if (!token) throw new Error('Sessão expirada. Faça login novamente.');
@@ -78,7 +81,9 @@ export default function AmigoAtividadeScreen() {
       if (!response.ok) throw new Error(result.error ?? 'Não foi possível carregar o perfil deste usuário.');
       setData(result);
     } catch (error) {
-      showError(error instanceof Error ? error.message : 'Não foi possível carregar o perfil deste usuário.');
+      const message = error instanceof Error ? error.message : 'Não foi possível carregar o perfil deste usuário.';
+      setLoadError(message);
+      showError(message);
     } finally {
       setLoading(false);
     }
@@ -111,7 +116,13 @@ export default function AmigoAtividadeScreen() {
   );
 
   const renderFriendTree = () => {
-    if (!data?.tree.visible || data.tree.watchedCount === null) {
+    if (!data) return null;
+    const arvoreVisivel = data.tree?.visible ?? data.privacy.watched;
+    const countFromApi = data.tree?.watchedCount;
+    const countIsValid = typeof countFromApi === 'number' && Number.isFinite(countFromApi) && countFromApi >= 0;
+    const filmesRecentes = Array.isArray(data.latestWatched) ? data.latestWatched : [];
+
+    if (!arvoreVisivel) {
       return (
         <View style={[styles.treeCard, { backgroundColor: cores.surface, borderColor: cores.border }]}>
           <View style={styles.treeHeadingRow}>
@@ -123,7 +134,10 @@ export default function AmigoAtividadeScreen() {
       );
     }
 
-    const assistidos = data.tree.watchedCount;
+    // A profile response from an older backend may not include the exact total.
+    // In that case use the visible recent list as a lower bound; it is capped at 10.
+    const contagemParcial = !countIsValid;
+    const assistidos = countIsValid ? countFromApi : filmesRecentes.length;
     const marcoAtual = [...MARCOS_ARVORE].reverse().find((marco) => assistidos >= marco) ?? 0;
     const proximoMarco = MARCOS_ARVORE.find((marco) => marco > assistidos);
     const percentual = proximoMarco === undefined ? 1 : (assistidos - marcoAtual) / (proximoMarco - marcoAtual);
@@ -144,7 +158,7 @@ export default function AmigoAtividadeScreen() {
           ))}
         </View>
         <View style={styles.treeCountRow}>
-          <Text style={[styles.treeCount, { color: cores.text }]}>{assistidos}</Text>
+          <Text style={[styles.treeCount, { color: cores.text }]}>{contagemParcial && assistidos === 10 ? '10+' : assistidos}</Text>
           <Text style={[styles.treeCountLabel, { color: cores.muted }]}>{traduzir('Filmes assistidos')}</Text>
         </View>
         <View style={[styles.treeProgressTrack, { backgroundColor: cores.card }]}>
@@ -155,6 +169,7 @@ export default function AmigoAtividadeScreen() {
             ? traduzir('Árvore completa! Continue registrando filmes para mantê-la florida.')
             : `${traduzir('Próximo marco')}: ${proximoMarco} · ${proximoMarco - assistidos} ${traduzir('Mais filmes para o próximo estágio')}`}
         </Text>
+        {contagemParcial ? <Text style={[styles.treeProgressLabel, { color: cores.muted }]}>{traduzir('Contagem baseada nos filmes visíveis do perfil; pode ser parcial.')}</Text> : null}
       </View>
     );
   };
@@ -177,7 +192,14 @@ export default function AmigoAtividadeScreen() {
         {renderFriendTree()}
         {renderMovieList('Últimos filmes vistos', data.latestWatched, data.privacy.watched)}
         {renderMovieList('Favoritos', data.favorites, data.privacy.favorites)}
-      </> : null}
+      </> : loadError ? (
+        <View style={styles.loadErrorCard}>
+          <Text style={[styles.empty, { color: cores.muted }]}>{traduzir(loadError)}</Text>
+          <TouchableOpacity onPress={() => void load()} style={styles.retryButton} accessibilityRole="button">
+            <Text style={[styles.retryText, { color: cores.gold }]}>{traduzir('Tentar novamente')}</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
     </ScrollView>
   </SafeAreaView>;
 }

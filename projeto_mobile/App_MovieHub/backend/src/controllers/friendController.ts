@@ -2,6 +2,7 @@ import type { Response } from 'express';
 import { FriendshipStatus, MovieStatus } from '../../generated/prisma/enums.js';
 import { prisma } from '../lib/prisma.js';
 import type { AuthRequest } from '../middlewares/authMiddleware.js';
+import { getLocalizedTmdbMovie } from '../services/tmdbService.js';
 
 const contactSelect = { id: true, name: true, username: true, avatarUrl: true } as const;
 const privacyKeys = ['shareWatched', 'shareWatchlist', 'shareFavorites', 'shareReviews', 'shareRecent'] as const;
@@ -211,6 +212,10 @@ const updatePrivacy = async (req: AuthRequest, res: Response) => {
 const getFriendProfile = async (req: AuthRequest, res: Response) => {
   const userId = currentUserId(req, res);
   if (!userId) return;
+  const language = req.query.language ?? 'pt-BR';
+  if (typeof language !== 'string' || !['pt-BR', 'en-US', 'es-ES'].includes(language)) {
+    return res.status(400).json({ error: 'Idioma inválido.' });
+  }
   const rawFriendId = req.params.userId;
   const friendId = Array.isArray(rawFriendId) ? rawFriendId[0] : rawFriendId;
   if (!friendId || friendId === userId) return res.status(400).json({ error: 'Amigo inválido.' });
@@ -240,7 +245,8 @@ const getFriendProfile = async (req: AuthRequest, res: Response) => {
     });
     if (!friend) return res.status(404).json({ error: 'Amigo não encontrado.' });
 
-    const [watchedEntries, favoriteEntries] = await Promise.all([
+    const sharesWatchedActivity = friend.shareWatched && friend.shareRecent;
+    const [watchedEntries, favoriteEntries, watchedCount] = await Promise.all([
       friend.shareWatched && friend.shareRecent
         ? prisma.userMovie.findMany({
             where: { userId: friendId, status: MovieStatus.WATCHED },
@@ -257,30 +263,49 @@ const getFriendProfile = async (req: AuthRequest, res: Response) => {
             take: 30,
           })
         : Promise.resolve([]),
+      sharesWatchedActivity
+        ? prisma.userMovie.count({ where: { userId: friendId, status: MovieStatus.WATCHED } })
+        : Promise.resolve(null),
     ]);
 
-    const serializeProfileMovie = (entry: (typeof watchedEntries)[number]) => ({
+    const serializeProfileMovie = (entry: (typeof watchedEntries)[number], localized?: Awaited<ReturnType<typeof getLocalizedTmdbMovie>>) => ({
       tmdbId: entry.movie.tmdbId,
-      title: entry.movie.title,
-      posterPath: entry.movie.posterPath,
-      releaseDate: entry.movie.releaseDate,
-      genres: entry.movie.genres,
-      voteAverage: entry.movie.voteAverage,
+      title: localized?.title || entry.movie.title,
+      posterPath: localized?.poster_path || entry.movie.posterPath,
+      releaseDate: localized?.release_date || entry.movie.releaseDate,
+      genres: localized?.genres?.map(({ name }) => name) ?? entry.movie.genres,
+      voteAverage: localized?.vote_average ?? entry.movie.voteAverage,
       rating: friend.shareReviews ? entry.rating : null,
       watchedAt: friend.shareRecent ? entry.watchedAt : null,
       status: entry.status,
       isFavorite: false,
     });
 
+    const combinedEntries = [...watchedEntries, ...favoriteEntries];
+    const localizedMovies: ReturnType<typeof serializeProfileMovie>[] = new Array(combinedEntries.length);
+    let nextIndex = 0;
+    await Promise.all(Array.from({ length: Math.min(4, combinedEntries.length) }, async () => {
+      while (nextIndex < combinedEntries.length) {
+        const index = nextIndex++;
+        const entry = combinedEntries[index]!;
+        try {
+          localizedMovies[index] = serializeProfileMovie(entry, await getLocalizedTmdbMovie(entry.movie.tmdbId, language));
+        } catch {
+          localizedMovies[index] = serializeProfileMovie(entry);
+        }
+      }
+    }));
+
     return res.json({
       user: { id: friend.id, name: friend.name, username: friend.username, avatarUrl: friend.avatarUrl },
       privacy: {
-        watched: friend.shareWatched && friend.shareRecent,
+        watched: sharesWatchedActivity,
         favorites: friend.shareFavorites,
         reviews: friend.shareReviews,
       },
-      latestWatched: watchedEntries.map(serializeProfileMovie),
-      favorites: favoriteEntries.map(serializeProfileMovie),
+      tree: { visible: sharesWatchedActivity, watchedCount },
+      latestWatched: localizedMovies.slice(0, watchedEntries.length),
+      favorites: localizedMovies.slice(watchedEntries.length),
     });
   } catch (error) {
     console.error('Erro ao carregar atividade do amigo:', error);

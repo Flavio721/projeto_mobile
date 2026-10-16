@@ -264,17 +264,17 @@ Todas as rotas abaixo (exceto cadastro e login) exigem o header `Authorization: 
 | DELETE | `/friends/requests/:id` | Recusa/cancela solicitação ou remove amizade |
 | GET | `/friends/privacy` | Consulta preferências de visibilidade |
 | PATCH | `/friends/privacy` | Atualiza uma ou mais preferências booleanas |
-| GET | `/friends/:userId/profile` | Exibe as listas autorizadas de últimos filmes vistos e favoritos de um amigo aceito |
+| GET | `/friends/:userId/profile?language=pt-BR` | Exibe as listas autorizadas de últimos filmes vistos e favoritos de um amigo aceito; aceita `pt-BR`, `en-US` ou `es-ES` |
 
 ### Filmes (`/movies`)
 
 | Método | Rota | Descrição |
 |---|---|---|
-| GET | `/movies/search?query=...&page=1` | Pesquisa filmes no catálogo TMDB pelo texto informado |
+| GET | `/movies/search?query=...&page=1&language=pt-BR` | Pesquisa filmes no catálogo TMDB pelo texto informado; aceita `pt-BR`, `en-US` ou `es-ES` |
 | GET | `/movies/popular?language=pt-BR` | Recomenda filmes bem avaliados que o usuário ainda não marcou como assistidos |
-| GET | `/movies/catalog/:tmdbId` | Busca os detalhes TMDB e o registro pessoal, se houver |
-| GET | `/movies` | Lista os registros pessoais do usuário autenticado |
-| GET | `/movies/genres` | Conta por gênero somente os filmes registrados pelo usuário autenticado |
+| GET | `/movies/catalog/:tmdbId?language=pt-BR` | Busca os detalhes TMDB no idioma escolhido e o registro pessoal, se houver |
+| GET | `/movies?language=pt-BR` | Lista os registros pessoais com metadados do catálogo no idioma escolhido |
+| GET | `/movies/genres?language=pt-BR` | Conta por gênero somente os filmes registrados pelo usuário autenticado, no idioma escolhido |
 | GET | `/movies/stats` | Retorna estatísticas da coleção (total, assistidos, quero assistir, favoritos) |
 | GET | `/movies/:tmdbId/library` | Obtém a lista pessoal para um filme |
 | PUT | `/movies/:tmdbId/library` | Adiciona ou atualiza status, favorito, nota, comentário e data assistida |
@@ -325,6 +325,7 @@ O catálogo é consultado no TMDB e seus metadados são guardados localmente qua
 - Registro de nota de 1 a 5 estrelas, comentário e data em que assistiu
 - Busca e filtros (gênero, status, ano, nota mínima, apenas favoritos) e ordenação (título, data, nota, ano)
 - Estatísticas da coleção pessoal
+- Árvore pessoal que cresce conforme os filmes assistidos, com marcos e flores; o progresso usa a coleção da conta e não adiciona imagens pesadas nem exige uma migration
 - Localização de cinemas próximos via mapa (dados de localização reais; lista de cinemas ilustrativa — ver limitações)
 - Compartilhamento de filmes via WhatsApp, Telegram, e-mail, SMS ou folha de compartilhamento do sistema
 - Edição de perfil (nome, foto, senha)
@@ -336,7 +337,7 @@ O catálogo é consultado no TMDB e seus metadados são guardados localmente qua
 
 ## Limitações conhecidas
 
-- **Idioma:** textos da interface, placeholders e recomendações/consultas TMDB acompanham o idioma selecionado. Mensagens futuras adicionadas sem tradução cadastrada aparecem no idioma de origem até receberem uma tradução.
+- **Idioma:** textos da interface, mensagens da API e metadados TMDB da busca, biblioteca, gêneros, detalhes e perfis de amigos acompanham o idioma selecionado. A biblioteca usa cache temporário no backend para evitar consultas repetidas ao TMDB. Mensagens futuras adicionadas sem tradução cadastrada aparecem no idioma de origem até receberem uma tradução.
 - **Cinemas Próximos:** a tela consulta cinemas cadastrados no OpenStreetMap pelo backend e tenta uma instância alternativa do Overpass se a principal falhar. A cobertura depende dos dados mapeados na região; a rota abre no Google Maps. Os resultados ficam em cache por cinco minutos, mas o botão Atualizar ignora o cache. No Expo Web, localização depende da permissão do navegador e de HTTPS ou localhost.
 - **Hospedagem gratuita:** serviços gratuitos podem dormir após inatividade e demorar para responder à primeira solicitação. Verifique os limites atuais do Render e do Neon antes de usar o app com mais usuários.
 - **Fotos de perfil:** os uploads novos usam Cloudinary. Configure as três variáveis do serviço no backend e aplique a migration que adiciona `avatarPublicId`; avatares que já desapareceram do disco efêmero precisam ser reenviados.

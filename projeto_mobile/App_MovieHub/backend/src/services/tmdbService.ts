@@ -19,6 +19,10 @@ export interface TmdbSearchResponse {
   results: TmdbMovie[];
 }
 
+const movieTranslationCache = new Map<string, { expiresAt: number; movie: TmdbMovie }>();
+const movieTranslationRequests = new Map<string, Promise<TmdbMovie>>();
+const TRANSLATION_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
+
 export function posterUrl(path: string | null | undefined): string | undefined {
   return path ? `${TMDB_IMAGE_BASE}${path}` : undefined;
 }
@@ -66,4 +70,25 @@ export async function getPopularTmdbMovies(language: string, page = 1) {
 export async function getTmdbMovie(tmdbId: number, language = 'pt-BR') {
   const params = new URLSearchParams({ language });
   return request<TmdbMovie>(`/movie/${tmdbId}?${params.toString()}`);
+}
+
+/** Cache localized catalog metadata so library screens do not call TMDB again
+ * every time the user switches tabs. The cache is shared across app users on
+ * this backend instance, keyed by TMDB id and language. */
+export async function getLocalizedTmdbMovie(tmdbId: number, language: string) {
+  const key = `${tmdbId}:${language}`;
+  const cached = movieTranslationCache.get(key);
+  if (cached && cached.expiresAt > Date.now()) return cached.movie;
+  if (cached) movieTranslationCache.delete(key);
+
+  const pending = movieTranslationRequests.get(key);
+  if (pending) return pending;
+
+  const requestPromise = getTmdbMovie(tmdbId, language).then((movie) => {
+    if (movieTranslationCache.size >= 1000) movieTranslationCache.delete(movieTranslationCache.keys().next().value!);
+    movieTranslationCache.set(key, { movie, expiresAt: Date.now() + TRANSLATION_CACHE_TTL_MS });
+    return movie;
+  }).finally(() => movieTranslationRequests.delete(key));
+  movieTranslationRequests.set(key, requestPromise);
+  return requestPromise;
 }

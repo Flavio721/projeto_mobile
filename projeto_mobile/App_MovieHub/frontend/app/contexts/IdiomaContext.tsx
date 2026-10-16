@@ -164,6 +164,8 @@ const textos = {
   'Esse identificador é único e pode ser usado para encontrar você. O apelido pode se repetir.': ['This unique handle lets people find you. Display names can be shared.', 'Este identificador único permite que te encuentren. Los apodos pueden repetirse.'],
   'Esse username já está em uso.': ['This username is already taken.', 'Este nombre de usuario ya está en uso.'],
   'Últimos filmes vistos': ['Recently watched', 'Últimas películas vistas'],
+  'Árvore de filmes': ['Movie tree', 'Árbol de películas'],
+  'A árvore está oculta pelas configurações de privacidade.': ['This tree is hidden by the user’s privacy settings.', 'Este árbol está oculto por la configuración de privacidad.'],
   'Esta lista está oculta pelas configurações de privacidade.': ['This list is hidden by the user’s privacy settings.', 'Esta lista está oculta por la configuración de privacidad.'],
   'Nenhum filme nesta lista ainda.': ['No movies in this list yet.', 'Aún no hay películas en esta lista.'],
   'Não foi possível carregar o perfil deste usuário.': ['Could not load this user’s profile.', 'No se pudo cargar el perfil de este usuario.'],

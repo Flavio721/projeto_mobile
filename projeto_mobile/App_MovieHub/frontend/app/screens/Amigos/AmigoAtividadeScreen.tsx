@@ -31,9 +31,12 @@ type ProfileMovie = {
 type ProfileData = {
   user: { name: string; username: string; avatarUrl?: string | null };
   privacy: { watched: boolean; favorites: boolean; reviews: boolean };
+  tree: { visible: boolean; watchedCount: number | null };
   latestWatched: ProfileMovie[];
   favorites: ProfileMovie[];
 };
+
+const MARCOS_ARVORE = [0, 1, 3, 5, 10, 20, 35, 50];
 
 function paraFilme(movie: ProfileMovie): Filme {
   return {
@@ -107,6 +110,55 @@ export default function AmigoAtividadeScreen() {
     </View>
   );
 
+  const renderFriendTree = () => {
+    if (!data?.tree.visible || data.tree.watchedCount === null) {
+      return (
+        <View style={[styles.treeCard, { backgroundColor: cores.surface, borderColor: cores.border }]}>
+          <View style={styles.treeHeadingRow}>
+            <Ionicons name="leaf-outline" size={20} color={cores.success} />
+            <Text style={[styles.treeHeading, { color: cores.text }]}>{traduzir('Árvore de filmes')}</Text>
+          </View>
+          <Text style={[styles.empty, { color: cores.muted }]}>{traduzir('A árvore está oculta pelas configurações de privacidade.')}</Text>
+        </View>
+      );
+    }
+
+    const assistidos = data.tree.watchedCount;
+    const marcoAtual = [...MARCOS_ARVORE].reverse().find((marco) => assistidos >= marco) ?? 0;
+    const proximoMarco = MARCOS_ARVORE.find((marco) => marco > assistidos);
+    const percentual = proximoMarco === undefined ? 1 : (assistidos - marcoAtual) / (proximoMarco - marcoAtual);
+    const emojiArvore = assistidos === 0 ? '🌱' : assistidos < 5 ? '🌿' : '🌳';
+    const flores = Math.min(Math.floor(assistidos / 5), 6);
+
+    return (
+      <View style={[styles.treeCard, { backgroundColor: cores.surface, borderColor: cores.border }]}>
+        <View style={styles.treeHeadingRow}>
+          <Ionicons name="leaf-outline" size={20} color={cores.success} />
+          <Text style={[styles.treeHeading, { color: cores.text }]}>{traduzir('Árvore de filmes')}</Text>
+        </View>
+        <View style={[styles.friendTreeScene, { backgroundColor: cores.successSurface }]}>
+          <View style={styles.friendTreeHills} />
+          <Text style={styles.friendTreeEmoji}>{emojiArvore}</Text>
+          {Array.from({ length: flores }, (_, index) => (
+            <Text key={index} style={[styles.friendTreeFlower, index % 2 ? styles.friendTreeFlowerRight : styles.friendTreeFlowerLeft]}>{index % 2 ? '🌸' : '🌼'}</Text>
+          ))}
+        </View>
+        <View style={styles.treeCountRow}>
+          <Text style={[styles.treeCount, { color: cores.text }]}>{assistidos}</Text>
+          <Text style={[styles.treeCountLabel, { color: cores.muted }]}>{traduzir('Filmes assistidos')}</Text>
+        </View>
+        <View style={[styles.treeProgressTrack, { backgroundColor: cores.card }]}>
+          <View style={[styles.treeProgressFill, { backgroundColor: cores.success, width: `${Math.max(0, Math.min(100, percentual * 100))}%` }]} />
+        </View>
+        <Text style={[styles.treeProgressLabel, { color: cores.muted }]}>
+          {proximoMarco === undefined
+            ? traduzir('Árvore completa! Continue registrando filmes para mantê-la florida.')
+            : `${traduzir('Próximo marco')}: ${proximoMarco} · ${proximoMarco - assistidos} ${traduzir('Mais filmes para o próximo estágio')}`}
+        </Text>
+      </View>
+    );
+  };
+
   return <SafeAreaView style={[styles.safeArea, { backgroundColor: cores.background }]}>
     <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.header}>
@@ -122,6 +174,7 @@ export default function AmigoAtividadeScreen() {
           <Text style={[styles.publicName, { color: cores.text }]}>{data.user.name}</Text>
           <Text style={[styles.publicUsername, { color: cores.muted }]}>@{data.user.username}</Text>
         </View>
+        {renderFriendTree()}
         {renderMovieList('Últimos filmes vistos', data.latestWatched, data.privacy.watched)}
         {renderMovieList('Favoritos', data.favorites, data.privacy.favorites)}
       </> : null}

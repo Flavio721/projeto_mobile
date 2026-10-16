@@ -1,8 +1,8 @@
 import TextInput from '../components/CampoTextoLocalizado';
 import Text from '../components/TextoLocalizado';
 import { useStyles, useTema } from '../../contexts/TemaContext';
-import React, { useCallback, useState } from 'react';
-import { View, Image, TouchableOpacity, ScrollView, TextInput as NativeTextInput, ActivityIndicator, Alert, Platform } from 'react-native';
+import React, { useCallback, useRef, useState } from 'react';
+import { View, Image, TouchableOpacity, ScrollView, TextInput as NativeTextInput, ActivityIndicator, Alert, Platform, KeyboardAvoidingView, findNodeHandle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
@@ -44,6 +44,15 @@ export default function Detalhes() {
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [removendo, setRemovendo] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const comentarioRef = useRef<NativeTextInput>(null);
+
+  const revelarCampoComentario = () => {
+    setTimeout(() => {
+      const node = comentarioRef.current ? findNodeHandle(comentarioRef.current) : null;
+      if (node != null) scrollRef.current?.scrollResponderScrollNativeHandleToKeyboard(node, 24, true);
+    }, Platform.OS === 'android' ? 250 : 100);
+  };
 
   const carregarFilme = useCallback(async () => {
     setCarregando(true);
@@ -159,7 +168,8 @@ export default function Detalhes() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={0}>
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled" keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}>
         <View style={styles.topBar}>
           <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()}><Ionicons name="arrow-back" size={22} color={cores.text} /></TouchableOpacity>
           <Text style={styles.topBarTitle}>Detalhes do filme</Text>
@@ -203,7 +213,7 @@ export default function Detalhes() {
           <Text style={[styles.sectionLabel, { marginTop: 18 }]}>Minha nota</Text>
           <View style={{ marginTop: 8 }}><StarRatingInput value={nota} onChange={setNota} /></View>
           <Text style={[styles.sectionLabel, { marginTop: 18 }]}>Comentário (opcional)</Text>
-          <TextInput value={comentario} onChangeText={setComentario} multiline maxLength={5000} placeholder="Escreva suas impressões sobre o filme" placeholderTextColor={cores.muted} style={{ color: cores.text, marginTop: 8, minHeight: 100, padding: 12, borderRadius: 8, backgroundColor: cores.card, textAlignVertical: 'top' }} />
+          <TextInput ref={comentarioRef} onFocus={revelarCampoComentario} value={comentario} onChangeText={setComentario} multiline maxLength={5000} placeholder="Escreva suas impressões sobre o filme" placeholderTextColor={cores.muted} style={{ color: cores.text, marginTop: 8, minHeight: 100, padding: 12, borderRadius: 8, backgroundColor: cores.card, textAlignVertical: 'top' }} />
           <Text style={{ color: cores.muted, textAlign: 'right', marginTop: 4 }}>{comentario.length}/5000</Text>
         </View>}
 
@@ -217,6 +227,7 @@ export default function Detalhes() {
         </TouchableOpacity>
         {naLista && <TouchableOpacity style={{ padding: 16, alignItems: 'center', opacity: removendo ? 0.55 : 1 }} onPress={removerDaLista} disabled={removendo}><Text style={{ color: cores.danger, fontWeight: '700' }}>{removendo ? 'Removendo...' : 'Remover da minha lista'}</Text></TouchableOpacity>}
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

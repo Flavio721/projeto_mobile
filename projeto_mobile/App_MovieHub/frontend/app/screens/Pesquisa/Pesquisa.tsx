@@ -23,7 +23,7 @@ type SearchNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 export default function Pesquisa() {
   const styles = useStyles(criarStyles);
   const { cores } = useTema();
-  const { idiomaTmdb } = useIdioma();
+  const { idiomaTmdb, t } = useIdioma();
   const navigation = useNavigation<SearchNavigationProp>();
   const { showError } = useToast();
   const [query, setQuery] = useState('');
@@ -147,7 +147,7 @@ export default function Pesquisa() {
           <FlatList
             data={results}
             keyExtractor={(item) => item.id}
-            ListHeaderComponent={<Text style={styles.resultadosTitle}>Resultados para “{activeQuery}” ({results.length})</Text>}
+            ListHeaderComponent={<Text style={styles.resultadosTitle}>{t('searchFor')} “{activeQuery}” ({results.length})</Text>}
             renderItem={({ item }) => (
               <TouchableOpacity style={styles.resultRow} onPress={() => navigation.navigate('Detalhes', { filmeId: item.id })}>
                 {item.posterUri ? <Image source={{ uri: item.posterUri }} style={styles.poster} /> : <View style={[styles.poster, styles.posterFallback]}><Ionicons name="film-outline" size={18} color={cores.text} /></View>}

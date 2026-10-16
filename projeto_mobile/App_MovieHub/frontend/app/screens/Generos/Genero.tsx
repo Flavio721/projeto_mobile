@@ -11,6 +11,7 @@ import LoadingOverlay from '../components/LoadingOverlay';
 import { buscarItem } from '../../lib/storage';
 import type { MainStackParamList } from '../../navigation/MainStack';
 import { useToast } from '../../contexts/ToastContext';
+import { useIdioma } from '../../contexts/IdiomaContext';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -41,6 +42,7 @@ export default function Generos() {
   const styles = useStyles(criarStyles);
   const { cores } = useTema();
   const { showError } = useToast();
+  const { idiomaTmdb } = useIdioma();
   const navigation = useNavigation<GenerosNavigationProp>();
   const [generos, setGeneros] = useState<GeneroContagem[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -54,7 +56,7 @@ export default function Generos() {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/movies/genres`, {
+      const response = await fetch(`${API_BASE_URL}/movies/genres?language=${idiomaTmdb}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -72,7 +74,7 @@ export default function Generos() {
     } finally {
       setCarregando(false);
     }
-  }, [showError]);
+  }, [showError, idiomaTmdb]);
 
   useFocusEffect(
     useCallback(() => {

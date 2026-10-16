@@ -55,7 +55,7 @@ function paraFilme(movie: ProfileMovie): Filme {
 export default function AmigoAtividadeScreen() {
   const styles = useStyles(criarStyles);
   const { cores } = useTema();
-  const { traduzir } = useIdioma();
+  const { traduzir, idiomaTmdb } = useIdioma();
   const { showError } = useToast();
   const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const route = useRoute<RouteProp<MainStackParamList, 'AmigoAtividade'>>();
@@ -68,7 +68,7 @@ export default function AmigoAtividadeScreen() {
     try {
       const token = await buscarItem('token');
       if (!token) throw new Error('Sessão expirada. Faça login novamente.');
-      const response = await fetch(`${API_BASE_URL}/friends/${encodeURIComponent(route.params.userId)}/profile`, {
+      const response = await fetch(`${API_BASE_URL}/friends/${encodeURIComponent(route.params.userId)}/profile?language=${idiomaTmdb}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
@@ -79,7 +79,7 @@ export default function AmigoAtividadeScreen() {
     } finally {
       setLoading(false);
     }
-  }, [route.params.userId, showError]);
+  }, [route.params.userId, showError, idiomaTmdb]);
 
   useFocusEffect(useCallback(() => { void load(); }, [load]));
 

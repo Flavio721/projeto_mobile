@@ -67,7 +67,7 @@ export default function HomeScreen() {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [filmesResponse, statsResponse, popularesResponse, perfilResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/movies`, { headers }),
+        fetch(`${API_BASE_URL}/movies?language=${idiomaTmdb}`, { headers }),
         fetch(`${API_BASE_URL}/movies/stats`, { headers }),
         fetch(`${API_BASE_URL}/movies/popular?language=${idiomaTmdb}`, { headers }),
         fetch(`${API_BASE_URL}/users/me`, { headers }),
@@ -127,7 +127,7 @@ export default function HomeScreen() {
 
   const selecionarMenu = (route: AppMenuRoute) => {
     setMenuVisivel(false);
-    const abas = ['Home', 'Filmes', 'Favoritos', 'Perfil'];
+    const abas = ['Home', 'Filmes', 'Favoritos', 'Perfil', 'Arvore'];
     if (abas.includes(route)) (navigation as any).navigate(route);
     else (navigation as any).getParent()?.navigate(route);
   };

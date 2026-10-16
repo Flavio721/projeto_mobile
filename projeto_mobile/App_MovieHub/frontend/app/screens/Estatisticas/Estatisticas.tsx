@@ -38,7 +38,7 @@ export default function Estatisticas() {
   const { cores } = useTema();
   const navigation = useNavigation<EstatisticasNavigationProp>();
   const { showError } = useToast();
-  const { t, traduzir } = useIdioma();
+  const { t, traduzir, idiomaTmdb } = useIdioma();
   const [ carregando, setCarregando ] = useState(false);
   const [stats, setStats] = useState<DashboardStats>(STATS_VAZIO);
   const [filmes, setFilmes] = useState<Filme[]>([]);
@@ -68,7 +68,7 @@ export default function Estatisticas() {
   
         const [statsResponse, moviesResponse] = await Promise.all([
           fetch(`${API_BASE_URL}/movies/stats`, { headers }),
-          fetch(`${API_BASE_URL}/movies`, { headers }),
+          fetch(`${API_BASE_URL}/movies?language=${idiomaTmdb}`, { headers }),
         ]);
   
         if (statsResponse.ok) {
@@ -91,7 +91,7 @@ export default function Estatisticas() {
       } finally {
         setCarregando(false);
       }
-    }, []);
+  }, [idiomaTmdb]);
   
     useFocusEffect(
       useCallback(() => {

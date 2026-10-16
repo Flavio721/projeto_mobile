@@ -14,6 +14,7 @@ import type { MainStackParamList } from "../../navigation/MainStack";
 import type { Filme, StatusFilme } from "../../types/Filme";
 import { buscarItem } from "../../lib/storage";
 import { mapMovieToFilme } from "../../utils/movieMapper";
+import { useIdioma } from '../../contexts/IdiomaContext';
 
 type FilmesNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
@@ -30,6 +31,7 @@ const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 export default function FilmesScreen() {
   const styles = useStyles(criarStyles);
   const { cores } = useTema();
+  const { idiomaTmdb } = useIdioma();
   const navigation = useNavigation<FilmesNavigationProp>();
   const [filmes, setFilmes] = useState<Filme[]>([]);
   const [busca, setBusca] = useState("");
@@ -48,7 +50,7 @@ export default function FilmesScreen() {
       const headers = { Authorization: `Bearer ${token}` };
 
       const [filmesResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/movies`, { headers }),
+        fetch(`${API_BASE_URL}/movies?language=${idiomaTmdb}`, { headers }),
         fetch(`${API_BASE_URL}/movies/stats`, { headers }),
       ]);
 
@@ -65,7 +67,7 @@ export default function FilmesScreen() {
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [idiomaTmdb]);
 
   useFocusEffect(
     useCallback(() => {

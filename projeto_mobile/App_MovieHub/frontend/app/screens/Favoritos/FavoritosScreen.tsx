@@ -14,6 +14,7 @@ import { mapMovieToFilme } from '../../utils/movieMapper';
 import type { Filme } from '../../types/Filme';
 import type { MainStackParamList } from '../../navigation/MainStack';
 import { useToast } from '../../contexts/ToastContext';
+import { useIdioma } from '../../contexts/IdiomaContext';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -22,6 +23,7 @@ type FavoritosNavigationProp = NativeStackNavigationProp<MainStackParamList>;
 export default function FavoritosScreen() {
   const styles = useStyles(criarStyles);
   const { cores } = useTema();
+  const { idiomaTmdb } = useIdioma();
   const { showError } = useToast();
   const navigation = useNavigation<FavoritosNavigationProp>();
   const [favoritos, setFavoritos] = useState<Filme[]>([]);
@@ -36,7 +38,7 @@ export default function FavoritosScreen() {
         return;
       }
 
-      const response = await fetch(`${API_BASE_URL}/movies`, {
+      const response = await fetch(`${API_BASE_URL}/movies?language=${idiomaTmdb}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -54,7 +56,7 @@ export default function FavoritosScreen() {
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [idiomaTmdb]);
 
   // Recarrega toda vez que a aba ganha foco — assim, desfavoritar em
   // qualquer outra tela (Home, Detalhes) já reflete aqui na volta.

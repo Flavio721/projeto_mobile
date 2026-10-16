@@ -5,6 +5,7 @@ import HomeScreen from '../screens/Home/Home';
 import FilmesScreen from '../screens/Filmes/FilmeScreen';
 import FavoritosScreen from '../screens/Favoritos/FavoritosScreen';
 import PerfilScreen from '../screens/Perfil/PerfilScreen';
+import ArvoreScreen from '../screens/Arvore/ArvoreScreen';
 import { useTema } from '../contexts/TemaContext';
 import { useIdioma } from '../contexts/IdiomaContext';
 
@@ -13,6 +14,7 @@ export type MainTabsParamList = {
     Filmes: undefined;
     Favoritos: undefined;
     Perfil: undefined;
+    Arvore: undefined;
 };
 
 const ICONS: Record<keyof MainTabsParamList, { active: any; inactive: any }> = {
@@ -20,6 +22,7 @@ const ICONS: Record<keyof MainTabsParamList, { active: any; inactive: any }> = {
     Filmes: { active: 'film', inactive: 'film-outline' },
     Favoritos: { active: 'heart', inactive: 'heart-outline' },
     Perfil: { active: 'person', inactive: 'person-outline' },
+    Arvore: { active: 'leaf', inactive: 'leaf-outline' },
 };
 
 const Tab = createBottomTabNavigator<MainTabsParamList>();
@@ -49,6 +52,7 @@ export default function MainTabs() {
             <Tab.Screen name="Filmes" component={FilmesScreen} options={{ tabBarLabel: t('movies') }} />
             <Tab.Screen name="Favoritos" component={FavoritosScreen} options={{ tabBarLabel: t('favorites') }} />
             <Tab.Screen name="Perfil" component={PerfilScreen} options={{ tabBarLabel: t('profile') }} />
+            <Tab.Screen name="Arvore" component={ArvoreScreen} options={{ tabBarLabel: t('tree') }} />
         </Tab.Navigator>
     );
 }

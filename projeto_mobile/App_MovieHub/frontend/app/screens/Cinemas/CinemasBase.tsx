@@ -48,6 +48,10 @@ export default function CinemasBase() {
         setErro(traduzir('A localização no navegador exige HTTPS ou localhost.'));
         return;
       }
+      const servicosAtivos = await Location.hasServicesEnabledAsync();
+      if (!servicosAtivos) {
+        throw new Error(traduzir('A localização do aparelho está desativada. Ative o GPS e tente novamente.'));
+      }
       const permissao = await Location.requestForegroundPermissionsAsync();
       if (permissao.status !== 'granted') {
         setLocalizacaoNegada(true);
@@ -55,8 +59,24 @@ export default function CinemasBase() {
         return;
       }
 
-      const ultimaPosicao = await Location.getLastKnownPositionAsync({ maxAge: 2 * 60 * 1000, requiredAccuracy: 2000 }).catch(() => null);
-      const posicao = ultimaPosicao ?? await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      // A última posição recente evita deixar a tela presa enquanto o GPS
+      // tenta obter um sinal novo, algo comum em ambientes fechados.
+      const ultimaPosicao = await Location.getLastKnownPositionAsync({ maxAge: 10 * 60 * 1000, requiredAccuracy: 5000 }).catch(() => null);
+      let posicao = ultimaPosicao;
+      if (!posicao) {
+        let timeoutId: ReturnType<typeof setTimeout> | undefined;
+        try {
+          const limiteDeEspera = new Promise<never>((_resolve, reject) => {
+            timeoutId = setTimeout(() => reject(new Error(traduzir('Não foi possível obter sua localização. Verifique o GPS e tente novamente.'))), 20000);
+          });
+          posicao = await Promise.race([
+            Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+            limiteDeEspera,
+          ]);
+        } finally {
+          if (timeoutId) clearTimeout(timeoutId);
+        }
+      }
       const { latitude, longitude } = posicao.coords;
       try {
         const [endereco] = await Location.reverseGeocodeAsync({ latitude, longitude });

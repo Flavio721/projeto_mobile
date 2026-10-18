@@ -50,11 +50,21 @@ async function gerarUsernameAutomatico(email: string, googleSub: string): Promis
 
 const Cadastro = async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
+    const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+    const { name, email, password } = body;
     const username = normalizarUsername(req.body?.username);
 
-    if (!name || !email || !password || !username) {
+    if (typeof name !== 'string' || typeof email !== 'string' || typeof password !== 'string' || !username) {
       return res.status(400).json({ error: "Campos obrigatórios vazios!" });
+    }
+    if (name.trim().length < 2 || name.trim().length > 80) {
+      return res.status(400).json({ error: 'O nome deve ter de 2 a 80 caracteres.' });
+    }
+    if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return res.status(400).json({ error: 'Informe um e-mail válido.' });
+    }
+    if (password.length < 6 || Buffer.byteLength(password, 'utf8') > 72) {
+      return res.status(400).json({ error: 'A senha deve ter ao menos 6 caracteres e no máximo 72 bytes.' });
     }
     if (!usernameValido(username)) {
       return res.status(400).json({ error: 'O username deve ter de 3 a 24 caracteres: letras, números ou _.' });
@@ -76,7 +86,7 @@ const Cadastro = async (req: Request, res: Response) => {
 
     const newUser = await prisma.user.create({
       data: {
-        name,
+        name: name.trim(),
         username,
         email: emailNormalizado,
         password: hashedPassword,
@@ -96,9 +106,10 @@ const Cadastro = async (req: Request, res: Response) => {
 
 const Login = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
+    const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+    const { email, password } = body;
 
-    if (!email || !password) {
+    if (typeof email !== 'string' || typeof password !== 'string' || !email.trim() || !password || Buffer.byteLength(password, 'utf8') > 72) {
       return res.status(400).json({ error: "Campos obrigatórios vazios!" });
     }
 
@@ -108,7 +119,7 @@ const Login = async (req: Request, res: Response) => {
     });
 
     if (!existingUser?.password) {
-      return res.status(401).json({ error: "Conta ou senha incorreta. Se você criou a conta com Google, use essa opção para entrar." });
+      return res.status(401).json({ error: "Email ou senha incorreta" });
     }
 
     const comparePassword = await bcrypt.compare(
@@ -117,7 +128,7 @@ const Login = async (req: Request, res: Response) => {
     );
 
     if (!comparePassword) {
-      return res.status(400).json({ error: "Email ou senha incorreta" });
+        return res.status(401).json({ error: "Email ou senha incorreta" });
     }
     const token = emitirToken(existingUser.id);
 
@@ -304,8 +315,8 @@ const changePassword = async (req: AuthRequest, res: Response) => {
             return res.status(400).json({ error: "Informe a senha atual e a nova senha" });
         }
 
-        if (typeof newPassword !== 'string' || newPassword.length < 6) {
-            return res.status(400).json({ error: "A nova senha precisa ter ao menos 6 caracteres" });
+        if (typeof newPassword !== 'string' || newPassword.length < 6 || Buffer.byteLength(newPassword, 'utf8') > 72) {
+            return res.status(400).json({ error: "A nova senha precisa ter ao menos 6 caracteres e no máximo 72 bytes" });
         }
 
         if (currentPassword === newPassword) {

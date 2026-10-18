@@ -308,12 +308,15 @@ export async function getGenreCounts(req: AuthRequest, res: Response) {
 
 export async function getStats(req: AuthRequest, res: Response) {
   const userId = req.userId!;
-  const [total, assistidos, queroAssistir, favoritos] = await Promise.all([
-    prisma.userMovie.count({ where: { userId } }),
-    prisma.userMovie.count({ where: { userId, status: MovieStatus.WATCHED } }),
-    prisma.userMovie.count({ where: { userId, status: MovieStatus.WATCHLIST } }),
-    prisma.userMovie.count({ where: { userId, isFavorite: true } }),
-  ]);
+  const groups = await prisma.userMovie.groupBy({
+    by: ['status', 'isFavorite'],
+    where: { userId },
+    _count: { _all: true },
+  });
+  const total = groups.reduce((sum, group) => sum + group._count._all, 0);
+  const assistidos = groups.reduce((sum, group) => sum + (group.status === MovieStatus.WATCHED ? group._count._all : 0), 0);
+  const queroAssistir = groups.reduce((sum, group) => sum + (group.status === MovieStatus.WATCHLIST ? group._count._all : 0), 0);
+  const favoritos = groups.reduce((sum, group) => sum + (group.isFavorite ? group._count._all : 0), 0);
   return res.json({ total, assistidos, queroAssistir, favoritos });
 }
 

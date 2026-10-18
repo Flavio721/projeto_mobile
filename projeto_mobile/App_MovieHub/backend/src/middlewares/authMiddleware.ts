@@ -16,12 +16,18 @@ export function authMiddleware(
     return res.status(401).json({ error: "Token não enviado" });
   }
 
-  const token = authHeader.replace("Bearer ", "");
+  const match = /^Bearer ([^\s]+)$/i.exec(authHeader);
+  if (!match) {
+    return res.status(401).json({ error: "Token inválido ou expirado" });
+  }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
-      userId: string;
-    };
+    const secret = process.env.JWT_SECRET;
+    if (!secret) return res.status(503).json({ error: "Autenticação indisponível." });
+    const payload = jwt.verify(match[1]!, secret, { algorithms: ["HS256"] });
+    if (typeof payload === "string" || typeof payload.userId !== "string") {
+      return res.status(401).json({ error: "Token inválido ou expirado" });
+    }
     req.userId = payload.userId;
     next();
   } catch {

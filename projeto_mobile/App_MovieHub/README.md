@@ -217,26 +217,74 @@ npx expo start --web -c
 
 No EAS, cadastre a mesma variável no ambiente `production`, pois o valor é inserido no app durante o build. Alterar o `.env` depois de gerar um APK não altera o APK existente; gere um novo build.
 
-## Gerar APK Android
+## Gerar os aplicativos Android e iOS com EAS
 
-O identificador Android está em `frontend/app.json`, na propriedade `expo.android.package`. O valor atual é `com.flavio721.moviehub`. Essa configuração identifica o aplicativo Android; não é uma dependência do npm. Escolha um identificador que você controla e mantenha-o estável depois de publicar o app.
+Os identificadores já estão configurados em `frontend/app.json`: Android `com.flavio721.moviehub` e iOS `com.flavio721.moviehub`. Mantenha-os estáveis depois de publicar os apps. O projeto já está associado ao EAS pelo `extra.eas.projectId`.
 
-O arquivo `frontend/eas.json` tem dois perfis:
+### Perfis
 
-- `preview`: build `.apk` para instalar diretamente em aparelhos Android; usa as variáveis do ambiente EAS `production`.
-- `production`: build Android no formato `.aab`, recomendado para envio à Google Play.
+- `preview`: distribuição interna; gera APK instalável no Android e build interno para iOS. Usa as variáveis EAS do ambiente `production`, portanto os testes chamam a API e o banco de produção.
+- `production`: build de loja; Android gera `.aab` e iOS gera `.ipa` para envio ao App Store Connect. O EAS incrementa automaticamente o número de build nas novas gerações.
 
-Para autenticar e gerar o APK de teste:
+### 1. Preparar a conta e as variáveis
+
+Instale as dependências a partir da pasta `frontend`, entre na conta Expo que contém o projeto `ceb3a960-0c87-4778-b20a-71e4c9fcc985` e configure as variáveis no ambiente EAS `production` em **Project settings → Environment variables**:
+
+- `EXPO_PUBLIC_API_BASE_URL`: URL HTTPS do serviço Render, sem barra final.
+- `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`
+- `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID`
+- `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`
+
+Os valores `EXPO_PUBLIC_*` são incluídos no app e podem ser lidos por quem o instalar; use aqui apenas a URL pública e os IDs OAuth públicos. Nunca coloque segredo do Google, JWT, TMDB, banco de dados ou Cloudinary no frontend.
 
 ```bash
 cd frontend
-npm install --global eas-cli
-eas login
-eas build:configure
-eas build --platform android --profile preview
+npm ci
+npx expo install --check
+npx eas-cli@latest login
 ```
 
-Na primeira configuração, o EAS associa o projeto à sua conta Expo e pode atualizar configurações. Ao concluir, baixe o APK pelo link fornecido pelo EAS e instale-o no celular. Para a Play Store, gere o perfil `production`; APK não é o formato de envio recomendado.
+Não é necessário executar `eas build:configure` neste projeto: `eas.json` e o vínculo EAS já existem.
+
+### 2. Gerar builds internos para validar nos aparelhos
+
+Gere as duas plataformas em uma execução:
+
+```bash
+npx eas-cli@latest build --platform all --profile preview
+```
+
+Também é possível gerar uma plataforma por vez:
+
+```bash
+npx eas-cli@latest build --platform android --profile preview
+npx eas-cli@latest build --platform ios --profile preview
+```
+
+Na primeira build Android, escolha gerar um novo keystore se o EAS perguntar e deixe-o armazenado no EAS. Guarde e reutilize essa chave nas próximas versões: a assinatura precisa permanecer compatível para que aparelhos aceitem atualizações do app. Não baixe a chave para o repositório nem a comite.
+
+Para uma build iOS instalável em iPhone, entre com uma conta do Apple Developer Program e deixe o EAS criar/gerenciar o certificado de distribuição e o perfil de provisionamento. São essas credenciais de assinatura; não são os IDs OAuth. A distribuição interna iOS também precisa autorizar os aparelhos de teste.
+
+Depois da primeira build Android, confira se o SHA-1 do certificado EAS está cadastrado no cliente OAuth Android do Google. Confira também se o backend Render aceita os IDs Web/Android/iOS em `GOOGLE_OAUTH_CLIENT_IDS`. Se alguma configuração OAuth mudar, gere uma nova build.
+
+Baixe as builds no link do resultado EAS, instale e valide login, cadastro, consulta à API e upload. Como o perfil `preview` usa o backend de produção, faça os testes com uma conta de teste e evite excluir/alterar dados reais.
+
+### 3. Gerar e enviar para as lojas
+
+Antes de publicar, crie os registros do app no Google Play Console e App Store Connect e confirme que possui as contas de desenvolvedor necessárias. Gere os artefatos de produção:
+
+```bash
+npx eas-cli@latest build --platform all --profile production
+```
+
+O Android `.aab` e o iOS `.ipa` são gerados para as respectivas lojas; a build de produção não é para instalação direta no aparelho. Envie cada build separadamente após conferir os metadados e as informações de privacidade na loja:
+
+```bash
+npx eas-cli@latest submit --platform android --latest
+npx eas-cli@latest submit --platform ios --latest
+```
+
+As variáveis públicas ficam incorporadas no binário. Se mudar URL da API ou IDs OAuth, atualize o ambiente EAS e gere novas builds. As etapas de perfil e distribuição seguem o [guia oficial do EAS Build](https://docs.expo.dev/build/eas-json/); o EAS pode provisionar as credenciais de assinatura automaticamente. Consulte também o [guia de credenciais gerenciadas](https://docs.expo.dev/app-signing/managed-credentials/).
 
 ## Endpoints da API
 

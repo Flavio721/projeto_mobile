@@ -15,7 +15,10 @@
     },
     "ios": {
       "bundleIdentifier": "com.flavio721.moviehub",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.flavio721.moviehub",

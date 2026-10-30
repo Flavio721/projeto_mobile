@@ -75,11 +75,6 @@ export default function EditarPerfil() {
   );
 
   const escolherFoto = async () => {
-    const permissao = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permissao.granted) {
-      showError('Autorize o acesso à galeria para escolher uma foto.');
-      return;
-    }
     const resultado = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.7,

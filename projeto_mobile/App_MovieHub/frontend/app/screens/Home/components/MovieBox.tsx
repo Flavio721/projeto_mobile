@@ -1,6 +1,5 @@
 import Text from '../../components/TextoLocalizado';
 // components/MovieRow.tsx
-import { useEffect, useState } from "react";
 import { View, Image, TouchableOpacity } from 'react-native';
 import criarStyles from "../styles";
 import { useStyles } from '../../../contexts/TemaContext';
@@ -34,29 +33,12 @@ type MovieNavigationProp = NavigationProp<{
 
 function MovieRow({ item, genres }: MovieRowProps) {
   const styles = useStyles(criarStyles);
-  // 3. Tipagem do estado (pode ser número ou nulo)
-  const [runtime, setRuntime] = useState<number | null>(null);
   const navigation = useNavigation<MovieNavigationProp>();
-
-  useEffect(() => {
-    let isMounted = true;
-
-    return () => {
-      isMounted = false;
-    };
-  }, [item.id]);
 
   // 4. Mapeamento tipado e seguro contra valores nulos/indefinidos
   const genreNames = item.genre_ids
     .map((id) => genres.find((g) => g.id === id)?.name)
     .filter((name): name is string => Boolean(name));
-
-  const formatRuntime = (): string | null => {
-    if (!runtime) return null;
-    const hours = Math.floor(runtime / 60);
-    const minutes = runtime % 60;
-    return `${hours}h ${minutes}m`;
-  };
 
   return (
     <TouchableOpacity
@@ -89,10 +71,6 @@ function MovieRow({ item, genres }: MovieRowProps) {
             </View>
           ))}
         </View>
-
-        {runtime ? (
-          <Text style={{ fontSize: 16 }}>🕐 {formatRuntime()}</Text>
-        ) : null}
       </View>
     </TouchableOpacity>
   );

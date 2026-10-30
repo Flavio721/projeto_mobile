@@ -38,6 +38,8 @@ app.use('/movies', movieRoutes);
 app.use('/cinemas', cinemaRoutes);
 app.use('/friends', friendRoutes);
 
+app.use((_req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
+
 app.use((error: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
   if (res.headersSent) return next(error);
   if (error instanceof multer.MulterError) {
@@ -46,6 +48,11 @@ app.use((error: unknown, _req: express.Request, res: express.Response, next: exp
   }
   if (error instanceof SyntaxError && 'body' in error) {
     return res.status(400).json({ error: 'JSON inválido.' });
+  }
+  if (error && typeof error === 'object' && 'status' in error
+      && typeof error.status === 'number' && error.status >= 400 && error.status < 500) {
+    const status = error.status;
+    return res.status(status).json({ error: status === 413 ? 'A requisição excede o limite permitido.' : 'Requisição inválida.' });
   }
   console.error('Erro não tratado pela API:', error);
   return res.status(500).json({ error: 'Erro interno do servidor.' });

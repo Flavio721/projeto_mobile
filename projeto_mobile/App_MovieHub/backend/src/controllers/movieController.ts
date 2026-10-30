@@ -1,5 +1,6 @@
 import type { Response } from 'express';
 import { prisma } from '../lib/prisma.js';
+import { cache } from '../lib/cache.js';
 import type { AuthRequest } from '../middlewares/authMiddleware.js';
 import { MovieStatus } from '../../generated/prisma/enums.js';
 import { getLocalizedTmdbMovie, getPopularTmdbMovies, getTmdbMovie, posterUrl, searchTmdbMovies, type TmdbMovie } from '../services/tmdbService.js';
@@ -11,6 +12,11 @@ type PersonalFields = {
   comment?: string | null;
   watchedAt?: string | null;
 };
+
+const PUBLIC_CATALOG_TTL_MS = 2 * 60 * 1000;
+const USER_MOVIE_LIST_TTL_MS = 30 * 1000;
+const USER_DASHBOARD_TTL_MS = 60 * 1000;
+const userMoviesCacheTag = (userId: string) => `user-movies:${userId}`;
 
 function tmdbError(res: Response, error: unknown) {
   const code = error instanceof Error ? error.message : '';
@@ -181,7 +187,12 @@ export async function searchMovies(req: AuthRequest, res: Response) {
   if (!language) return res.status(400).json({ error: 'Idioma inválido.' });
 
   try {
-    const response = await searchTmdbMovies(query, page, language);
+    const normalizedQuery = query.toLocaleLowerCase('pt-BR').replace(/\s+/g, ' ');
+    const response = await cache.getOrLoad(
+      `tmdb:search:${language}:${page}:${normalizedQuery}`,
+      PUBLIC_CATALOG_TTL_MS,
+      () => searchTmdbMovies(query, page, language),
+    );
     return res.json({
       page: response.page,
       totalPages: response.total_pages,
@@ -199,20 +210,29 @@ export async function getPopularMovies(req: AuthRequest, res: Response) {
     return res.status(400).json({ error: 'Idioma inválido.' });
   }
   try {
-    const watched = await prisma.userMovie.findMany({
-      where: { userId: req.userId!, status: MovieStatus.WATCHED },
-      select: { movie: { select: { tmdbId: true } } },
-    });
-    const watchedIds = new Set(watched.map(({ movie }) => movie.tmdbId));
-    const results: TmdbMovie[] = [];
-    // Read at most three pages so users with a large watched list still get
-    // useful recommendations without turning a Home request into a long scan.
-    for (let page = 1; page <= 3 && results.length < 12; page += 1) {
-      const response = await getPopularTmdbMovies(language, page);
-      results.push(...response.results.filter((movie) => !watchedIds.has(movie.id)));
-      if (page >= response.total_pages) break;
-    }
-    return res.json({ results: results.slice(0, 12).map(serializeTmdb) });
+    const userId = req.userId!;
+    const result = await cache.getOrLoad(
+      `user:${userId}:popular:${language}`,
+      USER_MOVIE_LIST_TTL_MS,
+      async () => {
+        const watched = await prisma.userMovie.findMany({
+          where: { userId, status: MovieStatus.WATCHED },
+          select: { movie: { select: { tmdbId: true } } },
+        });
+        const watchedIds = new Set(watched.map(({ movie }) => movie.tmdbId));
+        const results: TmdbMovie[] = [];
+        // Read at most three pages so users with a large watched list still get
+        // useful recommendations without turning a Home request into a long scan.
+        for (let page = 1; page <= 3 && results.length < 12; page += 1) {
+          const response = await getPopularTmdbMovies(language, page);
+          results.push(...response.results.filter((movie) => !watchedIds.has(movie.id)));
+          if (page >= response.total_pages) break;
+        }
+        return { results: results.slice(0, 12).map(serializeTmdb) };
+      },
+      [userMoviesCacheTag(userId)],
+    );
+    return res.json(result);
   } catch (error) {
     return tmdbError(res, error);
   }
@@ -258,48 +278,66 @@ export async function getLibraryEntry(req: AuthRequest, res: Response) {
 export async function getMovies(req: AuthRequest, res: Response) {
   const language = tmdbLanguageFromRequest(req.query.language);
   if (!language) return res.status(400).json({ error: 'Idioma inválido.' });
-  const entries = await prisma.userMovie.findMany({
-    where: { userId: req.userId! },
-    include: { movie: true },
-    orderBy: { updatedAt: 'desc' },
-  });
-  return res.json(await serializeEntriesInLanguage(entries, language));
+  const userId = req.userId!;
+  const result = await cache.getOrLoad(
+    `user:${userId}:movies:${language}`,
+    USER_MOVIE_LIST_TTL_MS,
+    async () => {
+      const entries = await prisma.userMovie.findMany({
+        where: { userId },
+        include: { movie: true },
+        orderBy: { updatedAt: 'desc' },
+      });
+      return serializeEntriesInLanguage(entries, language);
+    },
+    [userMoviesCacheTag(userId)],
+  );
+  return res.json(result);
 }
 
 export async function getGenreCounts(req: AuthRequest, res: Response) {
   const language = tmdbLanguageFromRequest(req.query.language);
   if (!language) return res.status(400).json({ error: 'Idioma inválido.' });
   try {
-    const entries = await prisma.userMovie.findMany({
-      where: { userId: req.userId! },
-      select: { movie: { select: { tmdbId: true, genres: true } } },
-    });
-    const counts = new Map<string, number>();
-    let nextIndex = 0;
-    const localizedGenres: string[][] = new Array(entries.length);
-    const workerCount = Math.min(4, entries.length);
-    await Promise.all(Array.from({ length: workerCount }, async () => {
-      while (nextIndex < entries.length) {
-        const index = nextIndex++;
-        const { movie } = entries[index]!;
-        try {
-          const translated = await getLocalizedTmdbMovie(movie.tmdbId, language);
-          localizedGenres[index] = translated.genres?.map(({ name }) => name) ?? movie.genres;
-        } catch {
-          localizedGenres[index] = movie.genres;
+    const userId = req.userId!;
+    const result = await cache.getOrLoad(
+      `user:${userId}:genres:${language}`,
+      USER_DASHBOARD_TTL_MS,
+      async () => {
+        const entries = await prisma.userMovie.findMany({
+          where: { userId },
+          select: { movie: { select: { tmdbId: true, genres: true } } },
+        });
+        const counts = new Map<string, number>();
+        let nextIndex = 0;
+        const localizedGenres: string[][] = new Array(entries.length);
+        const workerCount = Math.min(4, entries.length);
+        await Promise.all(Array.from({ length: workerCount }, async () => {
+          while (nextIndex < entries.length) {
+            const index = nextIndex++;
+            const { movie } = entries[index]!;
+            try {
+              const translated = await getLocalizedTmdbMovie(movie.tmdbId, language);
+              localizedGenres[index] = translated.genres?.map(({ name }) => name) ?? movie.genres;
+            } catch {
+              localizedGenres[index] = movie.genres;
+            }
+          }
+        }));
+        for (const genres of localizedGenres) {
+          // A movie contributes once to each genre, even if metadata contains a duplicate.
+          for (const genre of new Set(genres.map((name) => name.trim()).filter(Boolean))) {
+            counts.set(genre, (counts.get(genre) ?? 0) + 1);
+          }
         }
-      }
-    }));
-    for (const genres of localizedGenres) {
-      // A movie contributes once to each genre, even if metadata contains a duplicate.
-      for (const genre of new Set(genres.map((name) => name.trim()).filter(Boolean))) {
-        counts.set(genre, (counts.get(genre) ?? 0) + 1);
-      }
-    }
-    const results = [...counts.entries()]
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
-    return res.json({ results });
+        const results = [...counts.entries()]
+          .map(([name, count]) => ({ name, count }))
+          .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+        return { results };
+      },
+      [userMoviesCacheTag(userId)],
+    );
+    return res.json(result);
   } catch (error) {
     console.error('Erro ao contar gêneros da biblioteca:', error);
     return res.status(500).json({ error: 'Não foi possível carregar os gêneros da sua lista.' });
@@ -308,16 +346,24 @@ export async function getGenreCounts(req: AuthRequest, res: Response) {
 
 export async function getStats(req: AuthRequest, res: Response) {
   const userId = req.userId!;
-  const groups = await prisma.userMovie.groupBy({
-    by: ['status', 'isFavorite'],
-    where: { userId },
-    _count: { _all: true },
-  });
-  const total = groups.reduce((sum, group) => sum + group._count._all, 0);
-  const assistidos = groups.reduce((sum, group) => sum + (group.status === MovieStatus.WATCHED ? group._count._all : 0), 0);
-  const queroAssistir = groups.reduce((sum, group) => sum + (group.status === MovieStatus.WATCHLIST ? group._count._all : 0), 0);
-  const favoritos = groups.reduce((sum, group) => sum + (group.isFavorite ? group._count._all : 0), 0);
-  return res.json({ total, assistidos, queroAssistir, favoritos });
+  const result = await cache.getOrLoad(
+    `user:${userId}:stats`,
+    USER_DASHBOARD_TTL_MS,
+    async () => {
+      const groups = await prisma.userMovie.groupBy({
+        by: ['status', 'isFavorite'],
+        where: { userId },
+        _count: { _all: true },
+      });
+      const total = groups.reduce((sum, group) => sum + group._count._all, 0);
+      const assistidos = groups.reduce((sum, group) => sum + (group.status === MovieStatus.WATCHED ? group._count._all : 0), 0);
+      const queroAssistir = groups.reduce((sum, group) => sum + (group.status === MovieStatus.WATCHLIST ? group._count._all : 0), 0);
+      const favoritos = groups.reduce((sum, group) => sum + (group.isFavorite ? group._count._all : 0), 0);
+      return { total, assistidos, queroAssistir, favoritos };
+    },
+    [userMoviesCacheTag(userId)],
+  );
+  return res.json(result);
 }
 
 export async function saveLibraryEntry(req: AuthRequest, res: Response) {
@@ -356,6 +402,7 @@ export async function saveLibraryEntry(req: AuthRequest, res: Response) {
       },
       include: { movie: true },
     });
+    cache.invalidateTag(userMoviesCacheTag(req.userId!));
     return res.status(200).json(serializeEntry(entry));
   } catch (error) {
     return tmdbError(res, error);
@@ -364,7 +411,8 @@ export async function saveLibraryEntry(req: AuthRequest, res: Response) {
 
 export async function setFavorite(req: AuthRequest, res: Response) {
   const tmdbId = tmdbIdFromRequest(req.params.tmdbId);
-  const { isFavorite } = req.body as { isFavorite?: boolean };
+  const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+  const { isFavorite } = body as { isFavorite?: boolean };
   if (!tmdbId) return res.status(400).json({ error: 'Id TMDB inválido.' });
   if (typeof isFavorite !== 'boolean') return res.status(400).json({ error: 'isFavorite deve ser true ou false.' });
   const entry = await prisma.userMovie.findFirst({ where: { userId: req.userId!, movie: { tmdbId } } });
@@ -374,6 +422,7 @@ export async function setFavorite(req: AuthRequest, res: Response) {
     data: { isFavorite },
     include: { movie: true },
   });
+  cache.invalidateTag(userMoviesCacheTag(req.userId!));
   return res.json(serializeEntry(updated));
 }
 
@@ -383,5 +432,6 @@ export async function removeLibraryEntry(req: AuthRequest, res: Response) {
   // DELETE is idempotent: retrying after a timeout or a double tap still
   // results in the movie being absent from this user's collection.
   await prisma.userMovie.deleteMany({ where: { userId: req.userId!, movie: { tmdbId } } });
+  cache.invalidateTag(userMoviesCacheTag(req.userId!));
   return res.status(204).send();
 }

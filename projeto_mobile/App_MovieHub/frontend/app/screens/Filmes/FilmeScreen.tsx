@@ -49,10 +49,7 @@ export default function FilmesScreen() {
 
       const headers = { Authorization: `Bearer ${token}` };
 
-      const [filmesResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/movies?language=${idiomaTmdb}`, { headers }),
-        fetch(`${API_BASE_URL}/movies/stats`, { headers }),
-      ]);
+      const filmesResponse = await fetch(`${API_BASE_URL}/movies?language=${idiomaTmdb}`, { headers });
 
       if (filmesResponse.ok) {
         const filmesData = await filmesResponse.json();
@@ -86,15 +83,10 @@ export default function FilmesScreen() {
 
   const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const handleToggleFavorito = (id: string) => {
-    let novoValor = false;
-
-    setFilmes((prev) =>
-      prev.map((f) => {
-        if (f.id !== id) return f;
-        novoValor = !f.favorito;
-        return { ...f, favorito: novoValor };
-      }),
-    );
+    const filme = filmes.find((item) => item.id === id);
+    if (!filme) return;
+    const novoValor = !filme.favorito;
+    setFilmes((prev) => prev.map((item) => item.id === id ? { ...item, favorito: novoValor } : item));
 
     if (debounceTimers.current[id]) {
       clearTimeout(debounceTimers.current[id]);

@@ -2,6 +2,7 @@ import Text from '../TextoLocalizado';
 import React from "react";
 import { View, Image, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import BotaoFavorito from '../BotaoFavorito';
 import criarStyles from './styles'
 import type { Filme } from "../../../types/Filme";
 import { useStyles, useTema } from "../../../contexts/TemaContext";
@@ -49,17 +50,14 @@ export default function FilmeCard({
           </View>
         )}
 
-        {showFavoriteButton ? <TouchableOpacity
-          style={styles.favoriteButton}
-          onPress={() => onToggleFavorito(filme.id)}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        >
-          <Ionicons
-            name={filme.favorito ? "heart" : "heart-outline"}
-            size={16}
-            color={filme.favorito ? cores.heartOn : cores.heartOff}
+        {showFavoriteButton ? (
+          <BotaoFavorito
+            title={filme.titulo}
+            isFavorite={filme.favorito}
+            onPress={() => onToggleFavorito(filme.id)}
+            style={styles.favoriteButton}
           />
-        </TouchableOpacity> : null}
+        ) : null}
       </View>
 
       <Text style={styles.title} numberOfLines={1}>

@@ -48,7 +48,7 @@
         "expo-image-picker",
         {
           "photosPermission": "O MovieHub acessa suas fotos para permitir a escolha de uma imagem de perfil.",
-          "cameraPermission": false,
+          "cameraPermission": "O MovieHub usa a câmera apenas quando você escolhe tirar uma foto de perfil.",
           "microphonePermission": false
         }
       ],

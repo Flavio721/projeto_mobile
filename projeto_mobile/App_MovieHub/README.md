@@ -17,6 +17,7 @@ Projeto acadêmico desenvolvido para a disciplina de Programação para Aplicati
 - [Modelo de dados](#modelo-de-dados)
 - [Funcionalidades](#funcionalidades)
 - [Limitações conhecidas](#limitações-conhecidas)
+- [Plano do CRUD de livros](#plano-do-crud-de-livros)
 
 ## Tecnologias
 
@@ -392,3 +393,11 @@ O catálogo é consultado no TMDB e seus metadados são guardados localmente qua
 - **APK e lojas:** `android.package`, `ios.bundleIdentifier` e perfis EAS estão configurados. O Google Login ainda depende da configuração manual dos clientes OAuth e dos respectivos certificados/origens. Para instalar diretamente no Android, use o perfil `preview` (APK); para Google Play, gere `.aab`.
 - **TMDB:** antes de publicar, adicionar o logo oficial aprovado e manter em uma área Sobre/Créditos o aviso “Este produto usa a API do TMDB, mas não é endossado nem certificado pelo TMDB.”. A chave privada deve permanecer no backend. Consulte também os termos atuais do TMDB para a publicação planejada.
 - **Migration dos filmes:** a migration nova apaga os registros antigos de filmes e gêneros e conserva as contas. Revise a migration e faça backup do banco antes de aplicá-la em qualquer banco com dados que precisem ser preservados.
+
+## Plano do CRUD de livros
+
+O planejamento de APIs, modelo de dados, rotas, componentes e etapas de entrega está em [docs/PLANO_CRUD_LIVROS.md](docs/PLANO_CRUD_LIVROS.md). A primeira proposta usa Google Books como fonte principal, Open Library como fallback e cadastro manual por ISBN, sem misturar livros com o catálogo TMDB.
+
+## Cache da API
+
+Listas, recomendações, estatísticas e gêneros usam cache com expiração e invalidação após alterações na biblioteca. Escopos, tempos de vida e o plano para compartilhar cache entre instâncias estão em [docs/CACHE_API.md](docs/CACHE_API.md).

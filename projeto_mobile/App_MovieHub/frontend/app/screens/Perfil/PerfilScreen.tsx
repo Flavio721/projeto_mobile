@@ -96,8 +96,9 @@ export default function Perfil() {
   const handleSincronizar = async () => {
     setSincronizando(true);
     try {
-      await sincronizarConta();
-      await carregarPerfil();
+      const usuarioAtualizado = await sincronizarConta({ incluirEstatisticas: true });
+      setUsuario(usuarioAtualizado);
+      setStats(usuarioAtualizado.stats!);
       showSuccess('Dados atualizados.');
     } catch {
       showError('Não foi possível atualizar seus dados.');

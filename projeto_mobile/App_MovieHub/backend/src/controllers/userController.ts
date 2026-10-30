@@ -109,7 +109,7 @@ const Login = async (req: Request, res: Response) => {
     const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
     const { email, password } = body;
 
-    if (typeof email !== 'string' || typeof password !== 'string' || !email.trim() || !password || Buffer.byteLength(password, 'utf8') > 72) {
+    if (typeof email !== 'string' || email.length > 254 || typeof password !== 'string' || !email.trim() || !password || Buffer.byteLength(password, 'utf8') > 72) {
       return res.status(400).json({ error: "Campos obrigatórios vazios!" });
     }
 
@@ -159,8 +159,8 @@ const LoginGoogle = async (req: Request, res: Response) => {
     try {
       const ticket = await googleOAuthClient.verifyIdToken({ idToken, audience: audiences });
       payload = ticket.getPayload();
-    } catch (error) {
-      console.warn('Token Google inválido:', error);
+    } catch {
+      console.warn('Tentativa de login Google recusada: token inválido.');
       return res.status(401).json({ error: 'Não foi possível autenticar com Google.' });
     }
     if (!payload?.sub || !payload.email || payload.email_verified !== true) {
@@ -241,8 +241,15 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
             return res.status(401).json({ error: "Erro de autenticação" });
         }
 
-        const { name, avatarUrl, avatarPublicId } = req.body as UpdateProfileBody;
-        const username = req.body?.username === undefined ? undefined : normalizarUsername(req.body.username);
+        const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body)
+            ? req.body as UpdateProfileBody
+            : null;
+        if (!body) return res.status(400).json({ error: 'Envie os dados de perfil em formato JSON.' });
+        const { name, avatarUrl, avatarPublicId } = body;
+        const username = body.username === undefined ? undefined : normalizarUsername(body.username);
+        if (name === undefined && username === undefined && avatarUrl === undefined && avatarPublicId === undefined) {
+            return res.status(400).json({ error: 'Informe ao menos um dado de perfil para atualizar.' });
+        }
 
         // Nome só é validado se veio na requisição — assim dá pra trocar só a
         // foto sem precisar reenviar o nome, e vice-versa.
@@ -259,6 +266,19 @@ const updateProfile = async (req: AuthRequest, res: Response) => {
         if (avatarUrl !== undefined && avatarUrl !== null
             && (typeof avatarUrl !== 'string' || avatarUrl.length > 2048)) {
             return res.status(400).json({ error: "A URL da foto é inválida" });
+        }
+        if (typeof avatarUrl === 'string') {
+            try {
+                const url = new URL(avatarUrl);
+                const localDevelopmentUrl = process.env.NODE_ENV !== 'production'
+                    && url.protocol === 'http:'
+                    && ['localhost', '127.0.0.1'].includes(url.hostname);
+                if (url.protocol !== 'https:' && !localDevelopmentUrl) {
+                    return res.status(400).json({ error: 'A URL da foto precisa usar HTTPS.' });
+                }
+            } catch {
+                return res.status(400).json({ error: 'A URL da foto é inválida.' });
+            }
         }
         if (avatarPublicId !== undefined && avatarPublicId !== null
             && (typeof avatarPublicId !== 'string' || typeof avatarUrl !== 'string' || !avatarCloudinaryUrlValida(avatarUrl, avatarPublicId))) {
@@ -309,9 +329,11 @@ const changePassword = async (req: AuthRequest, res: Response) => {
             return res.status(401).json({ error: "Erro de autenticação" });
         }
 
-        const { currentPassword, newPassword } = req.body;
+        const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+        const { currentPassword, newPassword } = body;
 
-        if (!currentPassword || !newPassword) {
+        if (typeof currentPassword !== 'string' || !currentPassword || Buffer.byteLength(currentPassword, 'utf8') > 72
+            || typeof newPassword !== 'string' || !newPassword) {
             return res.status(400).json({ error: "Informe a senha atual e a nova senha" });
         }
 

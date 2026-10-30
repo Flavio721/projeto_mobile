@@ -156,15 +156,10 @@ export default function HomeScreen() {
   }, []);
 
   const handleToggleFavorito = (id: string) => {
-    let novoValor = false;
-
-    setFilmes((prev) =>
-      prev.map((f) => {
-        if (f.id !== id) return f;
-        novoValor = !f.favorito;
-        return { ...f, favorito: novoValor };
-      }),
-    );
+    const filme = filmes.find((item) => item.id === id);
+    if (!filme) return;
+    const novoValor = !filme.favorito;
+    setFilmes((prev) => prev.map((item) => item.id === id ? { ...item, favorito: novoValor } : item));
 
     setStats((prev) => ({
       ...prev,

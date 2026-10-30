@@ -1,10 +1,9 @@
 import Text from '../components/TextoLocalizado';
 import { useStyles, useTema } from '../../contexts/TemaContext';
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, TouchableOpacity, FlatList, Image } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, TouchableOpacity, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import * as MediaLibrary from 'expo-media-library';
 import * as ImagePicker from 'expo-image-picker';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -14,6 +13,7 @@ import { useToast } from '../../contexts/ToastContext';
 import type { MainStackParamList } from '../../navigation/MainStack';
 
 type Aba = 'galeria' | 'camera';
+type FotoSelecionada = { uri: string };
 
 type GaleriaNavigationProp = NativeStackNavigationProp<MainStackParamList, 'Galeria'>;
 type GaleriaRouteProp = RouteProp<MainStackParamList, 'Galeria'>;
@@ -27,37 +27,25 @@ export default function Galeria() {
   const { showError } = useToast();
 
   const [aba, setAba] = useState<Aba>('galeria');
-  const [fotos, setFotos] = useState<MediaLibrary.Asset[]>([]);
-  const [carregando, setCarregando] = useState(true);
-  const [permissaoNegada, setPermissaoNegada] = useState(false);
+  const [foto, setFoto] = useState<FotoSelecionada | null>(null);
   const [selecionada, setSelecionada] = useState<string | null>(null);
 
-  const carregarFotosRecentes = useCallback(async () => {
-    setCarregando(true);
+  const abrirSeletorDeFotos = useCallback(async () => {
     try {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== 'granted') {
-        setPermissaoNegada(true);
-        return;
-      }
-
-      const resultado = await MediaLibrary.getAssetsAsync({
-        mediaType: 'photo',
-        first: 30,
-        sortBy: [['creationTime', false]],
+      const resultado = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.8,
+        allowsEditing: false,
       });
-      setFotos(resultado.assets);
-    } catch (error) {
-      console.error('Erro ao carregar fotos:', error);
-      showError('Não foi possível acessar suas fotos.');
-    } finally {
-      setCarregando(false);
+      if (!resultado.canceled && resultado.assets[0]) {
+        const uri = resultado.assets[0].uri;
+        setFoto({ uri });
+        setSelecionada(uri);
+      }
+    } catch {
+      showError('Não foi possível abrir suas fotos.');
     }
   }, [showError]);
-
-  useEffect(() => {
-    carregarFotosRecentes();
-  }, [carregarFotosRecentes]);
 
   const handleUsarSelecionada = () => {
     if (!selecionada) return;
@@ -66,19 +54,23 @@ export default function Galeria() {
   };
 
   const handleTirarFoto = async () => {
-    const permissao = await ImagePicker.requestCameraPermissionsAsync();
-    if (!permissao.granted) {
-      showError('Autorize o acesso à câmera para tirar uma foto.');
-      return;
-    }
-    const resultado = await ImagePicker.launchCameraAsync({
-      quality: 0.7,
-      aspect: [2, 3],
-      allowsEditing: true,
-    });
-    if (!resultado.canceled) {
-      onSelecionar(resultado.assets[0].uri);
-      navigation.goBack();
+    try {
+      const permissao = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permissao.granted) {
+        showError('Autorize o acesso à câmera para tirar uma foto.');
+        return;
+      }
+      const resultado = await ImagePicker.launchCameraAsync({
+        quality: 0.7,
+        aspect: [2, 3],
+        allowsEditing: true,
+      });
+      if (!resultado.canceled && resultado.assets[0]) {
+        onSelecionar(resultado.assets[0].uri);
+        navigation.goBack();
+      }
+    } catch {
+      showError('Não foi possível abrir a câmera.');
     }
   };
 
@@ -95,7 +87,7 @@ export default function Galeria() {
         <View style={styles.tabsRow}>
           <TouchableOpacity
             style={[styles.tabButton, aba === 'galeria' && styles.tabButtonActive]}
-            onPress={() => setAba('galeria')}
+            onPress={() => { setAba('galeria'); void abrirSeletorDeFotos(); }}
           >
             <Text style={[styles.tabButtonText, aba === 'galeria' && styles.tabButtonTextActive]}>
               Galeria
@@ -113,46 +105,28 @@ export default function Galeria() {
 
         {aba === 'galeria' ? (
           <>
-            <Text style={styles.sectionTitle}>Recentes</Text>
-            {permissaoNegada ? (
+            <Text style={styles.sectionTitle}>Escolher foto</Text>
+            {!foto ? (
               <View style={styles.emptyBox}>
                 <Ionicons name="images-outline" size={28} color={cores.muted} />
                 <Text style={styles.emptyText}>
-                  Autorize o acesso às fotos do aparelho pra escolher uma capa daqui.
+                  Abra o seletor de fotos do aparelho para escolher uma imagem.
                 </Text>
+                <TouchableOpacity style={styles.secondaryButton} onPress={() => void abrirSeletorDeFotos()}>
+                  <Text style={styles.secondaryButtonText}>Abrir fotos</Text>
+                </TouchableOpacity>
               </View>
             ) : (
-              <FlatList
-                data={fotos}
-                keyExtractor={(item) => item.id}
-                numColumns={3}
-                contentContainerStyle={styles.grid}
-                renderItem={({ item }) => {
-                  const ativo = item.uri === selecionada;
-                  return (
-                    <TouchableOpacity
-                      style={[styles.gridItem, ativo && styles.gridItemSelected]}
-                      onPress={() => setSelecionada(item.uri)}
-                      activeOpacity={0.85}
-                    >
-                      <Image source={{ uri: item.uri }} style={styles.gridImage} />
-                      {ativo && (
-                        <View style={styles.selectedBadge}>
-                          <Ionicons name="checkmark" size={13} color={cores.onGold} />
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                  );
-                }}
-                ListEmptyComponent={
-                  !carregando ? (
-                    <View style={styles.emptyBox}>
-                      <Ionicons name="images-outline" size={28} color={cores.muted} />
-                      <Text style={styles.emptyText}>Nenhuma foto encontrada no aparelho.</Text>
-                    </View>
-                  ) : null
-                }
-              />
+              <TouchableOpacity
+                style={[styles.gridItem, styles.gridItemSelected]}
+                onPress={() => void abrirSeletorDeFotos()}
+                activeOpacity={0.85}
+              >
+                <Image source={{ uri: foto.uri }} style={styles.gridImage} />
+                <View style={styles.selectedBadge}>
+                  <Ionicons name="checkmark" size={13} color={cores.onGold} />
+                </View>
+              </TouchableOpacity>
             )}
           </>
         ) : (

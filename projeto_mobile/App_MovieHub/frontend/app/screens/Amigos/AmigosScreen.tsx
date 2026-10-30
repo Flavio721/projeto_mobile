@@ -212,7 +212,7 @@ export default function AmigosScreen() {
     { key: 'shareWatched', label: 'Filmes assistidos', description: 'Seus amigos podem ver quais filmes você já assistiu.' },
     { key: 'shareWatchlist', label: 'Watchlist', description: 'Seus amigos podem ver os filmes que você pretende assistir.' },
     { key: 'shareFavorites', label: 'Favoritos', description: 'Seus amigos podem identificar seus filmes favoritos.' },
-    { key: 'shareReviews', label: 'Notas e comentários', description: 'Seus amigos podem ver suas avaliações e resenhas.' },
+    { key: 'shareReviews', label: 'Notas e resenhas', description: 'Seus amigos podem ver suas notas e resenhas de filmes e livros.' },
     { key: 'shareRecent', label: 'Atividade recente e datas', description: 'Mostra datas e os filmes adicionados mais recentemente.' },
     { key: 'shareBooks', label: 'Livros', description: 'Seus amigos podem ver os livros da sua biblioteca.' },
   ];

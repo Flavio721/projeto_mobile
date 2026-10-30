@@ -50,6 +50,8 @@ export default (cores: Paleta) => StyleSheet.create({
   bookTitle: { fontSize: 13, fontWeight: '700', marginTop: 8, minHeight: 34 },
   bookAuthor: { fontSize: 11, marginTop: 4 },
   bookStatus: { fontSize: 11, fontWeight: '700', marginTop: 6 },
+  bookRatingRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 5 },
+  bookReview: { fontSize: 11, lineHeight: 15, marginTop: 4 },
   empty: { fontSize: 13, paddingBottom: 14 }, privacyHeader: { flexDirection: 'row', alignItems: 'center' },
   privacyTitleBlock: { flex: 1 }, privacyHint: { fontSize: 12, marginTop: -5, marginBottom: 10 },
   privacyRow: { minHeight: 66, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 9 },

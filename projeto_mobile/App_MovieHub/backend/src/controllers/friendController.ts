@@ -316,7 +316,7 @@ const getFriendProfile = async (req: AuthRequest, res: Response) => {
       tree: { visible: sharesWatchedActivity, watchedCount },
       latestWatched: localizedMovies.slice(0, watchedEntries.length),
       favorites: localizedMovies.slice(watchedEntries.length),
-      books: bookEntries.map(({ book, status }) => ({
+      books: bookEntries.map(({ book, status, rating, comment }) => ({
         googleBooksId: book.googleBooksId,
         title: book.title,
         authors: book.authors,
@@ -325,6 +325,8 @@ const getFriendProfile = async (req: AuthRequest, res: Response) => {
         pageCount: book.pageCount,
         categories: book.categories,
         status,
+        rating: friend.shareReviews ? rating : null,
+        comment: friend.shareReviews ? comment : null,
       })),
     });
   } catch (error) {

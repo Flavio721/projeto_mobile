@@ -37,6 +37,8 @@ type ProfileBook = {
   pageCount?: number | null;
   categories: string[];
   status: 'WANT_TO_READ' | 'READING' | 'READ' | 'PAUSED';
+  rating?: number | null;
+  comment?: string | null;
 };
 type ProfileData = {
   user: { name: string; username: string; avatarUrl?: string | null };
@@ -141,6 +143,13 @@ export default function AmigoAtividadeScreen() {
               <Text style={[styles.bookTitle, { color: cores.text }]} numberOfLines={2}>{book.title}</Text>
               <Text style={[styles.bookAuthor, { color: cores.muted }]} numberOfLines={1}>{book.authors?.join(', ') || traduzir('Autor não informado')}</Text>
               <Text style={[styles.bookStatus, { color: cores.gold }]}>{traduzir(({ WANT_TO_READ: 'Quero ler', READING: 'Lendo', READ: 'Lido', PAUSED: 'Pausado' } as const)[book.status])}</Text>
+              {typeof book.rating === 'number' ? (
+                <View style={styles.bookRatingRow}>
+                  <Ionicons name="star" size={13} color={cores.gold} />
+                  <Text style={[styles.bookReview, { color: cores.text }]}>{book.rating}/5</Text>
+                </View>
+              ) : null}
+              {book.comment ? <Text style={[styles.bookReview, { color: cores.muted }]} numberOfLines={4}>{book.comment}</Text> : null}
             </View>
           ))}
         </ScrollView>

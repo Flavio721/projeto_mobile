@@ -38,6 +38,7 @@ model User {
   shareFavorites Boolean @default(true)
   shareReviews   Boolean @default(true)
   shareRecent    Boolean @default(true)
+  shareBooks     Boolean @default(true)
   movies    UserMovie[]
   books     UserBook[]
   sentFriendships     Friendship[] @relation("FriendshipRequester")

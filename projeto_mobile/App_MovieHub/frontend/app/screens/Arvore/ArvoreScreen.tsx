@@ -3,11 +3,13 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useTema, useStyles } from '../../contexts/TemaContext';
 import { useIdioma } from '../../contexts/IdiomaContext';
 import { buscarItem } from '../../lib/storage';
 import criarStyles from './styles';
+import type { MainTabsParamList } from '../../navigation/MainTabs';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const MARCOS = [0, 1, 3, 5, 10, 20, 35, 50];
@@ -25,7 +27,9 @@ export default function ArvoreScreen() {
   const styles = useStyles(criarStyles);
   const { cores } = useTema();
   const { traduzir, idioma } = useIdioma();
+  const navigation = useNavigation<BottomTabNavigationProp<MainTabsParamList>>();
   const [assistidos, setAssistidos] = useState(0);
+  const [livrosLidos, setLivrosLidos] = useState(0);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
   const [instrucoesVisiveis, setInstrucoesVisiveis] = useState(false);
@@ -36,14 +40,18 @@ export default function ArvoreScreen() {
     try {
       const token = await buscarItem('token');
       if (!token) throw new Error(traduzir('Sua sessão expirou. Faça login novamente.'));
-      const response = await fetch(`${API_BASE_URL}/movies/stats`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const headers = { Authorization: `Bearer ${token}` };
+      const [response, booksResponse] = await Promise.all([
+        fetch(`${API_BASE_URL}/movies/stats`, { headers }),
+        fetch(`${API_BASE_URL}/books/stats`, { headers }).catch(() => null),
+      ]);
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !Number.isInteger(data.assistidos) || data.assistidos < 0) {
         throw new Error(data.error ?? traduzir('Não foi possível carregar a árvore. Tente novamente.'));
       }
+      const booksData = booksResponse?.ok ? await booksResponse.json().catch(() => ({})) : {};
       setAssistidos(data.assistidos);
+      setLivrosLidos(Number.isInteger(booksData.read) && booksData.read >= 0 ? booksData.read : 0);
     } catch (error) {
       setErro(error instanceof Error ? error.message : traduzir('Não foi possível carregar a árvore. Tente novamente.'));
     } finally {
@@ -53,25 +61,26 @@ export default function ArvoreScreen() {
 
   useFocusEffect(useCallback(() => { void carregarProgresso(); }, [carregarProgresso]));
 
+  const crescimento = assistidos + livrosLidos;
   const progresso = useMemo(() => {
-    const marcoAtual = [...MARCOS].reverse().find((marco) => assistidos >= marco) ?? 0;
-    const proximoMarco = MARCOS.find((marco) => marco > assistidos);
+    const marcoAtual = [...MARCOS].reverse().find((marco) => crescimento >= marco) ?? 0;
+    const proximoMarco = MARCOS.find((marco) => marco > crescimento);
     if (proximoMarco === undefined) return { marcoAtual, proximoMarco: null, percentual: 1, faltam: 0 };
     const intervalo = proximoMarco - marcoAtual;
     return {
       marcoAtual,
       proximoMarco,
-      percentual: intervalo ? (assistidos - marcoAtual) / intervalo : 1,
-      faltam: proximoMarco - assistidos,
+      percentual: intervalo ? (crescimento - marcoAtual) / intervalo : 1,
+      faltam: proximoMarco - crescimento,
     };
-  }, [assistidos]);
+  }, [crescimento]);
 
-  const emojiArvore = assistidos === 0 ? '🌱' : assistidos < 5 ? '🌿' : '🌳';
-  const tamanhoArvore = assistidos === 0 ? 82 : assistidos < 3 ? 94 : assistidos < 5 ? 106 : assistidos < 10 ? 116 : assistidos < 20 ? 126 : 136;
-  const floresVisiveis = Math.min(Math.floor(assistidos / 5), FLORES.length);
-  const mensagemArvore = assistidos === 0
+  const emojiArvore = crescimento === 0 ? '🌱' : crescimento < 5 ? '🌿' : '🌳';
+  const tamanhoArvore = crescimento === 0 ? 82 : crescimento < 3 ? 94 : crescimento < 5 ? 106 : crescimento < 10 ? 116 : crescimento < 20 ? 126 : 136;
+  const floresVisiveis = Math.min(Math.floor(crescimento / 5), FLORES.length);
+  const mensagemArvore = crescimento === 0
     ? 'Sua árvore está começando'
-    : assistidos >= 20
+    : crescimento >= 20
       ? 'Sua árvore está florescendo'
       : 'Sua árvore está crescendo';
 
@@ -111,8 +120,8 @@ export default function ArvoreScreen() {
         <View style={styles.progressCard}>
           <View style={styles.countRow}>
             <View>
-              <Text style={styles.count}>{assistidos.toLocaleString(idioma)}</Text>
-              <Text style={styles.countLabel}>Filmes assistidos</Text>
+              <Text style={styles.count}>{crescimento.toLocaleString(idioma)}</Text>
+              <Text style={styles.countLabel}>{traduzir('Atividades de leitura e cinema')}</Text>
             </View>
             <View style={styles.leafBadge}><Ionicons name="leaf" size={20} color={cores.success} /></View>
           </View>
@@ -123,10 +132,39 @@ export default function ArvoreScreen() {
             <Text style={styles.nextLabel}>Árvore completa! Continue registrando filmes para mantê-la florida.</Text>
           ) : (
             <Text style={styles.nextLabel}>
-              {traduzir('Próximo marco')}: {progresso.proximoMarco} · {progresso.faltam} {traduzir('Mais filmes para o próximo estágio')}
+              {traduzir('Próximo marco')}: {progresso.proximoMarco} · {progresso.faltam} {traduzir('Mais atividades para o próximo estágio')}
             </Text>
           )}
-          <Text style={styles.levelLabel}>{traduzir('Estágio')} {MARCOS.filter((marco) => assistidos >= marco).length} / {MARCOS.length}</Text>
+          <Text style={styles.levelLabel}>{traduzir('Estágio')} {MARCOS.filter((marco) => crescimento >= marco).length} / {MARCOS.length}</Text>
+          <Text style={styles.nextLabel}>{assistidos} {traduzir('Filmes assistidos')} · {livrosLidos} {traduzir('Livros lidos')}</Text>
+        </View>
+
+        <View style={styles.missionsCard}>
+          <View style={styles.missionsHeading}>
+            <View style={styles.missionIcon}><Ionicons name="book-outline" size={19} color={cores.success} /></View>
+            <View style={styles.missionHeadingText}>
+              <Text style={styles.missionTitle}>{traduzir('Missões de leitura')}</Text>
+              <Text style={styles.missionSubtitle}>{traduzir('Cada livro lido faz sua árvore crescer.')}</Text>
+            </View>
+          </View>
+          {[1, 3, 5, 10].map((goal) => {
+            const current = Math.min(livrosLidos, goal);
+            const completed = livrosLidos >= goal;
+            return (
+              <View key={goal} style={styles.missionRow}>
+                <View style={styles.missionCopy}>
+                  <Text style={styles.missionLabel}>{traduzir('Leia {count} livros').replace('{count}', String(goal))}</Text>
+                  <Text style={styles.missionProgress}>{current} / {goal}</Text>
+                  <View style={styles.missionTrack}><View style={[styles.missionFill, { width: `${(current / goal) * 100}%` }]} /></View>
+                </View>
+                <Ionicons name={completed ? 'checkmark-circle' : 'ellipse-outline'} size={22} color={completed ? cores.success : cores.muted} />
+              </View>
+            );
+          })}
+          <TouchableOpacity onPress={() => navigation.navigate('Livros')} style={styles.missionButton} accessibilityRole="button">
+            <Text style={styles.missionButtonText}>{traduzir('Abrir biblioteca')}</Text>
+            <Ionicons name="arrow-forward" size={16} color={cores.onGold} />
+          </TouchableOpacity>
         </View>
 
         {carregando && <View style={styles.loadingRow}><ActivityIndicator color={cores.success} /><Text style={styles.loadingText}>Carregando sua árvore...</Text></View>}
@@ -141,7 +179,7 @@ export default function ArvoreScreen() {
 
         <View style={styles.noteCard}>
           <Ionicons name="sparkles-outline" size={20} color={cores.success} />
-          <Text style={styles.noteText}>Novos estágios e flores aparecem ao atingir marcos de filmes assistidos.</Text>
+          <Text style={styles.noteText}>{traduzir('Filmes assistidos e livros lidos fazem sua árvore crescer.')}</Text>
         </View>
       </ScrollView>
 
@@ -155,9 +193,9 @@ export default function ArvoreScreen() {
               </TouchableOpacity>
             </View>
             <Text style={styles.modalTitle}>Como funciona a árvore</Text>
-            <Text style={styles.instruction}>A árvore cresce automaticamente conforme sua coleção de filmes assistidos aumenta.</Text>
-            <Text style={styles.instruction}>Cada filme conta uma vez, quando você o marca como assistido.</Text>
-            <Text style={styles.instruction}>Novos estágios e flores aparecem ao atingir marcos de filmes assistidos.</Text>
+            <Text style={styles.instruction}>{traduzir('A árvore cresce com filmes assistidos e livros lidos.')}</Text>
+            <Text style={styles.instruction}>{traduzir('Cada filme ou livro conta uma vez quando marcado como assistido ou lido.')}</Text>
+            <Text style={styles.instruction}>{traduzir('Novos estágios e flores aparecem ao atingir marcos de crescimento.')}</Text>
             <Text style={styles.instruction}>Os dados vêm da sua lista e ficam sincronizados com sua conta.</Text>
             <TouchableOpacity style={styles.doneButton} onPress={() => setInstrucoesVisiveis(false)}>
               <Text style={styles.doneButtonText}>Entendi</Text>

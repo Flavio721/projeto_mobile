@@ -1,6 +1,6 @@
 # MovieHub
 
-Aplicativo mobile para gerenciamento pessoal de filmes. O usuário pesquisa títulos do catálogo TMDB e registra o que assistiu ou pretende assistir, com favoritos, avaliações e estatísticas pessoais.
+Aplicativo mobile para gerenciamento pessoal de filmes e livros. O usuário pesquisa títulos no TMDB e livros no Google Books, e mantém suas listas, status de leitura, favoritos e avaliações no MovieHub.
 
 Projeto acadêmico desenvolvido para a disciplina de Programação para Aplicativos Móveis (ETEC).
 
@@ -29,7 +29,7 @@ Projeto acadêmico desenvolvido para a disciplina de Programação para Aplicati
 | Linguagem | TypeScript |
 | Navegação | React Navigation v7 (native-stack + bottom-tabs) |
 | Localização | expo-location; cinemas consultados via OpenStreetMap/Overpass |
-| Mídia | expo-image-picker, expo-media-library |
+| Mídia | expo-image-picker e seletor nativo de fotos |
 | Armazenamento local | expo-secure-store (abstraído por `storage.ts`, com fallback para `localStorage` no modo web) |
 | Outros | expo-clipboard, @expo/vector-icons, react-native-reanimated |
 
@@ -96,6 +96,7 @@ Crie um arquivo `.env` dentro de `backend/` com:
 DATABASE_URL=postgresql://usuario:senha@host/banco?sslmode=require
 JWT_SECRET=uma_string_longa_e_aleatoria
 TMDB_READ_ACCESS_TOKEN=token_de_leitura_da_api_do_tmdb
+GOOGLE_BOOKS_API_KEY=chave-privada-do-google-books
 CLOUDINARY_CLOUD_NAME=nome-do-cloud
 CLOUDINARY_API_KEY=chave-da-api
 CLOUDINARY_API_SECRET=segredo-da-api
@@ -111,6 +112,8 @@ npx prisma generate
 ```
 
 `TMDB_READ_ACCESS_TOKEN` é o API Read Access Token criado nas configurações da conta TMDB. Ele fica somente no backend; não coloque essa credencial em variáveis `EXPO_PUBLIC_*` nem no app mobile. A migration `20261012120000_tmdb_personal_movie_log` remove os filmes e gêneros antigos cadastrados por usuário, preservando as contas e perfis, conforme decisão do projeto.
+
+`GOOGLE_BOOKS_API_KEY` identifica as consultas de catálogo feitas pelo backend. Ela fica em `backend/.env` no desenvolvimento e como variável privada no Render; nunca a cadastre no EAS nem em `frontend/.env`.
 
 Crie uma conta Cloudinary e copie os valores **Cloud name**, **API Key** e **API Secret** do Dashboard para o `.env` do backend e para as variáveis privadas do Render. O API Secret nunca deve ir ao frontend. A migration `20261015143000_cloudinary_avatar_public_id` adiciona o identificador necessário para remover fotos substituídas; `prisma migrate dev` aplica todas as migrations locais.
 
@@ -171,7 +174,7 @@ Configuração do serviço Web:
 | Build Command | `npm ci && npm run build` |
 | Start Command | `npm start` (`node dist/src/server.js`) |
 
-Cadastre no painel do Render as variáveis `DATABASE_URL`, `JWT_SECRET`, `TMDB_READ_ACCESS_TOKEN`, `GOOGLE_OAUTH_CLIENT_IDS`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` e `CLOUDINARY_API_SECRET`. O Render fornece `PORT` automaticamente. O endpoint `GET /` retorna o status da API; teste também login, banco e busca TMDB para validar o serviço completo.
+Cadastre no painel do Render as variáveis `DATABASE_URL`, `JWT_SECRET`, `TMDB_READ_ACCESS_TOKEN`, `GOOGLE_BOOKS_API_KEY`, `GOOGLE_OAUTH_CLIENT_IDS`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` e `CLOUDINARY_API_SECRET`. O Render fornece `PORT` automaticamente. O endpoint `GET /` retorna o status da API; teste também login, banco e buscas TMDB/Google Books para validar o serviço completo.
 
 #### Fotos de perfil
 
@@ -330,6 +333,19 @@ Todas as rotas abaixo (exceto cadastro e login) exigem o header `Authorization: 
 | DELETE | `/movies/:tmdbId/library` | Remove o filme da lista pessoal, sem remover o catálogo |
 | PATCH | `/movies/:tmdbId/favorite` | Define se o filme da lista é favorito (`{ "isFavorite": boolean }`) |
 
+### Livros (`/books`)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/books/search?q=...&page=1` | Pesquisa no Google Books; retorna metadados normalizados e informa se já está na biblioteca |
+| GET | `/books?page=1&pageSize=20` | Lista os livros pessoais com paginação |
+| GET | `/books/stats` | Retorna totais por estado de leitura e favoritos |
+| PUT | `/books/:googleBooksId/library` | Adiciona livro do catálogo ou atualiza os campos pessoais enviados |
+| PATCH | `/books/:bookId/library` | Atualiza estado, favorito, nota, anotações e datas |
+| DELETE | `/books/:bookId/library` | Remove a associação pessoal sem apagar os metadados do catálogo |
+
+Antes do deploy, aplique as migrations aditivas `20261030110000_add_books_catalog` e `20261030130000_share_books_privacy` com `npx prisma migrate deploy` usando o `DATABASE_URL` de produção. A chave do Google Books é usada pelo backend; o app móvel chama apenas as rotas autenticadas do MovieHub.
+
 ### Cinemas (`/cinemas`)
 
 | Método | Rota | Descrição |
@@ -358,6 +374,14 @@ UserMovie
 ├── userId + movieId (únicos em conjunto)
 ├── status (WATCHED | WATCHLIST), isFavorite
 └── rating (1 a 5, opcional), comment e watchedAt
+
+Book
+├── googleBooksId (único), ISBNs, título, autores, editora e metadados normalizados
+└── registros pessoais: UserBook[]
+
+UserBook
+├── userId + bookId (únicos em conjunto)
+└── estado de leitura, favorito, nota, comentário e datas
 ```
 
 O catálogo é consultado no TMDB e seus metadados são guardados localmente quando alguém adiciona um filme. Cada conta tem um único registro pessoal por filme TMDB. Marcar como assistido exige a data; esse registro pode ser atualizado, sem criar múltiplas avaliações para reassistidas.
@@ -383,6 +407,7 @@ O catálogo é consultado no TMDB e seus metadados são guardados localmente qua
 - Busca de cinemas próximos via OpenStreetMap, com distância e link para abrir a rota no Maps
 - Compartilhamento das estatísticas pessoais pelo menu nativo do celular
 - Lembrete na Home para filmes na watchlist e controle das recomendações populares
+- Biblioteca de livros com pesquisa Google Books, estados de leitura, favoritos, notas, anotações e remoção
 
 ## Limitações conhecidas
 
@@ -396,7 +421,7 @@ O catálogo é consultado no TMDB e seus metadados são guardados localmente qua
 
 ## Plano do CRUD de livros
 
-O planejamento de APIs, modelo de dados, rotas, componentes e etapas de entrega está em [docs/PLANO_CRUD_LIVROS.md](docs/PLANO_CRUD_LIVROS.md). A primeira proposta usa Google Books como fonte principal, Open Library como fallback e cadastro manual por ISBN, sem misturar livros com o catálogo TMDB.
+O planejamento inicial e as etapas estão em [docs/PLANO_CRUD_LIVROS.md](docs/PLANO_CRUD_LIVROS.md). A implementação desta branch usa Google Books e mantém o catálogo de livros separado do TMDB.
 
 ## Cache da API
 

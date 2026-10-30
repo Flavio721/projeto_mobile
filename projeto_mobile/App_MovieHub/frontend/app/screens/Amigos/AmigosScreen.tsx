@@ -24,6 +24,7 @@ type Visibility = {
   shareFavorites: boolean;
   shareReviews: boolean;
   shareRecent: boolean;
+  shareBooks: boolean;
 };
 type FriendsData = { friends: FriendshipRow[]; incomingRequests: FriendshipRow[]; outgoingRequests: FriendshipRow[] };
 
@@ -34,6 +35,7 @@ const INITIAL_VISIBILITY: Visibility = {
   shareFavorites: true,
   shareReviews: true,
   shareRecent: true,
+  shareBooks: true,
 };
 
 export default function AmigosScreen() {
@@ -156,7 +158,10 @@ export default function AmigosScreen() {
       showSuccess('Privacidade atualizada.');
     } catch (error) {
       setVisibility(previous);
-      showError(error instanceof Error ? error.message : 'Não foi possível salvar a privacidade.');
+      const message = error instanceof Error ? error.message : 'Não foi possível salvar a privacidade.';
+      showError(key === 'shareBooks' && message === 'Informe ao menos uma preferência de privacidade.'
+        ? traduzir('Atualize a API para ativar o compartilhamento de livros.')
+        : message);
     } finally {
       setUpdatingPrivacy(false);
     }
@@ -209,6 +214,7 @@ export default function AmigosScreen() {
     { key: 'shareFavorites', label: 'Favoritos', description: 'Seus amigos podem identificar seus filmes favoritos.' },
     { key: 'shareReviews', label: 'Notas e comentários', description: 'Seus amigos podem ver suas avaliações e resenhas.' },
     { key: 'shareRecent', label: 'Atividade recente e datas', description: 'Mostra datas e os filmes adicionados mais recentemente.' },
+    { key: 'shareBooks', label: 'Livros', description: 'Seus amigos podem ver os livros da sua biblioteca.' },
   ];
 
   return (

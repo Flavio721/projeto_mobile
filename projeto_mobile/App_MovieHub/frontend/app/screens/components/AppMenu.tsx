@@ -8,7 +8,7 @@ import { useIdioma } from '../../contexts/IdiomaContext';
 import type { Paleta } from '../../theme/paletas';
 import { normalizarUrlImagem } from '../../lib/uploadImagem';
 
-export type AppMenuRoute = 'Home' | 'Filmes' | 'Favoritos' | 'Perfil' | 'Arvore' | 'Pesquisa' | 'Generos' | 'Estatisticas' | 'Cinemas' | 'Configuracoes';
+export type AppMenuRoute = 'Home' | 'Filmes' | 'Favoritos' | 'Livros' | 'Perfil' | 'Arvore' | 'Pesquisa' | 'Generos' | 'Estatisticas' | 'Cinemas' | 'Configuracoes';
 
 interface AppMenuProps {
   visible: boolean;
@@ -21,6 +21,7 @@ const TAB_ITEMS: { label: string; icon: keyof typeof Ionicons.glyphMap; route: A
   { label: 'home', icon: 'home-outline', route: 'Home' },
   { label: 'movies', icon: 'film-outline', route: 'Filmes' },
   { label: 'favorites', icon: 'heart-outline', route: 'Favoritos' },
+  { label: 'books', icon: 'book-outline', route: 'Livros' },
   { label: 'profile', icon: 'person-outline', route: 'Perfil' },
   { label: 'tree', icon: 'leaf-outline', route: 'Arvore' },
 ];

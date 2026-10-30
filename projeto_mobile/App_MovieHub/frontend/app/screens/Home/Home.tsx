@@ -127,7 +127,7 @@ export default function HomeScreen() {
 
   const selecionarMenu = (route: AppMenuRoute) => {
     setMenuVisivel(false);
-    const abas = ['Home', 'Filmes', 'Favoritos', 'Perfil', 'Arvore'];
+    const abas = ['Home', 'Filmes', 'Favoritos', 'Livros', 'Perfil', 'Arvore'];
     if (abas.includes(route)) (navigation as any).navigate(route);
     else (navigation as any).getParent()?.navigate(route);
   };

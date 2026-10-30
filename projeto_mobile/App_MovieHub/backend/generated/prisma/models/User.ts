@@ -38,6 +38,7 @@ export type UserMinAggregateOutputType = {
   shareFavorites: boolean | null
   shareReviews: boolean | null
   shareRecent: boolean | null
+  shareBooks: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +57,7 @@ export type UserMaxAggregateOutputType = {
   shareFavorites: boolean | null
   shareReviews: boolean | null
   shareRecent: boolean | null
+  shareBooks: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -74,6 +76,7 @@ export type UserCountAggregateOutputType = {
   shareFavorites: number
   shareReviews: number
   shareRecent: number
+  shareBooks: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -94,6 +97,7 @@ export type UserMinAggregateInputType = {
   shareFavorites?: true
   shareReviews?: true
   shareRecent?: true
+  shareBooks?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -112,6 +116,7 @@ export type UserMaxAggregateInputType = {
   shareFavorites?: true
   shareReviews?: true
   shareRecent?: true
+  shareBooks?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -130,6 +135,7 @@ export type UserCountAggregateInputType = {
   shareFavorites?: true
   shareReviews?: true
   shareRecent?: true
+  shareBooks?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -221,6 +227,7 @@ export type UserGroupByOutputType = {
   shareFavorites: boolean
   shareReviews: boolean
   shareRecent: boolean
+  shareBooks: boolean
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -260,6 +267,7 @@ export type UserWhereInput = {
   shareFavorites?: Prisma.BoolFilter<"User"> | boolean
   shareReviews?: Prisma.BoolFilter<"User"> | boolean
   shareRecent?: Prisma.BoolFilter<"User"> | boolean
+  shareBooks?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   movies?: Prisma.UserMovieListRelationFilter
@@ -282,6 +290,7 @@ export type UserOrderByWithRelationInput = {
   shareFavorites?: Prisma.SortOrder
   shareReviews?: Prisma.SortOrder
   shareRecent?: Prisma.SortOrder
+  shareBooks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   movies?: Prisma.UserMovieOrderByRelationAggregateInput
@@ -307,6 +316,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   shareFavorites?: Prisma.BoolFilter<"User"> | boolean
   shareReviews?: Prisma.BoolFilter<"User"> | boolean
   shareRecent?: Prisma.BoolFilter<"User"> | boolean
+  shareBooks?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   movies?: Prisma.UserMovieListRelationFilter
@@ -329,6 +339,7 @@ export type UserOrderByWithAggregationInput = {
   shareFavorites?: Prisma.SortOrder
   shareReviews?: Prisma.SortOrder
   shareRecent?: Prisma.SortOrder
+  shareBooks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -353,6 +364,7 @@ export type UserScalarWhereWithAggregatesInput = {
   shareFavorites?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   shareReviews?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   shareRecent?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  shareBooks?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -371,6 +383,7 @@ export type UserCreateInput = {
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieCreateNestedManyWithoutUserInput
@@ -393,6 +406,7 @@ export type UserUncheckedCreateInput = {
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieUncheckedCreateNestedManyWithoutUserInput
@@ -415,6 +429,7 @@ export type UserUpdateInput = {
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareBooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUpdateManyWithoutUserNestedInput
@@ -437,6 +452,7 @@ export type UserUncheckedUpdateInput = {
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareBooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUncheckedUpdateManyWithoutUserNestedInput
@@ -459,6 +475,7 @@ export type UserCreateManyInput = {
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -477,6 +494,7 @@ export type UserUpdateManyMutationInput = {
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareBooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -495,6 +513,7 @@ export type UserUncheckedUpdateManyInput = {
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareBooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -513,6 +532,7 @@ export type UserCountOrderByAggregateInput = {
   shareFavorites?: Prisma.SortOrder
   shareReviews?: Prisma.SortOrder
   shareRecent?: Prisma.SortOrder
+  shareBooks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -531,6 +551,7 @@ export type UserMaxOrderByAggregateInput = {
   shareFavorites?: Prisma.SortOrder
   shareReviews?: Prisma.SortOrder
   shareRecent?: Prisma.SortOrder
+  shareBooks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -549,6 +570,7 @@ export type UserMinOrderByAggregateInput = {
   shareFavorites?: Prisma.SortOrder
   shareReviews?: Prisma.SortOrder
   shareRecent?: Prisma.SortOrder
+  shareBooks?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -644,6 +666,7 @@ export type UserCreateWithoutSentFriendshipsInput = {
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieCreateNestedManyWithoutUserInput
@@ -665,6 +688,7 @@ export type UserUncheckedCreateWithoutSentFriendshipsInput = {
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieUncheckedCreateNestedManyWithoutUserInput
@@ -691,6 +715,7 @@ export type UserCreateWithoutReceivedFriendshipsInput = {
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieCreateNestedManyWithoutUserInput
@@ -712,6 +737,7 @@ export type UserUncheckedCreateWithoutReceivedFriendshipsInput = {
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieUncheckedCreateNestedManyWithoutUserInput
@@ -749,6 +775,7 @@ export type UserUpdateWithoutSentFriendshipsInput = {
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareBooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUpdateManyWithoutUserNestedInput
@@ -770,6 +797,7 @@ export type UserUncheckedUpdateWithoutSentFriendshipsInput = {
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareBooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUncheckedUpdateManyWithoutUserNestedInput
@@ -802,6 +830,7 @@ export type UserUpdateWithoutReceivedFriendshipsInput = {
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareBooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUpdateManyWithoutUserNestedInput
@@ -823,6 +852,7 @@ export type UserUncheckedUpdateWithoutReceivedFriendshipsInput = {
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareBooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUncheckedUpdateManyWithoutUserNestedInput
@@ -844,6 +874,7 @@ export type UserCreateWithoutMoviesInput = {
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   books?: Prisma.UserBookCreateNestedManyWithoutUserInput
@@ -865,6 +896,7 @@ export type UserUncheckedCreateWithoutMoviesInput = {
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   books?: Prisma.UserBookUncheckedCreateNestedManyWithoutUserInput
@@ -902,6 +934,7 @@ export type UserUpdateWithoutMoviesInput = {
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareBooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   books?: Prisma.UserBookUpdateManyWithoutUserNestedInput
@@ -923,6 +956,7 @@ export type UserUncheckedUpdateWithoutMoviesInput = {
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareBooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   books?: Prisma.UserBookUncheckedUpdateManyWithoutUserNestedInput
@@ -944,6 +978,7 @@ export type UserCreateWithoutBooksInput = {
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieCreateNestedManyWithoutUserInput
@@ -965,6 +1000,7 @@ export type UserUncheckedCreateWithoutBooksInput = {
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieUncheckedCreateNestedManyWithoutUserInput
@@ -1002,6 +1038,7 @@ export type UserUpdateWithoutBooksInput = {
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareBooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUpdateManyWithoutUserNestedInput
@@ -1023,6 +1060,7 @@ export type UserUncheckedUpdateWithoutBooksInput = {
   shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareBooks?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUncheckedUpdateManyWithoutUserNestedInput
@@ -1102,6 +1140,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   movies?: boolean | Prisma.User$moviesArgs<ExtArgs>
@@ -1125,6 +1164,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1143,6 +1183,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["user"]>
@@ -1161,11 +1202,12 @@ export type UserSelectScalar = {
   shareFavorites?: boolean
   shareReviews?: boolean
   shareRecent?: boolean
+  shareBooks?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "username" | "email" | "password" | "googleSub" | "avatarUrl" | "avatarPublicId" | "shareWatched" | "shareWatchlist" | "shareFavorites" | "shareReviews" | "shareRecent" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "username" | "email" | "password" | "googleSub" | "avatarUrl" | "avatarPublicId" | "shareWatched" | "shareWatchlist" | "shareFavorites" | "shareReviews" | "shareRecent" | "shareBooks" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   movies?: boolean | Prisma.User$moviesArgs<ExtArgs>
   books?: boolean | Prisma.User$booksArgs<ExtArgs>
@@ -1198,6 +1240,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     shareFavorites: boolean
     shareReviews: boolean
     shareRecent: boolean
+    shareBooks: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1640,6 +1683,7 @@ export interface UserFieldRefs {
   readonly shareFavorites: Prisma.FieldRef<"User", 'Boolean'>
   readonly shareReviews: Prisma.FieldRef<"User", 'Boolean'>
   readonly shareRecent: Prisma.FieldRef<"User", 'Boolean'>
+  readonly shareBooks: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }

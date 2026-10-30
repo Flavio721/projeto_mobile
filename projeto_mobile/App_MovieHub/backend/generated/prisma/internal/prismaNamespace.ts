@@ -919,6 +919,7 @@ export const UserScalarFieldEnum = {
   shareFavorites: 'shareFavorites',
   shareReviews: 'shareReviews',
   shareRecent: 'shareRecent',
+  shareBooks: 'shareBooks',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

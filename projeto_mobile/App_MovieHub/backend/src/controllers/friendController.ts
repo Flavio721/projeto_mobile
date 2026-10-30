@@ -5,7 +5,7 @@ import type { AuthRequest } from '../middlewares/authMiddleware.js';
 import { getLocalizedTmdbMovie } from '../services/tmdbService.js';
 
 const contactSelect = { id: true, name: true, username: true, avatarUrl: true } as const;
-const privacyKeys = ['shareWatched', 'shareWatchlist', 'shareFavorites', 'shareReviews', 'shareRecent'] as const;
+const privacyKeys = ['shareWatched', 'shareWatchlist', 'shareFavorites', 'shareReviews', 'shareRecent', 'shareBooks'] as const;
 
 function currentUserId(req: AuthRequest, res: Response): string | null {
   if (!req.userId) {
@@ -172,7 +172,7 @@ const getPrivacy = async (req: AuthRequest, res: Response) => {
   try {
     const privacy = await prisma.user.findUnique({
       where: { id: userId },
-      select: { shareWatched: true, shareWatchlist: true, shareFavorites: true, shareReviews: true, shareRecent: true },
+      select: { shareWatched: true, shareWatchlist: true, shareFavorites: true, shareReviews: true, shareRecent: true, shareBooks: true },
     });
     if (!privacy) return res.status(404).json({ error: 'Usuário não encontrado.' });
     return res.json(privacy);
@@ -200,7 +200,7 @@ const updatePrivacy = async (req: AuthRequest, res: Response) => {
     const privacy = await prisma.user.update({
       where: { id: userId },
       data: updates,
-      select: { shareWatched: true, shareWatchlist: true, shareFavorites: true, shareReviews: true, shareRecent: true },
+      select: { shareWatched: true, shareWatchlist: true, shareFavorites: true, shareReviews: true, shareRecent: true, shareBooks: true },
     });
     return res.json(privacy);
   } catch (error) {
@@ -241,12 +241,13 @@ const getFriendProfile = async (req: AuthRequest, res: Response) => {
         shareFavorites: true,
         shareReviews: true,
         shareRecent: true,
+        shareBooks: true,
       },
     });
     if (!friend) return res.status(404).json({ error: 'Amigo não encontrado.' });
 
     const sharesWatchedActivity = friend.shareWatched && friend.shareRecent;
-    const [watchedEntries, favoriteEntries, watchedCount] = await Promise.all([
+    const [watchedEntries, favoriteEntries, watchedCount, bookEntries] = await Promise.all([
       friend.shareWatched && friend.shareRecent
         ? prisma.userMovie.findMany({
             where: { userId: friendId, status: MovieStatus.WATCHED },
@@ -266,6 +267,14 @@ const getFriendProfile = async (req: AuthRequest, res: Response) => {
       sharesWatchedActivity
         ? prisma.userMovie.count({ where: { userId: friendId, status: MovieStatus.WATCHED } })
         : Promise.resolve(null),
+      friend.shareBooks
+        ? prisma.userBook.findMany({
+            where: { userId: friendId },
+            include: { book: true },
+            orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+            take: 30,
+          })
+        : Promise.resolve([]),
     ]);
 
     const serializeProfileMovie = (entry: (typeof watchedEntries)[number], localized?: Awaited<ReturnType<typeof getLocalizedTmdbMovie>>) => ({
@@ -302,10 +311,21 @@ const getFriendProfile = async (req: AuthRequest, res: Response) => {
         watched: sharesWatchedActivity,
         favorites: friend.shareFavorites,
         reviews: friend.shareReviews,
+        books: friend.shareBooks,
       },
       tree: { visible: sharesWatchedActivity, watchedCount },
       latestWatched: localizedMovies.slice(0, watchedEntries.length),
       favorites: localizedMovies.slice(watchedEntries.length),
+      books: bookEntries.map(({ book, status }) => ({
+        googleBooksId: book.googleBooksId,
+        title: book.title,
+        authors: book.authors,
+        coverUrl: book.coverUrl,
+        publishedDate: book.publishedDate,
+        pageCount: book.pageCount,
+        categories: book.categories,
+        status,
+      })),
     });
   } catch (error) {
     console.error('Erro ao carregar atividade do amigo:', error);

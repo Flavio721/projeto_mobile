@@ -28,13 +28,24 @@ type ProfileMovie = {
   rating?: number | null;
   watchedAt?: string | null;
 };
+type ProfileBook = {
+  googleBooksId: string;
+  title: string;
+  authors: string[];
+  coverUrl?: string | null;
+  publishedDate?: string | null;
+  pageCount?: number | null;
+  categories: string[];
+  status: 'WANT_TO_READ' | 'READING' | 'READ' | 'PAUSED';
+};
 type ProfileData = {
   user: { name: string; username: string; avatarUrl?: string | null };
-  privacy: { watched: boolean; favorites: boolean; reviews: boolean };
+  privacy: { watched: boolean; favorites: boolean; reviews: boolean; books?: boolean };
   // The field may be absent while the backend deployment is still on an older version.
   tree?: { visible: boolean; watchedCount: number | null };
   latestWatched: ProfileMovie[];
   favorites: ProfileMovie[];
+  books?: ProfileBook[];
 };
 
 const MARCOS_ARVORE = [0, 1, 3, 5, 10, 20, 35, 50];
@@ -111,6 +122,30 @@ export default function AmigoAtividadeScreen() {
         </ScrollView>
       ) : (
         <Text style={[styles.empty, { color: cores.muted }]}>{traduzir('Nenhum filme nesta lista ainda.')}</Text>
+      )}
+    </View>
+  );
+
+  const renderBooks = (books: ProfileBook[], visible: boolean) => (
+    <View style={styles.profileSection}>
+      <Text style={[styles.sectionHeading, { color: cores.text }]}>{traduzir('Biblioteca de livros')}</Text>
+      {!visible ? (
+        <Text style={[styles.empty, { color: cores.muted }]}>{traduzir('Esta lista está oculta pelas configurações de privacidade.')}</Text>
+      ) : books.length ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.bookCarousel}>
+          {books.map((book) => (
+            <View key={book.googleBooksId} style={[styles.bookTile, { backgroundColor: cores.surface, borderColor: cores.border }]}>
+              {book.coverUrl ? <Image source={{ uri: book.coverUrl }} style={styles.bookCover} /> : (
+                <View style={[styles.bookCover, styles.bookCoverFallback, { backgroundColor: cores.card }]}><Ionicons name="book-outline" size={26} color={cores.muted} /></View>
+              )}
+              <Text style={[styles.bookTitle, { color: cores.text }]} numberOfLines={2}>{book.title}</Text>
+              <Text style={[styles.bookAuthor, { color: cores.muted }]} numberOfLines={1}>{book.authors?.join(', ') || traduzir('Autor não informado')}</Text>
+              <Text style={[styles.bookStatus, { color: cores.gold }]}>{traduzir(({ WANT_TO_READ: 'Quero ler', READING: 'Lendo', READ: 'Lido', PAUSED: 'Pausado' } as const)[book.status])}</Text>
+            </View>
+          ))}
+        </ScrollView>
+      ) : (
+        <Text style={[styles.empty, { color: cores.muted }]}>{traduzir('Nenhum livro nesta lista ainda.')}</Text>
       )}
     </View>
   );
@@ -192,6 +227,7 @@ export default function AmigoAtividadeScreen() {
         {renderFriendTree()}
         {renderMovieList('Últimos filmes vistos', data.latestWatched, data.privacy.watched)}
         {renderMovieList('Favoritos', data.favorites, data.privacy.favorites)}
+        {renderBooks(Array.isArray(data.books) ? data.books : [], data.privacy.books ?? false)}
       </> : loadError ? (
         <View style={styles.loadErrorCard}>
           <Text style={[styles.empty, { color: cores.muted }]}>{traduzir(loadError)}</Text>

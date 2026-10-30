@@ -54,7 +54,9 @@ export const ModelName = {
   User: 'User',
   Friendship: 'Friendship',
   Movie: 'Movie',
-  UserMovie: 'UserMovie'
+  UserMovie: 'UserMovie',
+  Book: 'Book',
+  UserBook: 'UserBook'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -137,6 +139,45 @@ export const UserMovieScalarFieldEnum = {
 } as const
 
 export type UserMovieScalarFieldEnum = (typeof UserMovieScalarFieldEnum)[keyof typeof UserMovieScalarFieldEnum]
+
+
+export const BookScalarFieldEnum = {
+  id: 'id',
+  googleBooksId: 'googleBooksId',
+  title: 'title',
+  subtitle: 'subtitle',
+  isbn10: 'isbn10',
+  isbn13: 'isbn13',
+  authors: 'authors',
+  description: 'description',
+  publisher: 'publisher',
+  publishedDate: 'publishedDate',
+  pageCount: 'pageCount',
+  coverUrl: 'coverUrl',
+  language: 'language',
+  categories: 'categories',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BookScalarFieldEnum = (typeof BookScalarFieldEnum)[keyof typeof BookScalarFieldEnum]
+
+
+export const UserBookScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  bookId: 'bookId',
+  status: 'status',
+  isFavorite: 'isFavorite',
+  rating: 'rating',
+  comment: 'comment',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type UserBookScalarFieldEnum = (typeof UserBookScalarFieldEnum)[keyof typeof UserBookScalarFieldEnum]
 
 
 export const SortOrder = {

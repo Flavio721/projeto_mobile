@@ -17,6 +17,16 @@ export const MovieStatus = {
 export type MovieStatus = (typeof MovieStatus)[keyof typeof MovieStatus]
 
 
+export const BookReadingStatus = {
+  WANT_TO_READ: 'WANT_TO_READ',
+  READING: 'READING',
+  READ: 'READ',
+  PAUSED: 'PAUSED'
+} as const
+
+export type BookReadingStatus = (typeof BookReadingStatus)[keyof typeof BookReadingStatus]
+
+
 export const FriendshipStatus = {
   PENDING: 'PENDING',
   ACCEPTED: 'ACCEPTED'

@@ -263,6 +263,7 @@ export type UserWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   movies?: Prisma.UserMovieListRelationFilter
+  books?: Prisma.UserBookListRelationFilter
   sentFriendships?: Prisma.FriendshipListRelationFilter
   receivedFriendships?: Prisma.FriendshipListRelationFilter
 }
@@ -284,6 +285,7 @@ export type UserOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   movies?: Prisma.UserMovieOrderByRelationAggregateInput
+  books?: Prisma.UserBookOrderByRelationAggregateInput
   sentFriendships?: Prisma.FriendshipOrderByRelationAggregateInput
   receivedFriendships?: Prisma.FriendshipOrderByRelationAggregateInput
 }
@@ -308,6 +310,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   movies?: Prisma.UserMovieListRelationFilter
+  books?: Prisma.UserBookListRelationFilter
   sentFriendships?: Prisma.FriendshipListRelationFilter
   receivedFriendships?: Prisma.FriendshipListRelationFilter
 }, "id" | "username" | "email" | "googleSub">
@@ -371,6 +374,7 @@ export type UserCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieCreateNestedManyWithoutUserInput
+  books?: Prisma.UserBookCreateNestedManyWithoutUserInput
   sentFriendships?: Prisma.FriendshipCreateNestedManyWithoutRequesterInput
   receivedFriendships?: Prisma.FriendshipCreateNestedManyWithoutAddresseeInput
 }
@@ -392,6 +396,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieUncheckedCreateNestedManyWithoutUserInput
+  books?: Prisma.UserBookUncheckedCreateNestedManyWithoutUserInput
   sentFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutRequesterInput
   receivedFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutAddresseeInput
 }
@@ -413,6 +418,7 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUpdateManyWithoutUserNestedInput
+  books?: Prisma.UserBookUpdateManyWithoutUserNestedInput
   sentFriendships?: Prisma.FriendshipUpdateManyWithoutRequesterNestedInput
   receivedFriendships?: Prisma.FriendshipUpdateManyWithoutAddresseeNestedInput
 }
@@ -434,6 +440,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUncheckedUpdateManyWithoutUserNestedInput
+  books?: Prisma.UserBookUncheckedUpdateManyWithoutUserNestedInput
   sentFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutRequesterNestedInput
   receivedFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutAddresseeNestedInput
 }
@@ -609,6 +616,20 @@ export type UserUpdateOneRequiredWithoutMoviesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMoviesInput, Prisma.UserUpdateWithoutMoviesInput>, Prisma.UserUncheckedUpdateWithoutMoviesInput>
 }
 
+export type UserCreateNestedOneWithoutBooksInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBooksInput, Prisma.UserUncheckedCreateWithoutBooksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBooksInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutBooksNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutBooksInput, Prisma.UserUncheckedCreateWithoutBooksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutBooksInput
+  upsert?: Prisma.UserUpsertWithoutBooksInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBooksInput, Prisma.UserUpdateWithoutBooksInput>, Prisma.UserUncheckedUpdateWithoutBooksInput>
+}
+
 export type UserCreateWithoutSentFriendshipsInput = {
   id?: string
   name: string
@@ -626,6 +647,7 @@ export type UserCreateWithoutSentFriendshipsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieCreateNestedManyWithoutUserInput
+  books?: Prisma.UserBookCreateNestedManyWithoutUserInput
   receivedFriendships?: Prisma.FriendshipCreateNestedManyWithoutAddresseeInput
 }
 
@@ -646,6 +668,7 @@ export type UserUncheckedCreateWithoutSentFriendshipsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieUncheckedCreateNestedManyWithoutUserInput
+  books?: Prisma.UserBookUncheckedCreateNestedManyWithoutUserInput
   receivedFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutAddresseeInput
 }
 
@@ -671,6 +694,7 @@ export type UserCreateWithoutReceivedFriendshipsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieCreateNestedManyWithoutUserInput
+  books?: Prisma.UserBookCreateNestedManyWithoutUserInput
   sentFriendships?: Prisma.FriendshipCreateNestedManyWithoutRequesterInput
 }
 
@@ -691,6 +715,7 @@ export type UserUncheckedCreateWithoutReceivedFriendshipsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   movies?: Prisma.UserMovieUncheckedCreateNestedManyWithoutUserInput
+  books?: Prisma.UserBookUncheckedCreateNestedManyWithoutUserInput
   sentFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutRequesterInput
 }
 
@@ -727,6 +752,7 @@ export type UserUpdateWithoutSentFriendshipsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUpdateManyWithoutUserNestedInput
+  books?: Prisma.UserBookUpdateManyWithoutUserNestedInput
   receivedFriendships?: Prisma.FriendshipUpdateManyWithoutAddresseeNestedInput
 }
 
@@ -747,6 +773,7 @@ export type UserUncheckedUpdateWithoutSentFriendshipsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUncheckedUpdateManyWithoutUserNestedInput
+  books?: Prisma.UserBookUncheckedUpdateManyWithoutUserNestedInput
   receivedFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutAddresseeNestedInput
 }
 
@@ -778,6 +805,7 @@ export type UserUpdateWithoutReceivedFriendshipsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUpdateManyWithoutUserNestedInput
+  books?: Prisma.UserBookUpdateManyWithoutUserNestedInput
   sentFriendships?: Prisma.FriendshipUpdateManyWithoutRequesterNestedInput
 }
 
@@ -798,6 +826,7 @@ export type UserUncheckedUpdateWithoutReceivedFriendshipsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   movies?: Prisma.UserMovieUncheckedUpdateManyWithoutUserNestedInput
+  books?: Prisma.UserBookUncheckedUpdateManyWithoutUserNestedInput
   sentFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutRequesterNestedInput
 }
 
@@ -817,6 +846,7 @@ export type UserCreateWithoutMoviesInput = {
   shareRecent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  books?: Prisma.UserBookCreateNestedManyWithoutUserInput
   sentFriendships?: Prisma.FriendshipCreateNestedManyWithoutRequesterInput
   receivedFriendships?: Prisma.FriendshipCreateNestedManyWithoutAddresseeInput
 }
@@ -837,6 +867,7 @@ export type UserUncheckedCreateWithoutMoviesInput = {
   shareRecent?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  books?: Prisma.UserBookUncheckedCreateNestedManyWithoutUserInput
   sentFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutRequesterInput
   receivedFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutAddresseeInput
 }
@@ -873,6 +904,7 @@ export type UserUpdateWithoutMoviesInput = {
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  books?: Prisma.UserBookUpdateManyWithoutUserNestedInput
   sentFriendships?: Prisma.FriendshipUpdateManyWithoutRequesterNestedInput
   receivedFriendships?: Prisma.FriendshipUpdateManyWithoutAddresseeNestedInput
 }
@@ -893,6 +925,107 @@ export type UserUncheckedUpdateWithoutMoviesInput = {
   shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  books?: Prisma.UserBookUncheckedUpdateManyWithoutUserNestedInput
+  sentFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutRequesterNestedInput
+  receivedFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutAddresseeNestedInput
+}
+
+export type UserCreateWithoutBooksInput = {
+  id?: string
+  name: string
+  username: string
+  email: string
+  password?: string | null
+  googleSub?: string | null
+  avatarUrl?: string | null
+  avatarPublicId?: string | null
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  movies?: Prisma.UserMovieCreateNestedManyWithoutUserInput
+  sentFriendships?: Prisma.FriendshipCreateNestedManyWithoutRequesterInput
+  receivedFriendships?: Prisma.FriendshipCreateNestedManyWithoutAddresseeInput
+}
+
+export type UserUncheckedCreateWithoutBooksInput = {
+  id?: string
+  name: string
+  username: string
+  email: string
+  password?: string | null
+  googleSub?: string | null
+  avatarUrl?: string | null
+  avatarPublicId?: string | null
+  shareWatched?: boolean
+  shareWatchlist?: boolean
+  shareFavorites?: boolean
+  shareReviews?: boolean
+  shareRecent?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  movies?: Prisma.UserMovieUncheckedCreateNestedManyWithoutUserInput
+  sentFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutRequesterInput
+  receivedFriendships?: Prisma.FriendshipUncheckedCreateNestedManyWithoutAddresseeInput
+}
+
+export type UserCreateOrConnectWithoutBooksInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutBooksInput, Prisma.UserUncheckedCreateWithoutBooksInput>
+}
+
+export type UserUpsertWithoutBooksInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutBooksInput, Prisma.UserUncheckedUpdateWithoutBooksInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutBooksInput, Prisma.UserUncheckedCreateWithoutBooksInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutBooksInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutBooksInput, Prisma.UserUncheckedUpdateWithoutBooksInput>
+}
+
+export type UserUpdateWithoutBooksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  movies?: Prisma.UserMovieUpdateManyWithoutUserNestedInput
+  sentFriendships?: Prisma.FriendshipUpdateManyWithoutRequesterNestedInput
+  receivedFriendships?: Prisma.FriendshipUpdateManyWithoutAddresseeNestedInput
+}
+
+export type UserUncheckedUpdateWithoutBooksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleSub?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatarPublicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareWatched?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareWatchlist?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareFavorites?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareReviews?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  shareRecent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  movies?: Prisma.UserMovieUncheckedUpdateManyWithoutUserNestedInput
   sentFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutRequesterNestedInput
   receivedFriendships?: Prisma.FriendshipUncheckedUpdateManyWithoutAddresseeNestedInput
 }
@@ -904,12 +1037,14 @@ export type UserUncheckedUpdateWithoutMoviesInput = {
 
 export type UserCountOutputType = {
   movies: number
+  books: number
   sentFriendships: number
   receivedFriendships: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   movies?: boolean | UserCountOutputTypeCountMoviesArgs
+  books?: boolean | UserCountOutputTypeCountBooksArgs
   sentFriendships?: boolean | UserCountOutputTypeCountSentFriendshipsArgs
   receivedFriendships?: boolean | UserCountOutputTypeCountReceivedFriendshipsArgs
 }
@@ -929,6 +1064,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type UserCountOutputTypeCountMoviesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.UserMovieWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountBooksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserBookWhereInput
 }
 
 /**
@@ -963,6 +1105,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   movies?: boolean | Prisma.User$moviesArgs<ExtArgs>
+  books?: boolean | Prisma.User$booksArgs<ExtArgs>
   sentFriendships?: boolean | Prisma.User$sentFriendshipsArgs<ExtArgs>
   receivedFriendships?: boolean | Prisma.User$receivedFriendshipsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1025,6 +1168,7 @@ export type UserSelectScalar = {
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "username" | "email" | "password" | "googleSub" | "avatarUrl" | "avatarPublicId" | "shareWatched" | "shareWatchlist" | "shareFavorites" | "shareReviews" | "shareRecent" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   movies?: boolean | Prisma.User$moviesArgs<ExtArgs>
+  books?: boolean | Prisma.User$booksArgs<ExtArgs>
   sentFriendships?: boolean | Prisma.User$sentFriendshipsArgs<ExtArgs>
   receivedFriendships?: boolean | Prisma.User$receivedFriendshipsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1036,6 +1180,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     movies: Prisma.$UserMoviePayload<ExtArgs>[]
+    books: Prisma.$UserBookPayload<ExtArgs>[]
     sentFriendships: Prisma.$FriendshipPayload<ExtArgs>[]
     receivedFriendships: Prisma.$FriendshipPayload<ExtArgs>[]
   }
@@ -1450,6 +1595,7 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   movies<T extends Prisma.User$moviesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$moviesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserMoviePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  books<T extends Prisma.User$booksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$booksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserBookPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sentFriendships<T extends Prisma.User$sentFriendshipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sentFriendshipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FriendshipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   receivedFriendships<T extends Prisma.User$receivedFriendshipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$receivedFriendshipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FriendshipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1910,6 +2056,30 @@ export type User$moviesArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.UserMovieScalarFieldEnum | Prisma.UserMovieScalarFieldEnum[]
+}
+
+/**
+ * User.books
+ */
+export type User$booksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserBook
+   */
+  select?: Prisma.UserBookSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserBook
+   */
+  omit?: Prisma.UserBookOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserBookInclude<ExtArgs> | null
+  where?: Prisma.UserBookWhereInput
+  orderBy?: Prisma.UserBookOrderByWithRelationInput | Prisma.UserBookOrderByWithRelationInput[]
+  cursor?: Prisma.UserBookWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserBookScalarFieldEnum | Prisma.UserBookScalarFieldEnum[]
 }
 
 /**

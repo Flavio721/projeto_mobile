@@ -37,6 +37,7 @@ test('every protected route rejects requests without a bearer token', async () =
     ['GET', '/users/me'], ['PUT', '/users/me'], ['PATCH', '/users/me/password'],
     ['GET', '/movies'], ['GET', '/movies/search?query=x'], ['GET', '/movies/popular'], ['GET', '/movies/stats'], ['GET', '/movies/genres'],
     ['GET', '/movies/catalog/1'], ['GET', '/movies/1/library'], ['PUT', '/movies/1/library'], ['DELETE', '/movies/1/library'], ['PATCH', '/movies/1/favorite'],
+    ['GET', '/books'], ['GET', '/books/search?q=book'], ['GET', '/books/stats'], ['PUT', '/books/volume123/library'], ['PATCH', '/books/1/library'], ['DELETE', '/books/1/library'],
     ['GET', '/friends'], ['GET', '/friends/search?username=abc'], ['POST', '/friends/requests'],
     ['POST', '/friends/requests/1/accept'], ['DELETE', '/friends/requests/1'], ['GET', '/friends/privacy'],
     ['PATCH', '/friends/privacy'], ['GET', '/friends/1/profile'], ['GET', '/cinemas/nearby?lat=0&lng=0'], ['POST', '/upload'],
@@ -64,9 +65,14 @@ test('protected routes validate invalid input before touching external services 
     ['/cinemas/nearby?lat=0&lng=0&radius=26000', {}, 400],
     ['/movies/not-a-number/library', {}, 400],
     ['/movies/search?query=%20%20', {}, 400],
+    ['/books/search?q=%20', {}, 400],
+    ['/books/search?q=abc&page=0', {}, 400],
     ['/friends/search?username=!', {}, 400],
     ['/friends/requests', { method: 'POST', body: JSON.stringify({ username: '!' }) }, 400],
     ['/friends/privacy', { method: 'PATCH', body: JSON.stringify({ shareWatched: 'yes' }) }, 400],
+    ['/books/test-volume/library', { method: 'PUT', body: JSON.stringify({ status: 'INVALID' }) }, 400],
+    ['/books/1/library', { method: 'PATCH', body: JSON.stringify({ rating: 8 }) }, 400],
+    ['/books/1/library', { method: 'PATCH', body: JSON.stringify({ admin: true }) }, 400],
   ];
   for (const [path, init, expectedStatus] of checks) {
     const response = await request(path, { ...init, headers });

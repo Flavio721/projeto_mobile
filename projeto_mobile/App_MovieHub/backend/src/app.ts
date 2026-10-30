@@ -6,6 +6,7 @@ import movieRoutes from './routes/movieRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import cinemaRoutes from './routes/cinemaRoutes.js';
 import friendRoutes from './routes/friendRoutes.js';
+import bookRoutes from './routes/bookRoutes.js';
 import { uploadDirectory } from './lib/uploadStorage.js';
 
 const app = express();
@@ -37,6 +38,7 @@ app.use('/users', userRoutes);
 app.use('/movies', movieRoutes);
 app.use('/cinemas', cinemaRoutes);
 app.use('/friends', friendRoutes);
+app.use('/books', bookRoutes);
 
 app.use((_req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
 

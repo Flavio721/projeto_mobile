@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "prisma generate && tsc",
-    "test": "tsx --test src/app.test.ts",
+    "test": "tsx --test src/app.test.ts src/services/googleBooksService.test.ts",
     "start": "node dist/src/server.js"
   },
   "keywords": [],

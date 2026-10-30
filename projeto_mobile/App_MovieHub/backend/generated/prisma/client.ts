@@ -61,3 +61,13 @@ export type Movie = Prisma.MovieModel
  * 
  */
 export type UserMovie = Prisma.UserMovieModel
+/**
+ * Model Book
+ * 
+ */
+export type Book = Prisma.BookModel
+/**
+ * Model UserBook
+ * 
+ */
+export type UserBook = Prisma.UserBookModel

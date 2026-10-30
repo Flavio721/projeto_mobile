@@ -12,6 +12,13 @@ enum MovieStatus {
   WATCHED
 }
 
+enum BookReadingStatus {
+  WANT_TO_READ
+  READING
+  READ
+  PAUSED
+}
+
 enum FriendshipStatus {
   PENDING
   ACCEPTED
@@ -32,6 +39,7 @@ model User {
   shareReviews   Boolean @default(true)
   shareRecent    Boolean @default(true)
   movies    UserMovie[]
+  books     UserBook[]
   sentFriendships     Friendship[] @relation("FriendshipRequester")
   receivedFriendships Friendship[] @relation("FriendshipAddressee")
   createdAt DateTime    @default(now())
@@ -85,6 +93,47 @@ model UserMovie {
   updatedAt  DateTime    @updatedAt
 
   @@unique([userId, movieId])
+  @@index([userId, status])
+  @@index([userId, isFavorite])
+}
+
+// Google Books metadata is stored separately from each user's reading state.
+model Book {
+  id            Int        @id @default(autoincrement())
+  googleBooksId String     @unique
+  title         String
+  subtitle      String?
+  isbn10        String?    @unique
+  isbn13        String?    @unique
+  authors       String[]   @default([])
+  description   String     @default("")
+  publisher     String?
+  publishedDate String?
+  pageCount     Int?
+  coverUrl      String?
+  language      String?
+  categories    String[]   @default([])
+  userBooks     UserBook[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model UserBook {
+  id         Int              @id @default(autoincrement())
+  userId     String
+  bookId     Int
+  status     BookReadingStatus @default(WANT_TO_READ)
+  isFavorite Boolean          @default(false)
+  rating     Int?
+  comment    String?
+  startedAt  DateTime?
+  finishedAt DateTime?
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book       Book             @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([userId, bookId])
   @@index([userId, status])
   @@index([userId, isFavorite])
 }

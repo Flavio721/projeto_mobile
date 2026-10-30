@@ -14,6 +14,7 @@ import EditarPerfil from "../screens/EditarPerfil/EditarPerfil";
 import AlterarSenha from "../screens/AlterarSenha/AlterarSenha";
 import AmigosScreen from "../screens/Amigos/AmigosScreen";
 import AmigoAtividadeScreen from "../screens/Amigos/AmigoAtividadeScreen";
+import AmigoResenhaScreen from "../screens/Amigos/AmigoResenhaScreen";
 import { useTema } from "../contexts/TemaContext";
 
 export type MainStackParamList = {
@@ -30,6 +31,16 @@ export type MainStackParamList = {
   AlterarSenha: undefined;
   Amigos: undefined;
   AmigoAtividade: { userId: string; name: string; username: string };
+  AmigoResenha: {
+    kind: 'movie' | 'book';
+    title: string;
+    creator: string;
+    coverUrl?: string | null;
+    rating?: number | null;
+    comment?: string | null;
+    reviewerName: string;
+    reviewsVisible: boolean;
+  };
 };
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -63,6 +74,7 @@ export default function MainStack() {
       <Stack.Screen name="AlterarSenha" component={AlterarSenha} />
       <Stack.Screen name="Amigos" component={AmigosScreen} />
       <Stack.Screen name="AmigoAtividade" component={AmigoAtividadeScreen} />
+      <Stack.Screen name="AmigoResenha" component={AmigoResenhaScreen} />
     </Stack.Navigator>
   );
 }

@@ -285,6 +285,7 @@ const getFriendProfile = async (req: AuthRequest, res: Response) => {
       genres: localized?.genres?.map(({ name }) => name) ?? entry.movie.genres,
       voteAverage: localized?.vote_average ?? entry.movie.voteAverage,
       rating: friend.shareReviews ? entry.rating : null,
+      comment: friend.shareReviews ? entry.comment : null,
       watchedAt: friend.shareRecent ? entry.watchedAt : null,
       status: entry.status,
       isFavorite: false,

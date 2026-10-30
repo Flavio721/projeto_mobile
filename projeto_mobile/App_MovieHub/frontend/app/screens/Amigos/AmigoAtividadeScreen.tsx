@@ -26,6 +26,7 @@ type ProfileMovie = {
   genres: string[];
   voteAverage?: number | null;
   rating?: number | null;
+  comment?: string | null;
   watchedAt?: string | null;
 };
 type ProfileBook = {
@@ -118,7 +119,16 @@ export default function AmigoAtividadeScreen() {
               filme={filme}
               showFavoriteButton={false}
               onToggleFavorito={() => undefined}
-              onPress={() => navigation.navigate('Detalhes', { filmeId: String(item.tmdbId) })}
+              onPress={() => navigation.navigate('AmigoResenha', {
+                kind: 'movie',
+                title: item.title,
+                creator: item.releaseDate?.slice(0, 4) ?? '',
+                coverUrl: item.posterPath ? `${IMAGE_BASE}${item.posterPath}` : null,
+                rating: data?.privacy.reviews ? item.rating : null,
+                comment: data?.privacy.reviews ? item.comment : null,
+                reviewerName: data?.user.name ?? '',
+                reviewsVisible: data?.privacy.reviews ?? false,
+              })}
             />;
           })}
         </ScrollView>
@@ -136,7 +146,22 @@ export default function AmigoAtividadeScreen() {
       ) : books.length ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.bookCarousel}>
           {books.map((book) => (
-            <View key={book.googleBooksId} style={[styles.bookTile, { backgroundColor: cores.surface, borderColor: cores.border }]}>
+            <TouchableOpacity
+              key={book.googleBooksId}
+              accessibilityRole="button"
+              accessibilityLabel={`${traduzir('Resenha de livro')}: ${book.title}`}
+              onPress={() => navigation.navigate('AmigoResenha', {
+                kind: 'book',
+                title: book.title,
+                creator: book.authors?.join(', ') || traduzir('Autor não informado'),
+                coverUrl: book.coverUrl,
+                rating: data?.privacy.reviews ? book.rating : null,
+                comment: data?.privacy.reviews ? book.comment : null,
+                reviewerName: data?.user.name ?? '',
+                reviewsVisible: data?.privacy.reviews ?? false,
+              })}
+              style={[styles.bookTile, { backgroundColor: cores.surface, borderColor: cores.border }]}
+            >
               {book.coverUrl ? <Image source={{ uri: book.coverUrl }} style={styles.bookCover} /> : (
                 <View style={[styles.bookCover, styles.bookCoverFallback, { backgroundColor: cores.card }]}><Ionicons name="book-outline" size={26} color={cores.muted} /></View>
               )}
@@ -150,7 +175,7 @@ export default function AmigoAtividadeScreen() {
                 </View>
               ) : null}
               {book.comment ? <Text style={[styles.bookReview, { color: cores.muted }]} numberOfLines={4}>{book.comment}</Text> : null}
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       ) : (
